@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\JumpAttacker\AppData\Local\JetBrains\Rider2020.3\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\JumpAttacker\AppData\Local\JetBrains\Rider2020.3\resharper-host\Local\Transient\Rider\v203\SolutionCaches\_.19.00" t="ExcludeRecursive" />
+    <e p="C:\Users\JumpAttacker\AppData\Roaming\JetBrains\Rider2020.3\consoles\db" t="IncludeRecursive" />
+    <e p="C:\Users\JumpAttacker\AppData\Roaming\JetBrains\Rider2020.3\docker" t="IncludeRecursive" />
+    <e p="C:\Users\JumpAttacker\AppData\Roaming\JetBrains\Rider2020.3\extensions" t="IncludeRecursive" />
+    <e p="C:\Users\JumpAttacker\AppData\Roaming\JetBrains\Rider2020.3\scratches" t="IncludeRecursive" />
+    <e p="E:\Ensage\BitBucket\Ensage\InvokerCrappahilationPaid\InvokerCrappahilationPaid" t="IncludeRecursive">
+      <e p="AbilitiesInCombo.cs" t="Include" />
+      <e p="bin" t="ExcludeRecursive" />
+      <e p="ComboType.cs" t="Include" />
+      <e p="Config.cs" t="Include" />
+      <e p="Extensions.cs" t="Include" />
+      <e p="Features" t="Include">
+        <e p="AbilityPanel.cs" t="Include" />
+        <e p="AutoGhostWalk.cs" t="Include" />
+        <e p="AutoSunStrike.cs" t="Include" />
+        <e p="Combo.cs" t="Include" />
+        <e p="ComboPanel.cs" t="Include" />
+        <e p="InvokeHelper.cs" t="Include" />
+        <e p="Prepare.cs" t="Include" />
+        <e p="SmartSphere.cs" t="Include" />
+      </e>
+      <e p="InvokerCrappahilationPaid.cs" t="Include" />
+      <e p="InvokerCrappahilationPaid.csproj" t="IncludeRecursive" />
+      <e p="InvokerStuff" t="Include">
+        <e p="npc_dota_hero_invoker" t="Include">
+          <e p="IHaveFastInvokeKey.cs" t="Include" />
+          <e p="IInvokableAbility.cs" t="Include" />
+          <e p="InvokeHelper.cs" t="Include" />
+          <e p="invoker_alacrity.cs" t="Include" />
+          <e p="invoker_chaos_meteor.cs" t="Include" />
+          <e p="invoker_cold_snap.cs" t="Include" />
+          <e p="invoker_deafening_blast.cs" t="Include" />
+          <e p="invoker_emp.cs" t="Include" />
+          <e p="invoker_exort.cs" t="Include" />
+          <e p="invoker_forge_spirit.cs" t="Include" />
+          <e p="invoker_ghost_walk.cs" t="Include" />
+          <e p="invoker_ice_wall.cs" t="Include" />
+          <e p="invoker_invoke.cs" t="Include" />
+          <e p="invoker_quas.cs" t="Include" />
+          <e p="invoker_sun_strike.cs" t="Include" />
+          <e p="invoker_tornado.cs" t="Include" />
+          <e p="invoker_wex.cs" t="Include" />
+        </e>
+      </e>
+      <e p="NavMeshHelper.cs" t="Include" />
+      <e p="NotificationHelper.cs" t="Include" />
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Properties" t="Include">
+        <e p="AssemblyInfo.cs" t="Include" />
+      </e>
+      <e p="Updater.cs" t="Include" />
+    </e>
+  </component>
+</project>

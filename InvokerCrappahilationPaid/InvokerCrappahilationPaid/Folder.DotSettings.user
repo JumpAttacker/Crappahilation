@@ -1,0 +1,22 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005Cclipper_005Flibrary_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CDivine_002ECore_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CDotNetZip_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CEnsage_002ECommon_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CEnsage_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CEnsage_002ESDK_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CMicrosoft_002EVisualStudio_002EThreading_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CMicrosoft_002EVisualStudio_002EValidation_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CNewtonsoft_002EJson_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CNLog_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CPlaySharp_002ESentry_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CPlaySharp_002EService_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CPlaySharp_002EToolkit_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CSharpDX_002EDirect2D1_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CSharpDX_002EDirect3D9_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CSharpDX_002EDirect3D11_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CSharpDX_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CSharpDX_002EDXGI_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CSharpDX_002EMathematics_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CSharpDX_002EXInput_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CEn_005CReferences_005CSystem_002EValueTuple_002Edll/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

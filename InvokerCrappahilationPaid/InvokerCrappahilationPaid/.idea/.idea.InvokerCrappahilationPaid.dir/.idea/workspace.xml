@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3220eb75-4024-4957-9ceb-de6b4061b802" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/Features/BaseFeature.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ArcCrappahilationPaid/ArcCrappahilationPaid/Orders/BaseOrder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../ArcCrappahilationPaid/ArcCrappahilationPaid/Orders/BaseOrder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ComboManager/Combo/AutoCombo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ComboManager/Combo/AutoCombo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ComboManager/Combo/ComboBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ComboManager/Combo/ComboBase.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ComboManager/ComboManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ComboManager/ComboManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigData/Config.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigData/Config.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigData/Enum/ButtonType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigData/Enum/ButtonType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataContext/CustomContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DataContext/CustomContext.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/AutoSunStrike.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/AutoSunStrike.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/IFeature.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/IFeature.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Features/SmartSpheres.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/SmartSpheres.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/InvokerCrappahilationPaid.cs" beforeDir="false" afterPath="$PROJECT_DIR$/InvokerCrappahilationPaid.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/InvokerCrappahilationPaid.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/InvokerCrappahilationPaid.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TargetPrediction/DefaultTargetPrediction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TargetPrediction/DefaultTargetPrediction.cs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/../.." value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Features/AutoSunStrike.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/579BF802-6B7E-49B9-B3AE-484D9E7408EF/5c/506db3f7/BaseAbility.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/579BF802-6B7E-49B9-B3AE-484D9E7408EF/b6/cc914429/invoker_exort.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/IL/579BF802-6B7E-49B9-B3AE-484D9E7408EF/d2/5ca14327/0200013E.il" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/BaseFeature.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/B31AB09E-07AD-4F72-BB31-487D40799E4F/c1/1a503cc3/Ability.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/Manager/FeatureManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TargetPrediction/ITargetPrediction.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/SmartSpheres.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Features/IFeature.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ConfigData/Enum/ButtonToggleType.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ConfigData/Args/SliderChangedArgs.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TargetPrediction/DefaultTargetPrediction.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/InvokerCrappahilationPaid.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ConfigData/Enum/ButtonType.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/579BF802-6B7E-49B9-B3AE-484D9E7408EF/8f/d2600edf/ActiveAbility.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ConfigData/Config.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/579BF802-6B7E-49B9-B3AE-484D9E7408EF/81/964d319b/MenuItem`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ConfigData/Args/ButtonPressedArgs.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ConfigData/IConfig.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CustomLogger/CustomLogger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/DataContext/IContext.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CustomLogger/ILogger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ComboManager/Combo/ComboBase.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ComboManager/Combo/AutoCombo.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/DataContext/CustomContext.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ComboManager/Combo/ICombo.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/NavMesh/NavMeshHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ComboManager/IComboManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ComboManager/ComboManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TargetSearcher/DefaultTargetSearcher.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/NavMesh/INavMeshHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TargetSearcher/ITargetSearcher.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/InvokerStuff/npc_dota_hero_invoker/invoker_sun_strike.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Features/AutoSunStrike.cs" />
+        <option value="$PROJECT_DIR$/Features/SmartSpheres.cs" />
+        <option value="$PROJECT_DIR$/ConfigData/Enum/ButtonType.cs" />
+        <option value="$PROJECT_DIR$/DataContext/CustomContext.cs" />
+        <option value="$PROJECT_DIR$/ConfigData/Config.cs" />
+        <option value="$PROJECT_DIR$/ConfigData/Args/ButtonPressedArgs.cs" />
+        <option value="$PROJECT_DIR$/Features/IFeature.cs" />
+        <option value="$PROJECT_DIR$/Features/BaseFeature.cs" />
+        <option value="$PROJECT_DIR$/ComboManager/ComboManager.cs" />
+        <option value="$PROJECT_DIR$/InvokerCrappahilationPaid.cs" />
+        <option value="$PROJECT_DIR$/TargetPrediction/DefaultTargetPrediction.cs" />
+        <option value="$PROJECT_DIR$/ComboManager/Combo/ComboBase.cs" />
+        <option value="$PROJECT_DIR$/ComboManager/Combo/AutoCombo.cs" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1d8Y8AQ42PrNrR1VqkunBUuzYLI" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3220eb75-4024-4957-9ceb-de6b4061b802" name="Default Changelist" comment="" />
+      <created>1591808026703</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1591808026703</updated>
+      <workItem from="1591808033551" duration="3944000" />
+      <workItem from="1591953090504" duration="4202000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="92" y="92" width="1736" height="835" key="VCS.FileHistoryDialog" timestamp="1591956936371">
+      <screen x="0" y="0" width="1920" height="1019" />
+    </state>
+    <state x="92" y="92" width="1736" height="835" key="VCS.FileHistoryDialog/0.0.1920.1019@0.0.1920.1019" timestamp="1591956936371" />
+  </component>
+</project>
