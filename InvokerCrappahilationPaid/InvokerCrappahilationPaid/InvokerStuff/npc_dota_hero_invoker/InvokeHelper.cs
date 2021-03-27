@@ -6,10 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using Ensage;
-using Ensage.SDK.Abilities;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
+using Divine;
+using Divine.SDK.Extensions;
+using Divine.Zero.Loader;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {

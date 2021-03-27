@@ -1,4 +1,5 @@
-using Ensage;
+using Divine;
+
 using SharpDX;
 
 namespace TechiesCrappahilationPaid.BombsType.DrawBehaviour
@@ -11,12 +12,12 @@ namespace TechiesCrappahilationPaid.BombsType.DrawBehaviour
 
         public CanDrawRange(Unit me, float range, Color clr) : base(me, range, clr)
         {
-            Particle.DrawRange(Me, $"{Me.Handle}Range", range, clr);
+            ParticleManager.RangeParticle($"{Me.Handle}Range", Me, range, clr);
         }
 
         public override void Draw(float range, Color clr)
         {
-            Particle.DrawRange(Me, $"{Me.Handle}Range", range, clr);
+            ParticleManager.RangeParticle($"{Me.Handle}Range", Me, range, clr);
         }
     }
 }

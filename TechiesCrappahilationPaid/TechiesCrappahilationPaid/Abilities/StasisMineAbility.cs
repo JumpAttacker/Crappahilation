@@ -1,12 +1,15 @@
-﻿using Ensage;
-using Ensage.SDK.Abilities;
+﻿using Divine;
+
 
 namespace TechiesCrappahilationPaid.Abilities
 {
-    public class StasisMineAbility : CircleAbility
+    public class StasisMineAbility
     {
-        public StasisMineAbility(Ability ability) : base(ability)
+        public Ability Ability { get; }
+
+        public StasisMineAbility(Ability ability)
         {
+            Ability = ability;
         }
     }
 }

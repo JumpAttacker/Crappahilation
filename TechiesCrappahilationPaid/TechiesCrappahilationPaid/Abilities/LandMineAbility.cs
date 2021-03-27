@@ -1,18 +1,20 @@
-﻿using Ensage;
-using Ensage.SDK.Abilities;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
+﻿using Divine;
+using Divine.SDK.Extensions;
+using TechiesCrappahilationPaid.Helpers;
 
 namespace TechiesCrappahilationPaid.Abilities
 {
-    public class LandMineAbility : CircleAbility
+    public class LandMineAbility
     {
-        public LandMineAbility(Ability ability) : base(ability)
+        public readonly Ability Ability;
+
+        public LandMineAbility(Ability ability)
         {
+            Ability = ability;
         }
 
         //use radius
-        public override DamageType DamageType { get; } = DamageType.Magical;
+        public DamageType DamageType { get; } = DamageType.Magical;
 
         public float GetDamage(Unit target)
         {

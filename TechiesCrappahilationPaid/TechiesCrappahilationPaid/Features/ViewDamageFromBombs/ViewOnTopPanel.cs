@@ -1,6 +1,5 @@
-using Ensage.SDK.Renderer;
+using Divine;
 using SharpDX;
-using Color = System.Drawing.Color;
 
 namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 {
@@ -10,9 +9,9 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
         {
         }
 
-        public override void Draw(IRenderer renderer)
+        public override void Draw()
         {
-            renderer.DrawText(new Vector2(25, 150), "not implemented yet", Color.Red, 35f);
+            RendererManager.DrawText("not implemented yet", new Vector2(25, 150), Color.Red, 35f);
         }
     }
 }

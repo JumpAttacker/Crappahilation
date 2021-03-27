@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Ensage;
-using Ensage.Common.Objects.UtilityObjects;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
+using Divine;
+using Divine.SDK.Extensions;
 using SharpDX;
 using TechiesCrappahilationPaid.BombsType.BombBehaviour;
 using TechiesCrappahilationPaid.BombsType.DrawBehaviour;
@@ -37,26 +36,26 @@ namespace TechiesCrappahilationPaid.BombsType
         private void Init()
         {
             IsActive = false;
-            Position = Owner.NetworkPosition;
+            Position = Owner.Position;
         }
 
         public void StartUpdatingPosition()
         {
-            UpdateManager.BeginInvoke(async () =>
+            UpdateManager.BeginInvoke(500, async () =>
             {
                 while (Owner != null)
                 {
                     try
                     {
-                        Position = Owner.NetworkPosition;
+                        Position = Owner.Position;
                         await Task.Delay(50);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return;
                     }
                 }
-            }, 500);
+            });
         }
 
         public float Damage { get; set; }
@@ -91,13 +90,13 @@ namespace TechiesCrappahilationPaid.BombsType
         {
             Damage = setDamage;
             if (onInit)
-                if (ObjectManager.LocalHero.HasAghanimsScepter())
+                if (EntityManager.LocalHero.HasAghanimsScepter())
                 {
                     Damage += 150;
                     ((RemoteMine) this).HasAghBuff = true;
                 }
 
-            TechiesCrappahilationPaid.Log.Warn($"SetDamage: {setDamage} Total: {Damage}");
+            // TechiesCrappahilationPaid.Log.Warn($"SetDamage: {setDamage} Total: {Damage}");
             return this;
         }
     }

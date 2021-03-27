@@ -1,6 +1,5 @@
-﻿using Ensage;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
+﻿using Divine;
+using Divine.SDK.Extensions;
 
 namespace TechiesCrappahilationPaid.Managers
 {
@@ -14,7 +13,7 @@ namespace TechiesCrappahilationPaid.Managers
         {
             _updater = updater;
 
-            UpdateManager.Subscribe(Callback, 1000);
+            UpdateManager.CreateUpdate(1000, Callback);
         }
 
         private Hero Me => _updater._main.Me;
@@ -40,7 +39,7 @@ namespace TechiesCrappahilationPaid.Managers
 
         private void OnOnAghanimStatusChanging(bool dropped)
         {
-            TechiesCrappahilationPaid.Log.Warn($"[AghanimStatus] {(dropped ? "Dropped" : "TakeItBoy")}");
+            // TechiesCrappahilationPaid.Log.Warn($"[AghanimStatus] {(dropped ? "Dropped" : "TakeItBoy")}");
             OnAghanimStatusChanging?.Invoke(dropped);
         }
     }

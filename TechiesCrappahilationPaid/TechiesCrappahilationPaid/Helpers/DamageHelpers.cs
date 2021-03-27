@@ -1,7 +1,7 @@
 ﻿using Divine;
 using Divine.SDK.Extensions;
 
-namespace Hammer
+namespace TechiesCrappahilationPaid.Helpers
 {
     public static class DamageHelpers
     {

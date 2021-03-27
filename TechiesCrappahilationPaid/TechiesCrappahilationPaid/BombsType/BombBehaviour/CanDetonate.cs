@@ -1,4 +1,4 @@
-﻿using Ensage;
+﻿using Divine;
 
 namespace TechiesCrappahilationPaid.BombsType.BombBehaviour
 {
@@ -13,7 +13,7 @@ namespace TechiesCrappahilationPaid.BombsType.BombBehaviour
 
         public void Detonate()
         {
-            DetonateAbility.UseAbility();
+            DetonateAbility.Cast();
         }
     }
 }

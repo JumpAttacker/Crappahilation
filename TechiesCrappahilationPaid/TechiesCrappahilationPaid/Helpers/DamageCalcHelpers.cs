@@ -1,5 +1,5 @@
 using System;
-using Ensage;
+using Divine;
 
 namespace TechiesCrappahilationPaid.Helpers
 {

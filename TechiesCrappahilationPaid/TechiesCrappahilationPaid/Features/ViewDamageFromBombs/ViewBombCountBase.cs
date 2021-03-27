@@ -1,6 +1,5 @@
 using System;
-using Ensage;
-using Ensage.SDK.Renderer;
+using Divine;
 
 namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 {
@@ -17,13 +16,12 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
         }
 
         protected Hero Me => Main.Me;
-        protected IRenderManager Renderer => Main.Context.RenderManager;
 
         public void Dispose()
         {
-            Renderer.Draw -= Draw;
+            RendererManager.Draw -= Draw;
         }
 
-        public abstract void Draw(IRenderer renderer);
+        public abstract void Draw();
     }
 }

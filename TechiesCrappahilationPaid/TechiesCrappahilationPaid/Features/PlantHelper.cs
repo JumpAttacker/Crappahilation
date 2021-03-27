@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Ensage.Common.Menu;
-using Ensage.SDK.Menu;
+using Divine;
+using Divine.Menu.Items;
 using SharpDX;
 
 namespace TechiesCrappahilationPaid.Features
@@ -9,7 +9,7 @@ namespace TechiesCrappahilationPaid.Features
     {
         private readonly TechiesCrappahilationPaid _main;
         private readonly List<Vector3> _list;
-        private readonly MenuItem<Slider> _range;
+        private MenuSlider _range;
 
         public PlantHelper(TechiesCrappahilationPaid main)
         {
@@ -42,17 +42,17 @@ namespace TechiesCrappahilationPaid.Features
                 new Vector3(6821, -3270, 256)
             };
 
-            var enable = main.MenuManager.GoodPositions.Item("Show good position for planting", false);
-            _range = main.MenuManager.GoodPositions.Item("Range ", new Slider(425, 25, 425));
+            var enable = main.MenuManager.GoodPositions.CreateSwitcher("Show good position for planting", false);
+            _range = main.MenuManager.GoodPositions.CreateSlider("Range ", 425, 25, 425);
 
-            _range.PropertyChanged += (sender, args) => { Draw(); };
+            _range.ValueChanged += (sender, args) => { Draw(); };
 
             if (enable)
             {
                 Draw();
             }
 
-            enable.PropertyChanged += (sender, args) =>
+            enable.ValueChanged += (sender, args) =>
             {
                 if (enable)
                 {
@@ -63,7 +63,7 @@ namespace TechiesCrappahilationPaid.Features
                     var index = 0;
                     foreach (var pos in _list)
                     {
-                        TechiesCrappahilationPaid.ParticleManager.Remove($"{index++}_pos_helper");
+                        ParticleManager.RemoveParticle($"{index++}_pos_helper");
                     }
                 }
             };
@@ -74,7 +74,7 @@ namespace TechiesCrappahilationPaid.Features
             var index = 0;
             foreach (var pos in _list)
             {
-                TechiesCrappahilationPaid.ParticleManager.DrawCircle(pos, $"{index++}_pos_helper", _range,
+                ParticleManager.CircleParticle($"{index++}_pos_helper", pos, _range,
                     SharpDX.Color.Purple);
             }
         }

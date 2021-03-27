@@ -1,6 +1,6 @@
 ﻿using System;
-using Ensage;
-using Ensage.SDK.Renderer;
+using Divine;
+using Divine.Zero.Loader;
 using SharpDX;
 using TechiesCrappahilationPaid.BombsType.BombBehaviour;
 using TechiesCrappahilationPaid.BombsType.DrawBehaviour;
@@ -21,22 +21,22 @@ namespace TechiesCrappahilationPaid.BombsType
         {
         }
 
-        private static IRenderManager Renderer => TechiesCrappahilationPaid.Renderer;
 
         public void StartTimer()
         {
-            _startTime = Game.RawGameTime;
-            Renderer.Draw += RendererOnDraw;
+            _startTime = GameManager.RawGameTime;
+            RendererManager.Draw += RendererOnDraw;
         }
 
-        private void RendererOnDraw(IRenderer renderer)
+        private void RendererOnDraw()
         {
             try
             {
-                if (Drawing.WorldToScreen(Owner.Position, out var pos))
-                    renderer.DrawText(pos, $"{1.601f - (Game.RawGameTime - _startTime):0.00}",
-                        System.Drawing.Color.White,
-                        25);
+                var pos = RendererManager.WorldToScreen(Owner.Position);
+                if (pos.IsZero)
+                    return;
+                RendererManager.DrawText($"{1.601f - (GameManager.RawGameTime - _startTime):0.00}", pos, Color.White,
+                    25);
             }
             catch (Exception)
             {
@@ -44,12 +44,12 @@ namespace TechiesCrappahilationPaid.BombsType
                 return;
             }
 
-            if (1.601f - (Game.RawGameTime - _startTime) <= 0) StopTimer();
+            if (1.601f - (GameManager.RawGameTime - _startTime) <= 0) StopTimer();
         }
 
         public void StopTimer()
         {
-            Renderer.Draw -= RendererOnDraw;
+            RendererManager.Draw -= RendererOnDraw;
         }
     }
 }

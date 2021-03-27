@@ -1,19 +1,22 @@
-﻿using Ensage;
-using Ensage.SDK.Abilities;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
+﻿using Divine;
+using Divine.SDK.Extensions;
+using TechiesCrappahilationPaid.Helpers;
 
 namespace TechiesCrappahilationPaid.Abilities
 {
-    public class RemoteMineAbility : CircleAbility
+    public class RemoteMineAbility
     {
-        public RemoteMineAbility(Ability ability) : base(ability)
+        public Ability Ability { get; }
+
+        public RemoteMineAbility(Ability ability)
         {
-            HasAgh = Owner.HasAghanimsScepter();
+            Ability = ability;
+            var owner = ability.Owner as Hero;
+            HasAgh = owner.HasAghanimsScepter();
         }
 
         //use radius
-        public override DamageType DamageType { get; } = DamageType.Magical;
+        public DamageType DamageType { get; } = DamageType.Magical;
 
         public bool HasAgh { get; set; }
 

@@ -1,11 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Ensage;
-using Ensage.Common.Extensions;
-using Ensage.Common.Menu;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Menu;
+using Divine;
+using Divine.Menu.Items;
+using Divine.SDK.Extensions;
 using SharpDX;
 using TechiesCrappahilationPaid.Helpers;
 
@@ -127,32 +124,31 @@ namespace TechiesCrappahilationPaid.Features
         private static List<Vector3> GetMinesPositions =>
             Me.Team == Team.Dire ? LandMinePositionDire : LandMinePositionRadiant;
 
-        public static ParticleEffect Effect;
-        public static ParticleEffect Effect2;
+        public static Particle Effect;
+        public static Particle Effect2;
         public static Vector3 LastPosition;
         public static Vector3 LastPosition2;
         private static TechiesCrappahilationPaid _main;
-        public static MenuItem<bool> MinesAutoMovingToStun;
         private static Hero Me => _main.Me;
 
         public static bool IsAutoMovingToStaticTraps =>
-            _main.Me.FindSpell("special_bonus_unique_techies_4")?.Level > 0 && MinesAutoMovingToStun;
+            _main.Me.Spellbook.GetSpellByName("special_bonus_unique_techies_4")?.Level > 0 && MinesAutoMovingToStun;
 
         public static void Init(TechiesCrappahilationPaid main)
         {
             _main = main;
             var autoPlanting = main.MenuManager.AutoPlanting;
             var remoteMinePlantCorrector =
-                autoPlanting.Item("Help to plant mines in one place", true);
+                autoPlanting.CreateSwitcher("Help to plant mines in one place", true);
             var enableRemoteMines =
-                autoPlanting.Item("Auto remote mine on last cast", new KeyBind(0, KeyBindType.Toggle));
+                autoPlanting.CreateToggleKey("Auto remote mine on last cast");
             var enablePoximityMines =
-                autoPlanting.Item("Auto proximity mines on base", false);
-            MinesAutoMovingToStun = autoPlanting.Item("Move proximity mines on closest stun position", false);
-            RangeForMinesAutoMoving = autoPlanting.Item("Range for auto moving", new Slider(1500, 700, 2000));
-            var sub = UpdateManager.Subscribe(Callback, 500, enableRemoteMines);
-            var sub2 = UpdateManager.Subscribe(AutoProximityMinesCallBack, 500, enablePoximityMines);
-            enableRemoteMines.PropertyChanged += (sender, args) =>
+                autoPlanting.CreateSwitcher("Auto proximity mines on base", false);
+            MinesAutoMovingToStun = autoPlanting.CreateSwitcher("Move proximity mines on closest stun position", false);
+            RangeForMinesAutoMoving = autoPlanting.CreateSlider("Range for auto moving", 1500, 700, 2000);
+            var sub = UpdateManager.CreateUpdate(500, enableRemoteMines, Callback);
+            var sub2 = UpdateManager.CreateUpdate( 500, enablePoximityMines, AutoProximityMinesCallBack);
+            enableRemoteMines.ValueChanged += (sender, args) =>
             {
                 sub.IsEnabled = enableRemoteMines;
                 if (!enableRemoteMines)
@@ -160,7 +156,7 @@ namespace TechiesCrappahilationPaid.Features
                     Effect?.Dispose();
                 }
             };
-            enablePoximityMines.PropertyChanged += (sender, args) =>
+            enablePoximityMines.ValueChanged += (sender, args) =>
             {
 //                var landMinesOnBase =
 //                    _main.Updater.BombManager.LandMines.Where(x => Math.Abs(x.Owner.Position.Z - 384f) < 1);
@@ -178,35 +174,35 @@ namespace TechiesCrappahilationPaid.Features
 
                 sub2.IsEnabled = enablePoximityMines;
             };
-            Player.OnExecuteOrder += (sender, args) =>
+            OrderManager.OrderAdding+= args =>
             {
-                if (!args.IsPlayerInput)
+                if (args.IsCustom)
                     return;
                 if (enableRemoteMines)
                 {
-                    var ability = args.Ability;
-                    var pos = args.TargetPosition;
+                    var ability = args.Order.Ability;
+                    var pos = args.Order.Position;
                     if (ability == null || ability.Id != AbilityId.techies_remote_mines || pos.IsZero) return;
                     LastPosition = pos;
                     Effect?.Dispose();
-                    Effect = new ParticleEffect("materials/ensage_ui/particles/range_display_mod.vpcf", LastPosition);
+                    Effect = ParticleManager.CreateParticle("materials/ensage_ui/particles/range_display_mod.vpcf", LastPosition);
                     Effect.SetControlPoint(1, new Vector3(50, 255, 0));
                     Effect.SetControlPoint(2, new Vector3(0, 255, 255));
                 }
 
                 if (remoteMinePlantCorrector)
                 {
-                    var ability = args.Ability;
-                    var pos = args.TargetPosition;
+                    var ability = args.Order.Ability;
+                    var pos = args.Order.Position;
                     if (ability == null ||
                         (ability.Id != AbilityId.techies_remote_mines && ability.Id != AbilityId.techies_land_mines &&
                          ability.Id != AbilityId.techies_stasis_trap) || pos.IsZero) return;
                     var closest = main.Updater.BombManager.FullBombList.Where(x => x.Owner.IsInRange(pos, 200))
-                        .OrderBy(x => pos.Distance2D(x.Owner)).FirstOrDefault();
+                        .OrderBy(x => pos.Distance2D(x.Owner.Position)).FirstOrDefault();
                     if (closest != null)
                     {
                         args.Process = false;
-                        ability.UseAbility(closest.Owner.Position);
+                        ability.Cast(closest.Owner.Position);
                     }
                 }
 
@@ -224,6 +220,10 @@ namespace TechiesCrappahilationPaid.Features
             };
         }
 
+        public static MenuSlider RangeForMinesAutoMoving { get; set; }
+
+        public static bool MinesAutoMovingToStun { get; set; }
+
         private static void AutoProximityMinesCallBack()
         {
             var landMine = _main.LandMine;
@@ -234,7 +234,7 @@ namespace TechiesCrappahilationPaid.Features
 
             if (!closetPositionForPlanting.IsZero)
             {
-                if (landMine.CanBeCasted)
+                if (landMine.Ability.CanBeCasted())
                 {
                     var arcane = _main.Me.GetItemById(AbilityId.item_arcane_boots);
                     var greaves = _main.Me.GetItemById(AbilityId.item_guardian_greaves);
@@ -243,7 +243,7 @@ namespace TechiesCrappahilationPaid.Features
                     if (clarity != null && _main.Me.ManaPercent() <= 0.7f &&
                         !_main.Me.HasAnyModifiers("modifier_clarity_potion"))
                     {
-                        clarity.UseAbility(_main.Me);
+                        clarity.Cast(_main.Me);
                     }
 
                     var list = new List<Ability>()
@@ -253,11 +253,11 @@ namespace TechiesCrappahilationPaid.Features
 
                     foreach (var ability in list.Where(x => x != null && x.IsValid && x.CanBeCasted()))
                     {
-                        ability.UseAbility();
+                        ability.Cast();
                     }
 
 
-                    landMine.UseAbility(closetPositionForPlanting);
+                    landMine.Ability.Cast(closetPositionForPlanting);
                 }
                 else
                 {
@@ -266,13 +266,12 @@ namespace TechiesCrappahilationPaid.Features
             }
         }
 
-        public static MenuItem<Slider> RangeForMinesAutoMoving { get; set; }
 
         private static void Callback()
         {
             var remote = _main.RemoteMine;
 
-            if (remote.CanBeCasted && _main.Me.IsInRange(LastPosition, remote.CastRange + 200f))
+            if (remote.Ability.CanBeCasted() && _main.Me.IsInRange(LastPosition, remote.Ability.CastRange + 200f))
             {
                 var arcane = _main.Me.GetItemById(AbilityId.item_arcane_boots);
                 var greaves = _main.Me.GetItemById(AbilityId.item_guardian_greaves);
@@ -281,7 +280,7 @@ namespace TechiesCrappahilationPaid.Features
                 if (clarity != null && _main.Me.ManaPercent() <= 0.7f &&
                     !_main.Me.HasAnyModifiers("modifier_clarity_potion"))
                 {
-                    clarity.UseAbility(_main.Me);
+                    clarity.Cast(_main.Me);
                 }
 
                 var list = new List<Ability>()
@@ -291,10 +290,10 @@ namespace TechiesCrappahilationPaid.Features
 
                 foreach (var ability in list.Where(x => x != null && x.IsValid && x.CanBeCasted()))
                 {
-                    ability.UseAbility();
+                    ability.Cast();
                 }
 
-                remote.UseAbility(LastPosition);
+                remote.Ability.Cast(LastPosition);
                 // _main.Me.Move(LastPosition);
             }
         }

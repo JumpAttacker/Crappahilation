@@ -1,5 +1,4 @@
-using Ensage;
-using Ensage.SDK.Renderer.Particle;
+using Divine;
 using SharpDX;
 
 namespace TechiesCrappahilationPaid.BombsType.DrawBehaviour
@@ -18,7 +17,7 @@ namespace TechiesCrappahilationPaid.BombsType.DrawBehaviour
             Me = me;
         }
 
-        protected IParticleManager Particle => TechiesCrappahilationPaid.ParticleManager;
+        // protected ParticleManager Particle => ParticleManager.;
 
         public virtual void Draw(float range, Color clr)
         {

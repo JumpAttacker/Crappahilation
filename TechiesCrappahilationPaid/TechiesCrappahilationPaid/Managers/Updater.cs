@@ -1,6 +1,5 @@
-﻿using Ensage;
-using Ensage.SDK.Abilities.Items;
-using Ensage.SDK.Inventory.Metadata;
+﻿using Divine;
+using Divine.SDK.Extensions;
 
 namespace TechiesCrappahilationPaid.Managers
 {
@@ -20,13 +19,16 @@ namespace TechiesCrappahilationPaid.Managers
 
             BombDamageManager = new BombDamageManager(this);
 
-            _main.Context.Inventory.Attach(this);
+            UpdateManager.CreateUpdate(500, () =>
+            {
+                var me = EntityManager.LocalHero;
+                Eul = me.GetItemById(AbilityId.item_cyclone);
+                ForceStaff = me.GetItemById(AbilityId.item_force_staff);
+            });
 
         }
-        [ItemBinding]
-        public item_force_staff ForceStaff { get; set; }
-        [ItemBinding]
-        public item_cyclone Eul { get; set; }
+        public Item ForceStaff { get; set; }
+        public Item Eul { get; set; }
         
         public DamageChecker DamageChecker { get; }
 

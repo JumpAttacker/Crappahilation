@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ensage;
-using Ensage.Common;
-using Ensage.Common.Menu;
-using Ensage.Common.Objects.UtilityObjects;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Menu;
+using Divine;
+using Divine.Menu.Items;
+using Divine.SDK.Extensions;
 using SharpDX;
 using TechiesCrappahilationPaid.BombsType;
 using TechiesCrappahilationPaid.BombsType.BombBehaviour;
@@ -27,17 +23,20 @@ namespace TechiesCrappahilationPaid.Managers
 
         public bool IsDrawEnabledForBombType(BombBase bombBase)
         {
-            foreach (var d in AbilityRangeToggle.Value.Dictionary)
-            {
-                var bombName = bombBase.Owner.Name.Replace("npc_dota_", "");
-                var searchName = d.Key.Replace("_mines", "_mine");
-                if (bombName == searchName)
-                {
-                    return d.Value;
-                }
-            }
+            var bombName = bombBase.Owner.Name.Replace("npc_dota_", "");
+            // var searchName = d.Key.Replace("_mines", "_mine");
 
-            return false;
+            // foreach (var d in AbilityRangeToggle.GetValue(bombBase.))
+            // {
+            //     var bombName = bombBase.Owner.Name.Replace("npc_dota_", "");
+            //     var searchName = d.Key.Replace("_mines", "_mine");
+            //     if (bombName == searchName)
+            //     {
+            //         return d.Value;
+            //     }
+            // }
+
+            return true;
         }
 
         public BombManager(Updater updater)
@@ -49,40 +48,41 @@ namespace TechiesCrappahilationPaid.Managers
             StasisTraps = new List<StasisTrap>();
             LandMines = new List<LandMine>();
 
-            var dict = new Dictionary<string, bool>
+            var dict = new Dictionary<AbilityId, bool>
             {
-                {AbilityId.techies_remote_mines.ToString(), true},
-                {AbilityId.techies_stasis_trap.ToString(), true},
-                {AbilityId.techies_land_mines.ToString(), true}
+                {AbilityId.techies_remote_mines, true},
+                {AbilityId.techies_stasis_trap, true},
+                {AbilityId.techies_land_mines, true}
             };
-            AbilityRangeToggle = updater._main.MenuManager.RangeMenu.Item("Show range", new AbilityToggler(dict));
-            var lastDict = AbilityRangeToggle.Value.Dictionary.ToDictionary(x => x.Key, z => z.Value);
-            AbilityRangeToggle.PropertyChanged += (sender, args) =>
-            {
-                foreach (var d in AbilityRangeToggle.Value.Dictionary)
-                {
-                    foreach (var f in lastDict)
-                    {
-                        if (f.Key != d.Key) continue;
-                        if (f.Value == d.Value) continue;
-                        foreach (var bombBase in FullBombList)
-                        {
-                            var bombName = bombBase.Owner.Name.Replace("npc_dota_", "");
-                            var searchName = d.Key.Replace("_mines", "_mine");
-                            if (bombName == searchName)
-                            {
-                                bombBase.ChangeDrawType(d.Value,
-                                    bombBase is RemoteMine ? Color.Red : Color.White);
-                            }
-                        }
-                    }
-                }
+            AbilityRangeToggle = updater._main.MenuManager.RangeMenu.CreateAbilityToggler("Show range", dict);
+            //TODO: проверить че за хуйня
+            // var lastDict = AbilityRangeToggle.Values.ToDictionary(x => x.Key, z => z.Value);
+            // AbilityRangeToggle.ValueChanged += (sender) =>
+            // {
+            //     foreach (var d in dict)
+            //     {
+            //         foreach (var f in lastDict)
+            //         {
+            //             if (f.Key != d.Key) continue;
+            //             if (f.Value == d.Value) continue;
+            //             foreach (var bombBase in FullBombList)
+            //             {
+            //                 var bombName = bombBase.Owner.Name.Replace("npc_dota_", "");
+            //                 var searchName = d.Key.Replace("_mines", "_mine");
+            //                 if (bombName == searchName)
+            //                 {
+            //                     bombBase.ChangeDrawType(d.Value,
+            //                         bombBase is RemoteMine ? Color.Red : Color.White);
+            //                 }
+            //             }
+            //         }
+            //     }
+            //
+            //     // lastDict = AbilityRangeToggle.Value.Dictionary.ToDictionary(x => x.Key, z => z.Value);
+            // };
 
-                lastDict = AbilityRangeToggle.Value.Dictionary.ToDictionary(x => x.Key, z => z.Value);
-            };
 
-
-            foreach (var unit in EntityManager<Unit>.Entities)
+            foreach (var unit in EntityManager.GetEntities<Unit>())
             {
                 var bomb = FullBombList.Find(x => x.Owner.Handle == unit.Handle);
                 if (bomb == null)
@@ -114,9 +114,13 @@ namespace TechiesCrappahilationPaid.Managers
                     }
                 }
             }
+            
 
-            EntityManager<Unit>.EntityAdded += (sender, unit) =>
+            EntityManager.EntityAdded += (sender) =>
             {
+                var unit = sender.Entity as Unit;
+                if (unit == null)
+                    return;
                 var name = unit.Name;
                 switch (name)
                 {
@@ -137,8 +141,12 @@ namespace TechiesCrappahilationPaid.Managers
                 }
             };
 
-            EntityManager<Unit>.EntityRemoved += (sender, unit) =>
+            EntityManager.EntityRemoved += (sender) =>
             {
+                var unit = sender.Entity as Unit;
+                if (unit == null)
+                    return;
+                var name = unit.Name;
                 var bomb = FullBombList.Find(x => x.Owner.Handle == unit.Handle);
                 if (bomb != null)
                 {
@@ -146,19 +154,19 @@ namespace TechiesCrappahilationPaid.Managers
                 }
             };
 
-            Entity.OnInt32PropertyChange += (unit, args) =>
+            Entity.NetworkPropertyChanged += (unit, args) =>
             {
                 var bomb = FullBombList.Find(x => x.Owner.Handle == unit.Handle);
                 if (bomb == null) return;
                 var propertyName = args.PropertyName;
                 if (propertyName == "m_iHealth")
                 {
-                    if (args.NewValue <= 0)
+                    if (args.NewValue.GetInt32() <= 0)
                         RemoveBombFromSystem(bomb);
                 }
                 else if (propertyName == "m_NetworkActivity")
                 {
-                    bomb.IsActive = args.NewValue == (int) BombEnums.SpawnStatus.IsActive;
+                    bomb.IsActive = args.NewValue.GetInt32() == (int) BombEnums.SpawnStatus.IsActive;
                     if (bomb.IsActive)
                     {
                         (bomb as RemoteMine)?.DisposeSpawnRange();
@@ -184,8 +192,8 @@ namespace TechiesCrappahilationPaid.Managers
                     {
                         //UpdateManager.BeginInvoke(() =>
                         //{
-                        TechiesCrappahilationPaid.Log.Warn($"{bomb} is visible {args.NewValue}");
-                        land.BombStatus = (BombEnums.BombStatus) args.NewValue;
+                        // TechiesCrappahilationPaid.Log.Warn($"{bomb} is visible {args.NewValue}");
+                        land.BombStatus = (BombEnums.BombStatus) args.NewValue.GetInt32();
                         var willDetonate = land.BombStatus == BombEnums.BombStatus.WillDetonate;
                         bomb.ChangeDrawType(true && IsDrawEnabledForBombType(bomb),
                             willDetonate
@@ -202,7 +210,7 @@ namespace TechiesCrappahilationPaid.Managers
             };
 
 
-            UpdateManager.BeginInvoke(async () =>
+            UpdateManager.BeginInvoke(5000, async () =>
             {
                 while (true)
                 {
@@ -231,10 +239,11 @@ namespace TechiesCrappahilationPaid.Managers
                     
                     await Task.Delay(1000);
                 }
-            }, 5000);
+            });
         }
 
-        public MenuItem<AbilityToggler> AbilityRangeToggle { get; set; }
+        public MenuAbilityToggler AbilityRangeToggle { get; set; }
+
 
         private Hero Me => _updater._main.Me;
 
@@ -261,7 +270,7 @@ namespace TechiesCrappahilationPaid.Managers
                         if (AutoPlanter.IsAutoMovingToStaticTraps)
                         {
                             var closetStaticMine = StasisTraps.Where(x =>
-                                    x.Owner.IsInRange(bomb.Owner, AutoPlanter.RangeForMinesAutoMoving.Value.Value))
+                                    x.Owner.IsInRange(bomb.Owner, AutoPlanter.RangeForMinesAutoMoving.Value))
                                 .OrderBy(z => z.Owner.Distance2D(bomb.Owner)).FirstOrDefault();
                             if (closetStaticMine != null)
                             {

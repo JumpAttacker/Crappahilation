@@ -1,13 +1,8 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ensage;
-using Ensage.Common;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Input;
-using Ensage.SDK.Renderer;
+using Divine;
 using SharpDX;
-using Color = System.Drawing.Color;
+using TechiesCrappahilationPaid.Helpers;
 
 namespace TechiesCrappahilationPaid.Features
 {
@@ -19,41 +14,40 @@ namespace TechiesCrappahilationPaid.Features
         public StackInfo(TechiesCrappahilationPaid main)
         {
             _main = main;
-            var inputManager = main.Context.Input;
-            inputManager.MouseClick += MouseClick;
+            // inputManager.MouseClick += MouseClick;
+            InputManager.MouseKeyUp += MouseClick;
             if (main.MenuManager.DrawStacks)
-                main.Context.RenderManager.Draw += RenderManagerOnDraw;
+                RendererManager.Draw += RenderManagerOnDraw;
 
-            main.MenuManager.DrawStacks.PropertyChanged += (sender, args) =>
+            main.MenuManager.DrawStacks.ValueChanged += (sender, args) =>
             {
                 if (main.MenuManager.DrawStacks)
                 {
-                    main.Context.RenderManager.Draw += RenderManagerOnDraw;
+                    RendererManager.Draw += RenderManagerOnDraw;
                 }
                 else
                 {
-                    main.Context.RenderManager.Draw -= RenderManagerOnDraw;
+                    RendererManager.Draw -= RenderManagerOnDraw;
                 }
             };
-
-            Unit.OnModifierAdded += (sender, args) =>
+            ModifierManager.ModifierAdded += (sender) =>
             {
-                var bomb = main.Updater.BombManager.RemoteMines.FirstOrDefault(x => x.Owner == sender);
+                var bomb = main.Updater.BombManager.RemoteMines.FirstOrDefault(x => x.Owner == sender.Modifier.Owner);
                 if (bomb != null)
                 {
-                    if (args.Modifier.Name == "modifier_truesight")
+                    if (sender.Modifier.Name == "modifier_truesight")
                     {
                         bomb.UnderTrueSight = true;
                     }
                 }
             };
 
-            Unit.OnModifierRemoved += (sender, args) =>
+            ModifierManager.ModifierRemoved += (sender) =>
             {
-                var bomb = main.Updater.BombManager.RemoteMines.FirstOrDefault(x => x.Owner == sender);
+                var bomb = main.Updater.BombManager.RemoteMines.FirstOrDefault(x => x.Owner == sender.Modifier.Owner);
                 if (bomb != null)
                 {
-                    if (args.Modifier.Name == "modifier_truesight")
+                    if (sender.Modifier.Name == "modifier_truesight")
                     {
                         bomb.UnderTrueSight = false;
                     }
@@ -63,10 +57,11 @@ namespace TechiesCrappahilationPaid.Features
 
         private bool IsButtonClicked { get; set; }
 
-        private void MouseClick(object sender, MouseEventArgs e)
+        private void MouseClick(MouseEventArgs mouseEventArgs)
         {
-            if ((e.Buttons & MouseButtons.LeftDown) == MouseButtons.LeftDown)
+            if (mouseEventArgs.MouseKey == MouseKey.Left)
             {
+                mouseEventArgs.Process = false;
                 UpdateManager.BeginInvoke(async () =>
                 {
                     IsButtonClicked = true;
@@ -76,11 +71,11 @@ namespace TechiesCrappahilationPaid.Features
             }
         }
 
-        private Vector2 GetMousePosition => Game.MouseScreenPosition;
+        private Vector2 GetMousePosition => GameManager.MouseScreenPosition;
 
         private bool IsIn(RectangleF rect, Vector2 vector2) => rect.Contains((int) vector2.X, (int) vector2.Y);
 
-        private void RenderManagerOnDraw(IRenderer renderer)
+        private void RenderManagerOnDraw()
         {
             var mousePos = GetMousePosition;
             foreach (var bomb in _main.Updater.BombManager.RemoteMines.Where(x =>
@@ -88,13 +83,12 @@ namespace TechiesCrappahilationPaid.Features
             {
                 if (_main.MenuManager.StackDontDrawSolo && bomb.Stacker.Counter == 1)
                     continue;
-                var topPos = HUDInfo.GetHPbarPosition(bomb.Owner);
+                var topPos = CustomHUDInfo.GetHpBarPosition(bomb.Owner);
                 if (topPos.IsZero)
                     continue;
-                var size = new Vector2((float) HUDInfo.GetHPBarSizeX(bomb.Owner),
-                    (float) HUDInfo.GetHpBarSizeY(bomb.Owner));
+                var size = new Vector2(CustomHUDInfo.HpBarSizeX, CustomHUDInfo.HpBarSizeY);
                 var text = bomb.Stacker.Counter.ToString();
-                var textSize = renderer.MeasureText(text, 30);
+                var textSize = RendererManager.MeasureText(text, 30);
                 var textPos = topPos + new Vector2(size.X / 2 - textSize.X / 2, -size.Y * 2);
                 var extraRectangleSizeX = 50;
                 var extraRectangleSizeY = textSize.Y / 2;
@@ -105,9 +99,9 @@ namespace TechiesCrappahilationPaid.Features
 
                 if (IsIn(rectangle, mousePos))
                 {
-                    renderer.DrawFilledRectangle(rectangle, Color.FromArgb(200, 10, 10, 10), Color.White, 1);
-                    renderer.DrawText(new Vector2(rectangle.X + rectangle.Width / 2 - textSize.X / 2, rectangle.Y),
-                        text,
+                    RendererManager.DrawFilledRectangle(rectangle, new SharpDX.Color(200, 10, 10, 10), Color.White, 1);
+                    RendererManager.DrawText(text,new Vector2(rectangle.X + rectangle.Width / 2 - textSize.X / 2, rectangle.Y),
+                        
                         bomb.UnderTrueSight ? Color.OrangeRed : Color.White, 30);
 
                     var count = 0;
@@ -115,11 +109,10 @@ namespace TechiesCrappahilationPaid.Features
                     {
                         var boxPos = new Vector2(rectangle.X + count++ * boxSize.X, rectangle.Y + textSize.Y);
                         var boxRect = new RectangleF(boxPos.X + 1, boxPos.Y - 1, boxSize.X, boxSize.Y);
-                        renderer.DrawTexture(target.Key + "_icon",
-                            boxPos, boxSize);
+                        RendererManager.DrawTexture(target.Key, new RectangleF(boxPos.X,boxPos.Y, boxSize.X, boxSize.Y));
                         if (bomb.Stacker.DetonateDict.TryGetValue(target.Key, out var isEnable))
                         {
-                            renderer.DrawRectangle(boxRect, isEnable ? Color.Green : Color.OrangeRed, 1);
+                            RendererManager.DrawRectangle(boxRect, isEnable ? Color.Green : Color.OrangeRed, 1);
                         }
                         else
                         {
@@ -136,12 +129,12 @@ namespace TechiesCrappahilationPaid.Features
                         }
                         else
                         {
-                            renderer.DrawFilledRectangle(boxRect, Color.FromArgb(100, 50, 50, 50), Color.White, 0);
+                            RendererManager.DrawFilledRectangle(boxRect, new SharpDX.Color(100, 50, 50, 50), Color.White, 0);
                         }
                     }
                 }
                 else
-                    renderer.DrawText(textPos, text, bomb.UnderTrueSight ? Color.OrangeRed : Color.White, 30);
+                    RendererManager.DrawText(text, textPos, bomb.UnderTrueSight ? Color.OrangeRed : Color.White, 30);
             }
         }
     }

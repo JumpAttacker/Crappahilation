@@ -1,11 +1,10 @@
-﻿﻿using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Divine;
 using Divine.Core.Helpers;
 using Divine.Core.Managers.Unit;
 using Divine.Core.Entities;
-using Ensage;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Renderer;
+using Divine.Zero.Loader;
 using SharpDX;
 using Color = System.Drawing.Color;
 

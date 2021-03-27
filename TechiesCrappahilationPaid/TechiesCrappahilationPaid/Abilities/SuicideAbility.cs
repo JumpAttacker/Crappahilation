@@ -1,17 +1,20 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Ensage;
-using Ensage.SDK.Abilities;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
+using Divine;
+using Divine.SDK.Extensions;
+using TechiesCrappahilationPaid.Helpers;
 
 namespace TechiesCrappahilationPaid.Abilities
 {
-    public class SuicideAbility : CircleAbility
+    public class SuicideAbility
     {
-        public SuicideAbility(Ability ability) : base(ability)
+        public Ability Ability { get; }
+        public Hero Owner { get; set; }
+
+        public SuicideAbility(Ability ability)
         {
+            Ability = ability;
+            Owner = ability.Owner as Hero;
             UpdateManager.BeginInvoke(async () =>
             {
                 var extraDamage = Owner.GetAbilityById(AbilityId.special_bonus_unique_techies);
@@ -26,14 +29,15 @@ namespace TechiesCrappahilationPaid.Abilities
         }
 
         private float ExtraDamage { get; set; } = 0;
-        public override DamageType DamageType { get; } = DamageType.Magical;
+        public DamageType DamageType { get; } = DamageType.Magical;
 
-        public override UnitState AppliesUnitState { get; } = UnitState.Silenced;
+        public UnitState AppliesUnitState { get; } = UnitState.Silenced;
 
-        public override float GetDamage(params Unit[] targets)
+        public float GetDamage(params Unit[] targets)
         {
-            if (!targets.Any()) return RawDamage;
-            return base.GetDamage(targets);
+            var damage = Ability.GetAbilitySpecialData("damage");
+            if (targets==null || !targets.Any()) return damage;
+            return GetDamage(targets);
         }
 
         public float GetDamage(Unit target)

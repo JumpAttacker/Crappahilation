@@ -1,5 +1,5 @@
 ﻿using System;
-using Ensage;
+
 using Ensage.SDK.Extensions;
 using SharpDX;
 

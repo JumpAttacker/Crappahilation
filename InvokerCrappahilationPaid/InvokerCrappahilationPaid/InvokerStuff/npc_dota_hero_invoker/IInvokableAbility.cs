@@ -1,9 +1,5 @@
-﻿// <copyright file="IInvokableAbility.cs" company="Ensage">
-//    Copyright (c) 2017 Ensage.
-// </copyright>
-
-using System.Collections.Generic;
-using Ensage;
+﻿using System.Collections.Generic;
+using Divine;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ensage;
+using Divine;
+
 using TechiesCrappahilationPaid.Features;
 
 namespace TechiesCrappahilationPaid.BombsType

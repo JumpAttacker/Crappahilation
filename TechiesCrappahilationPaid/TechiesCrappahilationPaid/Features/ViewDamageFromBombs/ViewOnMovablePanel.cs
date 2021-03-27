@@ -1,9 +1,7 @@
 using System.Linq;
-using Ensage;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Renderer;
+using Divine;
 using SharpDX;
-using Color = System.Drawing.Color;
+using RendererManager = Divine.RendererManager;
 
 namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 {
@@ -19,47 +17,47 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
             _iconSize = new Vector2(25);
         }
 
-        public override void Draw(IRenderer renderer)
+        public override void Draw()
         {
-            var enemies = EntityManager<Player>.Entities.Where(x =>
+            var enemies = EntityManager.GetEntities<Player>().Where(x =>
                 x.IsValid && x.Team != Me.Team && x.Hero != null && x.Hero.IsValid) /*.OrderBy(x => x.Id)*/;
             var enumerable = enemies as Player[] ?? enemies.ToArray();
             var count = enumerable.Count() + 1;
             var currentLoc = PanelPosition;
             var width = _iconSize.X * (ViewManager.EnabledCount * 2 + 1);
-            renderer.DrawFilledRectangle(
+            RendererManager.DrawFilledRectangle(
                 new RectangleF(PanelPosition.X, PanelPosition.Y, width, count * _iconSize.Y),
-                Color.FromArgb(50, 50, 50, 50),
-                Color.Black);
-            DrawHorizontalsIcons(renderer, currentLoc, _iconSize, ViewManager.EnabledList);
+                new SharpDX.Color(50, 50, 50, 50),
+                Color.Black, 1);
+            DrawHorizontalsIcons( currentLoc, _iconSize, ViewManager.EnabledList);
 
             foreach (var enemy in enumerable.Select(x => x.Hero).Where(x =>
                 Main.Updater.BombDamageManager.DamageDictionary.ContainsKey(x.HeroId)))
             {
                 var heroId = enemy.HeroId;
                 currentLoc.Y += 25;
-                renderer.DrawTexture($"{heroId}_icon",
+                RendererManager.DrawTexture($"{heroId}_icon",
                     new RectangleF(currentLoc.X, currentLoc.Y, _iconSize.X, _iconSize.Y));
-                DrawHorizontalsDamage(renderer, currentLoc, _iconSize, enemy, ViewManager.EnabledList);
+                DrawHorizontalsDamage(currentLoc, _iconSize, enemy, ViewManager.EnabledList);
             }
 
-            renderer.DrawRectangle(
+            RendererManager.DrawRectangle(
                 new RectangleF(PanelPosition.X, PanelPosition.Y, width, count * _iconSize.Y),
                 Color.Black);
         }
 
-        public void DrawHorizontalsIcons(IRenderer renderer, Vector2 startPos, Vector2 size, params AbilityId[] ids)
+        public void DrawHorizontalsIcons(Vector2 startPos, Vector2 size, params AbilityId[] ids)
         {
             var pos = startPos + new Vector2(size.X * 1.5f, 0);
             for (var i = 1; i <= ids.Length; i++)
             {
-                renderer.DrawTexture($"{ids[i - 1]}_icon",
+                RendererManager.DrawTexture($"{ids[i - 1]}_icon",
                     new RectangleF(pos.X, startPos.Y, _iconSize.X, _iconSize.Y));
                 pos += new Vector2(size.X * 2, 0);
             }
         }
 
-        public void DrawHorizontalsDamage(IRenderer renderer, Vector2 startPos, Vector2 size, Hero hero,
+        public void DrawHorizontalsDamage(Vector2 startPos, Vector2 size, Hero hero,
             params AbilityId[] ids)
         {
             var pos = startPos + new Vector2(size.X, 0);
@@ -89,7 +87,7 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
                 }
 
                 string text;
-                switch (ViewManager.ShowDamageType.Value.SelectedIndex)
+                switch (ViewManager.ShowDamageType.Value)
                 {
                     case 0:
                         text = current.ToString();
@@ -107,10 +105,7 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
                     text = Main.Updater.BombDamageManager.DamageDictionary[id].HeroWillDieSuicide ? "Yes" : "Nope";
                 }
 
-                //font size / 2 / 2
-                renderer.DrawText(new RectangleF(pos.X, startPos.Y + (fontSize / 4), _iconSize.X * 2f, _iconSize.Y),
-                    text,
-                    Color.White, RendererFontFlags.Center, fontSize);
+                RendererManager.DrawText(text ,new RectangleF(pos.X, startPos.Y + (fontSize / 4), _iconSize.X * 2f, _iconSize.Y), Color.White, FontFlags.Center, fontSize);
 
                 pos += new Vector2(size.X * 2, 0);
             }

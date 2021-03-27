@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ensage;
-using Ensage.Common.Menu;
-using Ensage.SDK.Menu;
+using Divine;
+using Divine.Menu.Items;
 
 namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 {
@@ -14,64 +13,66 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
         private ViewBombCountBase _currentView;
         public int EnabledCount;
         public AbilityId[] EnabledList;
+        private Dictionary<AbilityId, bool> dict;
 
         public ViewManager(TechiesCrappahilationPaid main)
         {
             Main = main;
 
-            InterfaceType = Main.MenuManager.DamagePanel.Item("Damage drawing",
-                new StringList("Movable Panel", "[not implemented] Top panel"));
-            var dict = new Dictionary<string, bool>
+            InterfaceType = Main.MenuManager.DamagePanel.CreateSwitcher("Damage drawing");
+                // new StringList("Movable Panel", "[not implemented] Top panel"));
+            dict = new Dictionary<AbilityId, bool>
             {
-                {AbilityId.techies_remote_mines.ToString(), true},
-                {AbilityId.techies_suicide.ToString(), true},
-                {AbilityId.techies_land_mines.ToString(), true}
+                {AbilityId.techies_remote_mines, true},
+                {AbilityId.techies_suicide, true},
+                {AbilityId.techies_land_mines, true}
             };
-            AbilityToggle = Main.MenuManager.DamagePanel.Item("Show damage counter", new AbilityToggler(dict));
+            AbilityToggle = Main.MenuManager.DamagePanel.CreateAbilityToggler("Show damage counter", dict);
 
-            AbilityToggle.PropertyChanged += (sender, args) => { EnabledList = GetEnabledAbilities(); };
-            ShowDamageType = Main.MenuManager.DamagePanel.Item("Bomb damage draw type",
-                new StringList("Only for current hp", "Only for max hp", "For current & max hp"));
+            AbilityToggle.ValueChanged += (sender, args) => { EnabledList = GetEnabledAbilities(); };
+            ShowDamageType = Main.MenuManager.DamagePanel.CreateSlider("Bomb damage draw type",
+                2, 0, 2);
+                // new StringList("Only for current hp", "Only for max hp", "For current & max hp"));
 
-            PositionX = Main.MenuManager.DamagePanel.Item("Extra Position X",
-                new Slider(0, -1000, 4000));
-            PositionY = Main.MenuManager.DamagePanel.Item("Extra Position Y",
-                new Slider(0, -1000, 4000));
+            PositionX = Main.MenuManager.DamagePanel.CreateSlider("Extra Position X",
+                0, -1000, 4000);
+            PositionY = Main.MenuManager.DamagePanel.CreateSlider("Extra Position Y",
+                0, -1000, 4000);
 
-            if (InterfaceType.Value.SelectedIndex == 0)
+            if (InterfaceType.Value)
                 ChangeView(new ViewOnMovablePanel(this));
             else
                 ChangeView(new ViewOnTopPanel(this));
-            InterfaceType.PropertyChanged += (sender, args) =>
+            InterfaceType.ValueChanged += (sender, args) =>
             {
-                if (InterfaceType.Value.SelectedIndex == 0)
+                if (InterfaceType.Value)
                     ChangeView(new ViewOnMovablePanel(this));
                 else
                     ChangeView(new ViewOnTopPanel(this));
             };
         }
 
-        public MenuItem<Slider> PositionY { get; set; }
+        public MenuSlider PositionY { get; set; }
 
-        public MenuItem<Slider> PositionX { get; set; }
+        public MenuSlider PositionX { get; set; }
 
-        public MenuItem<StringList> ShowDamageType { get; set; }
+        public MenuSlider ShowDamageType { get; set; }
 
-        public MenuItem<AbilityToggler> AbilityToggle { get; set; }
+        public MenuAbilityToggler AbilityToggle { get; set; }
 
-        public MenuItem<StringList> InterfaceType { get; set; }
+        public MenuSwitcher InterfaceType { get; set; }
 
         public void ChangeView(ViewBombCountBase nextView)
         {
             _currentView?.Dispose();
             _currentView = nextView;
-            Main.Context.RenderManager.Draw += _currentView.Draw;
+            RendererManager.Draw += _currentView.Draw;
         }
 
         public AbilityId[] GetEnabledAbilities()
         {
-            var array = AbilityToggle.Value.Dictionary.Where(x => x.Value)
-                .Select(x => (AbilityId) Enum.Parse(typeof(AbilityId), x.Key, true)).ToArray();
+            var array = dict.Select(x => x.Key).Where(x => AbilityToggle.GetValue(x)).ToArray();
+                // .Select(x => (AbilityId) Enum.Parse(typeof(AbilityId), x.Key, true)).ToArray();
             EnabledCount = array.Length;
             return array;
         }

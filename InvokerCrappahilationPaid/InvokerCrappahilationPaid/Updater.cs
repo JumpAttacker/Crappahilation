@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ensage;
+using Divine;
+
 using Ensage.Common.Extensions;
 using Ensage.Common.Objects.UtilityObjects;
 using Ensage.SDK.Helpers;
@@ -21,33 +22,35 @@ namespace InvokerCrappahilationPaid
         {
             _main = main;
             Units = new List<UnitUnderControl>();
-            EntityManager<Unit>.EntityAdded += (sender, unit) =>
+            EntityManager.EntityAdded += (sender) =>
             {
+                var unit = sender.Entity as Unit;
+                if (unit == null)
+                    return;
                 if (unit.Name == "npc_dota_invoker_forged_spirit" && _main.Config.UseForges)
                 {
                     if (Units.Find(x => x.Unit.Handle == unit.Handle) == null)
-                        UpdateManager.BeginInvoke(() => { Units.Add(new UnitUnderControl(unit)); }, 500);
+                        UpdateManager.BeginInvoke(500, () => { Units.Add(new UnitUnderControl(unit)); });
                 }
                 else if (unit.Name.Contains("npc_dota_necronomicon") && unit != _main.Me && unit.IsControllable &&
                          _main.Config.UseNecros)
                 {
                     if (Units.Find(x => x.Unit.Handle == unit.Handle) == null)
                     {
-                        UpdateManager.BeginInvoke(() => { Units.Add(new UnitUnderControl(unit)); }, 500);
+                        UpdateManager.BeginInvoke(500, () => { Units.Add(new UnitUnderControl(unit)); });
                         if (_main.Config.AutoPurge) AutoPurge(unit);
                     }
                 }
             };
-            EntityManager<Unit>.EntityRemoved += (sender, unit) =>
+            EntityManager.EntityRemoved += (sender) =>
             {
-                //if (unit.Name == "npc_dota_invoker_forged_spirit")
-                //{
+                var unit = sender.Entity as Unit;
+                if (unit == null)
+                    return;
                 var find = Units.Find(x => x.Unit.Handle == unit.Handle);
                 if (find != null) Units.Remove(find);
-
-                //}
             };
-            foreach (var unit in EntityManager<Unit>.Entities)
+            foreach (var unit in EntityManager.GetEntities<Unit>())
                 if (unit.Name == "npc_dota_invoker_forged_spirit")
                 {
                     if (Units.Find(x => x.Unit.Handle == unit.Handle) == null) Units.Add(new UnitUnderControl(unit));
@@ -56,23 +59,23 @@ namespace InvokerCrappahilationPaid
                          _main.Config.UseNecros)
                 {
                     if (Units.Find(x => x.Unit.Handle == unit.Handle) == null)
-                        UpdateManager.BeginInvoke(() => { Units.Add(new UnitUnderControl(unit)); }, 500);
+                        UpdateManager.BeginInvoke(500, () => { Units.Add(new UnitUnderControl(unit)); });
                     if (_main.Config.AutoPurge) AutoPurge(unit);
                 }
 
             Entity.OnParticleEffectAdded += (sender, args) =>
             {
                 if (args.Name == "particles/units/heroes/hero_invoker/invoker_emp.vpcf")
-                    UpdateManager.BeginInvoke(() =>
+                    UpdateManager.BeginInvoke(10, () =>
                     {
-                        var time = Game.RawGameTime;
+                        var time = GameManager.RawGameTime;
                         EmpPositions.Add(time, args.ParticleEffect.GetControlPoint(0));
-                        UpdateManager.BeginInvoke(() =>
+                        UpdateManager.BeginInvoke(2900, () =>
                         {
                             if (EmpPositions.ContainsKey(time))
                                 EmpPositions.Remove(time);
-                        }, 2900);
-                    }, 10);
+                        });
+                    });
             };
         }
 

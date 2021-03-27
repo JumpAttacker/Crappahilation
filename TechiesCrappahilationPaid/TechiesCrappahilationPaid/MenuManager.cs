@@ -1,81 +1,84 @@
 using System.Collections.Generic;
-using Ensage.Common.Menu;
-using Ensage.SDK.Menu;
+using Divine;
+using Divine.Menu;
+using Divine.Menu.Items;
 using SharpDX;
 
 namespace TechiesCrappahilationPaid
 {
     public class MenuManager
     {
+        public RootMenu BaseMenu { get; set; }
+
         public MenuManager(TechiesCrappahilationPaid main)
         {
             Main = main;
-            Factory = MenuFactory.Create("Techies Crappahilation");
-            Factory.Target.SetFontColor(Color.Violet);
-            AutoDetonate = Factory.Menu("Auto Detonate");
-            AutoPlanting = Factory.Menu("Auto Planting");
-            VisualSubMenu = Factory.Menu("Visual");
-            DamagePanel = VisualSubMenu.Menu("Damage panel");
-            GoodPositions = VisualSubMenu.Menu("Good positions");
-            StackMenu = VisualSubMenu.Menu("Stack Info");
-            RangeMenu = VisualSubMenu.Menu("Range");
+            Factory = Divine.Menu.MenuManager.CreateRootMenu("Techies Crappahilation");
+            Factory.SetFontColor(Color.Violet);
+            AutoDetonate = Factory.CreateMenu("Auto Detonate");
+            AutoPlanting = Factory.CreateMenu("Auto Planting");
+            VisualSubMenu = Factory.CreateMenu("Visual");
+            DamagePanel = VisualSubMenu.CreateMenu("Damage panel");
+            GoodPositions = VisualSubMenu.CreateMenu("Good positions");
+            StackMenu = VisualSubMenu.CreateMenu("Stack Info");
+            RangeMenu = VisualSubMenu.CreateMenu("Range");
 
 
-            DrawStacks = StackMenu.Item("Draw stacks", true);
-            StackDontDrawSolo = StackMenu.Item("Dont draw stack for only one bomb", true);
+            DrawStacks = StackMenu.CreateSwitcher("Draw stacks", true);
+            StackDontDrawSolo = StackMenu.CreateSwitcher("Dont draw stack for only one bomb", true);
 
-            DetonateOnAegis = AutoDetonate.Item("Detonate in aegis", true);
-            DetonateAllInOnce = AutoDetonate.Item("Detonate all in once", false);
-            UseFocusedDetonation = AutoDetonate.Item("Detonate all in once with focused detonation", false);
-            CameraMove = AutoDetonate.Item("Move camera", true);
-            UsePrediction = AutoDetonate.Item("Use prediction", true);
-            DelayOnDetonate = AutoDetonate.Item("Delay on detonate", new Slider(0, 0, 1000));
-            DelayOnDetonate.Item.SetTooltip("set 0 to disable that feature");
-            Targets = AutoDetonate.Item("Targets", new HeroToggler(new Dictionary<string, bool>()));
-            UseFocusedDetonation.Item.SetTooltip("working only if setting above is enabled");
-            DetonateAllInOnce.PropertyChanged += (sender, args) =>
+            DetonateOnAegis = AutoDetonate.CreateSwitcher("Detonate in aegis", true);
+            DetonateAllInOnce = AutoDetonate.CreateSwitcher("Detonate all in once", false);
+            UseFocusedDetonation = AutoDetonate.CreateSwitcher("Detonate all in once with focused detonation", false);
+            CameraMove = AutoDetonate.CreateSwitcher("Move camera", true);
+            UsePrediction = AutoDetonate.CreateSwitcher("Use prediction", true);
+            DelayOnDetonate = AutoDetonate.CreateSlider("Delay on detonate", 0, 0, 1000);
+            DelayOnDetonate.SetTooltip("set 0 to disable that feature");
+            Targets = AutoDetonate.CreateHeroToggler("Targets", new Dictionary<HeroId, bool>());
+            UseFocusedDetonation.SetTooltip("working only if setting above is enabled");
+            DetonateAllInOnce.ValueChanged += (sender, args) =>
             {
                 if (!DetonateAllInOnce)
                 {
-                    UseFocusedDetonation.Item.SetValue(false);
+                    UseFocusedDetonation.Value = false;
                 }
             };
         }
 
-        public MenuItem<bool> UseFocusedDetonation { get; set; }
+        public MenuHeroToggler Targets { get; set; }
 
-        public MenuItem<bool> UsePrediction { get; set; }
+        public MenuSlider DelayOnDetonate { get; set; }
 
-        public MenuFactory RangeMenu { get; set; }
+        public MenuSwitcher UsePrediction { get; set; }
 
-        public MenuItem<bool> StackDontDrawSolo { get; set; }
+        public MenuSwitcher CameraMove { get; set; }
 
-        public MenuItem<bool> DrawStacks { get; set; }
+        public MenuSwitcher UseFocusedDetonation { get; set; }
 
-        public MenuFactory StackMenu { get; set; }
+        public MenuSwitcher DetonateOnAegis { get; set; }
 
-        public MenuItem<HeroToggler> Targets { get; set; }
+        public MenuSwitcher StackDontDrawSolo { get; set; }
+
+        public MenuSwitcher DrawStacks { get; set; }
+
+        public Menu RangeMenu { get; set; }
+
+        public Menu StackMenu { get; set; }
+
+        public Menu GoodPositions { get; set; }
+
+        public Menu DamagePanel { get; set; }
+
+        public Menu VisualSubMenu { get; set; }
+
+        public Menu AutoPlanting { get; set; }
+
+        public MenuSwitcher DetonateAllInOnce { get; set; }
+
+        public Menu AutoDetonate { get; set; }
 
 
-        public MenuFactory GoodPositions { get; set; }
-
-        public MenuFactory DamagePanel { get; set; }
-
-        public MenuFactory AutoPlanting { get; set; }
-
-        public MenuItem<bool> DetonateAllInOnce { get; set; }
-
-        public MenuItem<bool> DetonateOnAegis { get; set; }
-
-        public MenuItem<Slider> DelayOnDetonate { get; set; }
-
-        public MenuItem<bool> CameraMove { get; set; }
-
-        public MenuFactory AutoDetonate { get; set; }
-
-        public MenuFactory VisualSubMenu { get; set; }
-
-        public MenuFactory Factory { get; set; }
+        public RootMenu Factory { get; set; }
 
         public TechiesCrappahilationPaid Main { get; }
     }

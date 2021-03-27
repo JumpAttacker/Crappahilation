@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ensage;
-using Ensage.Common.Objects.UtilityObjects;
-using Ensage.SDK.Geometry;
-using Ensage.SDK.Helpers;
+using Divine;
+using Divine.SDK.Extensions;
 using SharpDX;
 using TechiesCrappahilationPaid.BombsType.DrawBehaviour;
 
@@ -22,7 +20,7 @@ namespace TechiesCrappahilationPaid.BombsType
             Stacker = new Stacker();
             
             //TODO: delete after update
-            UpdateManager.BeginInvoke(async () =>
+            UpdateManager.BeginInvoke(500, async () =>
             {
                 try
                 {
@@ -41,7 +39,7 @@ namespace TechiesCrappahilationPaid.BombsType
                 {
                     Console.WriteLine(e);
                 }
-            },500);
+            });
         }
 
         public Stacker Stacker;
@@ -136,19 +134,19 @@ namespace TechiesCrappahilationPaid.BombsType
             }
         }
 
-        public ParticleEffect RangeEffect { get; set; }
         public bool UnderTrueSight { get; set; }
 
         public void DrawSpawnRange()
         {
-            RangeEffect = new ParticleEffect("materials/ensage_ui/particles/range_display_mod.vpcf", Owner.Position);
-            RangeEffect.SetControlPoint(1, new Vector3(Range, 255, 0));
-            RangeEffect.SetControlPoint(2, new Vector3(100, 100, 100));
+            ParticleManager.RangeParticle(Owner.Handle.ToString(), Owner, 255, Color.DimGray);
+            // RangeEffect = new ParticleEffect("materials/ensage_ui/particles/range_display_mod.vpcf", Owner.Position);
+            // RangeEffect.SetControlPoint(1, new Vector3(Range, 255, 0));
+            // RangeEffect.SetControlPoint(2, new Vector3(100, 100, 100));
         }
 
         public void DisposeSpawnRange()
         {
-            RangeEffect?.Dispose();
+            ParticleManager.RemoveParticle(Owner.Handle.ToString());
         }
     }
 }

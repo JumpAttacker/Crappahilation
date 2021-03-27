@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 using System.Windows.Input;
-using Ensage;
+
 using Ensage.SDK.Abilities;
 using Ensage.SDK.Extensions;
 

@@ -2,18 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ensage;
-using Ensage.Common;
-using Ensage.Common.Extensions;
-using Ensage.Common.Objects.UtilityObjects;
-using Ensage.SDK.Abilities.Items;
-using Ensage.SDK.Abilities.npc_dota_hero_ember_spirit;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Handlers;
-using Ensage.SDK.Helpers;
+using Divine;
+using Divine.SDK.Extensions;
+using Divine.SDK.Helpers;
+using Divine.SDK.Prediction;
+using Divine.SDK.Prediction.Collision;
 using TechiesCrappahilationPaid.BombsType;
 using TechiesCrappahilationPaid.Helpers;
-using UnitExtensions = Ensage.SDK.Extensions.UnitExtensions;
 
 namespace TechiesCrappahilationPaid.Managers
 {
@@ -21,15 +16,15 @@ namespace TechiesCrappahilationPaid.Managers
     {
         private readonly Updater _updater;
         public readonly Dictionary<HeroId, DamageInfo> DamageDictionary = new Dictionary<HeroId, DamageInfo>();
-        private readonly MultiSleeper _multiSleeper = new MultiSleeper();
+        // private readonly MultiSleeper<string> _multiSleeper;
 
         public BombDamageManager(Updater updater)
         {
             _updater = updater;
             var me = updater._main.Me;
-            DamageUpdater = UpdateManager.Subscribe(() =>
+            DamageUpdater = UpdateManager.CreateUpdate(100, () =>
             {
-                foreach (var enemy in EntityManager<Hero>.Entities.Where(x =>
+                foreach (var enemy in EntityManager.GetEntities<Hero>().Where(x =>
                     x.IsValid && x.IsVisible && x.IsAlive && x.IsEnemy(me) && !x.IsIllusion))
                 {
                     var id = enemy.HeroId;
@@ -47,25 +42,25 @@ namespace TechiesCrappahilationPaid.Managers
                             new DamageInfo(landMineCount, landMineCountMax, removeMineCountMax, removeMineCount,
                                 healthAfterSuicide));
                 }
-            }, 100);
-            var inActionSleeper = new MultiSleeper();
+            });
+            // var inActionSleeper = new MultiSleeper<uint>();
             UpdateManager.BeginInvoke(async () =>
             {
                 while (true)
                 {
                     var passedDelay = false;
                     starting:
-                    var isForce = _updater.ForceStaff != null && _updater.ForceStaff.CanBeCasted;
-                    var enemies = EntityManager<Hero>.Entities.Where(x =>
+                    var isForce = _updater.ForceStaff != null && _updater.ForceStaff.CanBeCasted();
+                    var enemies = EntityManager.GetEntities<Hero>().Where(x =>
                         x.IsValid && x.IsVisible && x.IsAlive && x.IsEnemy(me) && !x.IsIllusion &&
-                        !UnitExtensions.IsMagicImmune(x) &&
-                        _updater._main.MenuManager.Targets.Value.IsEnabled(x.HeroId.ToString()));
+                        !x.IsMagicImmune() &&
+                        _updater._main.MenuManager.Targets.GetValue(x.HeroId));
                     foreach (var enemy in enemies)
                     {
                         var handle = enemy.Handle;
-                        if (inActionSleeper.Sleeping(handle))
+                        if (MultiSleeper<uint>.Sleeping(handle))
                             continue;
-                        if (UnitExtensions.HasModifiers(enemy, new[]
+                        if (enemy.HasModifiers(new[]
                             {
                                 "modifier_shredder_timber_chain", "modifier_storm_spirit_ball_lightning",
                                 "modifier_item_aeon_disk_buff", "modifier_eul_cyclone",
@@ -97,23 +92,21 @@ namespace TechiesCrappahilationPaid.Managers
                         if (isDusa)
                         {
                             startManaCalc = enemy.Mana;
-                            var shield = UnitExtensions.GetAbilityById(enemy, AbilityId.medusa_mana_shield);
+                            var shield = enemy.GetAbilityById(AbilityId.medusa_mana_shield);
                             if (shield.IsToggled)
-                                threshold = shield.GetAbilityData("damage_per_mana");
+                                threshold = shield.GetAbilitySpecialData("damage_per_mana");
                         }
                         else if (heroId == HeroId.npc_dota_hero_ember_spirit)
                         {
                             if (EmberShield == null)
                                 EmberShield =
-                                    new ember_spirit_flame_guard(
-                                        UnitExtensions.GetAbilityById(enemy, AbilityId.ember_spirit_flame_guard));
-                            if (enemy.HasAnyModifiers(EmberShield.ModifierName))
+                                        enemy.GetAbilityById(AbilityId.ember_spirit_flame_guard);
+                            if (enemy.HasAnyModifiers("modifier_ember_spirit_flame_guard"))
                             {
-                                var extraLife = EmberShield.Ability.GetAbilityData("absorb_amount");
-                                var talant = UnitExtensions.GetAbilityById(enemy,
-                                    AbilityId.special_bonus_unique_ember_spirit_1);
+                                var extraLife = EmberShield.GetAbilitySpecialData("absorb_amount");
+                                var talant = enemy.GetAbilityById(AbilityId.special_bonus_unique_ember_spirit_1);
                                 extraLife += talant?.Level > 0
-                                    ? talant.GetAbilityData("value")
+                                    ? talant.GetAbilitySpecialData("value")
                                     : 0;
                                 health += extraLife;
                             }
@@ -126,7 +119,7 @@ namespace TechiesCrappahilationPaid.Managers
                         var raindrop = enemy.GetItemById(AbilityId.item_infused_raindrop);
                         if (raindrop != null && raindrop.CanBeCasted())
                         {
-                            var extraHealth = raindrop.GetAbilityData("magic_damage_block");
+                            var extraHealth = raindrop.GetAbilitySpecialData("magic_damage_block");
                             health += extraHealth;
                         }
 
@@ -136,7 +129,21 @@ namespace TechiesCrappahilationPaid.Managers
                         var graveKeeperCount = graveKeeper?.StackCount;
                         var aeon = enemy.GetItemById(AbilityId.item_aeon_disk);
                         var breakHealthForAeon = enemy.MaximumHealth * .8f;
-                        var predictedPosition = enemy.Predict(250f);
+                        var input = new PredictionInput
+                        {
+                            Owner = me,
+                            AreaOfEffect = false,
+                            CollisionTypes = CollisionTypes.None,
+                            Delay = 250,
+                            Speed = float.MaxValue,
+                            Range = float.MaxValue,
+                            Radius = 420,
+                            PredictionSkillshotType = PredictionSkillshotType.SkillshotCircle
+                        };
+                        input = input.WithTarget(enemy);
+
+                        var prediction = PredictionManager.GetPrediction(input);
+                        var predictedPosition =  prediction.CastPosition;
                         var pos = _updater._main.MenuManager.UsePrediction ? predictedPosition : enemy.Position;
                         var detList = new List<RemoteMine>();
                         var bombs = updater.BombManager.RemoteMines.Where(x =>
@@ -159,13 +166,12 @@ namespace TechiesCrappahilationPaid.Managers
                             else if (graveKeeperCount > 0)
                             {
                                 var percentBlock =
-                                    (float) (UnitExtensions.GetAbilityById(enemy,
-                                                     AbilityId.visage_gravekeepers_cloak)
+                                    (float) (enemy.GetAbilityById(AbilityId.visage_gravekeepers_cloak)
                                                  .GetAbilitySpecialData("damage_reduction") *
                                              graveKeeperCount);
-                                TechiesCrappahilationPaid.Log.Warn(
-                                    $"Block:  {damage * (percentBlock / 100)}({percentBlock} %). Left blocks: {graveKeeperCount} " +
-                                    $"Damage changed: {damage} -> {damage - damage * (percentBlock / 100)}");
+                                // TechiesCrappahilationPaid.Log.Warn(
+                                //     $"Block:  {damage * (percentBlock / 100)}({percentBlock} %). Left blocks: {graveKeeperCount} " +
+                                //     $"Damage changed: {damage} -> {damage - damage * (percentBlock / 100)}");
                                 health -= damage - damage * (percentBlock / 100);
                                 graveKeeperCount--;
                             }
@@ -184,43 +190,43 @@ namespace TechiesCrappahilationPaid.Managers
                                 {
                                     var heroPos = enemy.Position;
                                     var consolePosition = $"{heroPos.X} {heroPos.Y}";
-                                    Game.ExecuteCommand($"dota_camera_set_lookatpos {consolePosition}");
+                                    GameManager.ExecuteCommand($"dota_camera_set_lookatpos {consolePosition}");
                                 }
 
-                                if (_updater._main.MenuManager.DelayOnDetonate.Value.Value > 0 && !passedDelay && !underStasisTrap)
+                                if (_updater._main.MenuManager.DelayOnDetonate.Value > 0 && !passedDelay && !underStasisTrap)
                                 {
-                                    if (!_multiSleeper.Sleeping("heroAfterForce" + heroId))
+                                    if (!MultiSleeper<string>.Sleeping("heroAfterForce" + heroId))
                                     {
-                                        TechiesCrappahilationPaid.Log.Warn(
-                                            "delay on detonation start for " +
-                                            _updater._main.MenuManager.DelayOnDetonate.Value.Value);
-                                        await Task.Delay(_updater._main.MenuManager.DelayOnDetonate.Value.Value);
-                                        TechiesCrappahilationPaid.Log.Warn("delay end");
+                                        // TechiesCrappahilationPaid.Log.Warn(
+                                        //     "delay on detonation start for " +
+                                        //     _updater._main.MenuManager.DelayOnDetonate.Value.Value);
+                                        await Task.Delay(_updater._main.MenuManager.DelayOnDetonate.Value);
+                                        // TechiesCrappahilationPaid.Log.Warn("delay end");
                                         passedDelay = true;
                                         goto starting;
                                     }
                                 }
 
-                                await Task.Delay((int) (25 + Game.Ping));
+                                await Task.Delay((int) (25 + GameManager.Ping));
                                 if (_updater._main.MenuManager.DetonateAllInOnce && !aeonByPass)
                                 {
                                     if (_updater._main.MenuManager.UseFocusedDetonation)
                                     {
                                         var minesToDetonate = bombs.FirstOrDefault();
                                         if (minesToDetonate != null)
-                                            _updater._main.FocusedDetonate.UseAbility(minesToDetonate.Position);
+                                            _updater._main.FocusedDetonate.Cast(minesToDetonate.Position);
                                     }
                                     else
                                     {
                                         foreach (var mine in bombs)
                                         {
-                                            Player.SelectEntity(mine.Owner, true);
+                                            mine.Owner.Select(true);
                                         }
 
-                                        await Task.Delay((int) (25 + Game.Ping));
+                                        await Task.Delay((int) (25 + GameManager.Ping));
                                         foreach (var mine in bombs)
                                         {
-                                            mine.Owner.Spellbook.Spell1.UseAbility();
+                                            mine.Owner.Spellbook.Spell1.Cast();
                                             mine.IsActive = false;
                                         }
                                     }
@@ -229,18 +235,18 @@ namespace TechiesCrappahilationPaid.Managers
                                 {
                                     foreach (var mine in detList)
                                     {
-                                        Player.SelectEntity(mine.Owner, true);
+                                        mine.Owner.Select(true);
                                     }
 
-                                    await Task.Delay((int) (25 + Game.Ping));
+                                    await Task.Delay((int) (25 + GameManager.Ping));
                                     foreach (var mine in detList)
                                     {
-                                        mine.Owner.Spellbook.Spell1.UseAbility();
+                                        mine.Owner.Spellbook.Spell1.Cast();
                                         mine.IsActive = false;
                                     }
                                 }
 
-                                inActionSleeper.Sleep(extraDetonateTime + Game.Ping + 1500, handle);
+                                MultiSleeper<uint>.Sleep(handle, extraDetonateTime + GameManager.Ping + 1500);
 
 
                                 ////TODO: delay on detonation
@@ -253,15 +259,15 @@ namespace TechiesCrappahilationPaid.Managers
                             startManaCalc = enemy.Mana;
                         }
 
-                        if (isForce && _updater.ForceStaff.CanHit(enemy) && !Prediction.IsTurning(enemy))
+                        if (isForce && _updater.ForceStaff.CanHit(enemy) && !enemy.IsTurning())
                         {
-                            var isLinken = UnitExtensions.IsLinkensProtected(enemy);
-                            if (isLinken && (_updater.Eul == null || !_updater.Eul.CanBeCasted))
+                            var isLinken = enemy.IsLinkensProtected();
+                            if (isLinken && (_updater.Eul == null || !_updater.Eul.CanBeCasted()))
                             {
                                 continue;
                             }
 
-                            var afterForcePos = Prediction.InFront(enemy, 600);
+                            var afterForcePos = enemy.InFront(600);
                             foreach (var remoteMine in updater
                                 .BombManager.RemoteMines
                                 .Where(x => x.IsActive &&
@@ -285,9 +291,9 @@ namespace TechiesCrappahilationPaid.Managers
                                 if (health + enemy.HealthRegeneration * 0.25f * detList.Count < 0)
                                 {
                                     if (isLinken)
-                                        _updater.Eul.UseAbility(enemy);
-                                    _updater.ForceStaff.UseAbility(enemy);
-                                    _multiSleeper.Sleep(500, "heroAfterForce" + heroId);
+                                        _updater.Eul.Cast(enemy);
+                                    _updater.ForceStaff.Cast(enemy);
+                                    MultiSleeper<string>.Sleep("heroAfterForce" + heroId, 500);
                                 }
                             }
                         }
@@ -300,9 +306,9 @@ namespace TechiesCrappahilationPaid.Managers
             });
         }
 
-        public ember_spirit_flame_guard EmberShield { get; set; }
+        public Ability EmberShield { get; set; }
 
-        public IUpdateHandler DamageUpdater { get; set; }
+        public UpdateHandler DamageUpdater { get; set; }
 
         public int CalcLandMineCount(Hero target, bool isCurrentLife = true)
         {
@@ -312,11 +318,11 @@ namespace TechiesCrappahilationPaid.Managers
                 return 0;
             if (target.HeroId == HeroId.npc_dota_hero_medusa)
             {
-                var shield = UnitExtensions.GetAbilityById(target, AbilityId.medusa_mana_shield);
+                var shield = target.GetAbilityById(AbilityId.medusa_mana_shield);
                 if (shield.IsToggled)
                 {
                     var treshold =
-                        shield.GetAbilityData("damage_per_mana");
+                        shield.GetAbilitySpecialData("damage_per_mana");
                     DamageCalcHelpers.CalcDamageForDusa(ref damageAfterFirstBomb, target, treshold);
                 }
             }
@@ -333,11 +339,11 @@ namespace TechiesCrappahilationPaid.Managers
                 return 0;
             if (target.HeroId == HeroId.npc_dota_hero_medusa)
             {
-                var shield = UnitExtensions.GetAbilityById(target, AbilityId.medusa_mana_shield);
+                var shield = target.GetAbilityById(AbilityId.medusa_mana_shield);
                 if (shield.IsToggled)
                 {
                     var treshold =
-                        shield.GetAbilityData("damage_per_mana");
+                        shield.GetAbilitySpecialData("damage_per_mana");
                     DamageCalcHelpers.CalcDamageForDusa(ref damageAfterFirstBomb, target, treshold);
                 }
             }
@@ -355,11 +361,11 @@ namespace TechiesCrappahilationPaid.Managers
                 return 0;
             if (target.HeroId == HeroId.npc_dota_hero_medusa)
             {
-                var shield = UnitExtensions.GetAbilityById(target, AbilityId.medusa_mana_shield);
+                var shield = target.GetAbilityById(AbilityId.medusa_mana_shield);
                 if (shield.IsToggled)
                 {
                     var treshold =
-                        shield.GetAbilityData("damage_per_mana");
+                        shield.GetAbilitySpecialData("damage_per_mana");
                     DamageCalcHelpers.CalcDamageForDusa(ref damageAfterFirstBomb, target, treshold);
                 }
             }
@@ -369,8 +375,7 @@ namespace TechiesCrappahilationPaid.Managers
                 var graveKeeperCount = graveKeeper?.StackCount;
                 if (!(graveKeeperCount > 0)) return life - damageAfterFirstBomb;
                 var percentBlock =
-                    (float) (UnitExtensions.GetAbilityById(target,
-                                 AbilityId.visage_gravekeepers_cloak).GetAbilitySpecialData("damage_reduction") *
+                    (float) (target.GetAbilityById(AbilityId.visage_gravekeepers_cloak).GetAbilitySpecialData("damage_reduction") *
                              graveKeeperCount);
                 damageAfterFirstBomb -= damageAfterFirstBomb * (percentBlock / 100);
             }

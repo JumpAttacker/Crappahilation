@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Ensage;
-using Ensage.SDK.Helpers;
+using Divine;
 
 namespace TechiesCrappahilationPaid.Features
 {
@@ -12,28 +11,27 @@ namespace TechiesCrappahilationPaid.Features
         public static void Init(TechiesCrappahilationPaid main)
         {
             var me = main.Me;
-            UpdateManager.Subscribe(() =>
+            UpdateManager.CreateUpdate(500, () =>
             {
-                var enemies = EntityManager<Hero>.Entities.Where(x =>
+                var enemies = EntityManager.GetEntities<Hero>().Where(x =>
                     x.IsValid && x.Team != me.Team && !x.IsIllusion && IsHeroOrDangerUnit(x));
                 foreach (var enemy in enemies)
                 {
                     if (Targets.Contains(enemy))
                         continue;
                     Targets.Add(enemy);
-                    main.MenuManager.Targets.Value.Add(enemy.HeroId.ToString());
+                    main.MenuManager.Targets.AddValue(enemy.HeroId, true);
                     foreach (var bombManagerRemoteMine in main.Updater.BombManager.RemoteMines)
                     {
                         bombManagerRemoteMine.Stacker.UpdateDetonateDict();
                     }
                 }
 
-                foreach (var enemy in Targets.ToList())
+                foreach (var enemy in Targets.ToList().Where(enemy => enemy is null || !enemy.IsValid))
                 {
-                    if (enemy is null || !enemy.IsValid)
-                        Targets.Remove(enemy);
+                    Targets.Remove(enemy);
                 }
-            }, 500);
+            });
         }
 
         private static bool IsHeroOrDangerUnit(Unit unit)

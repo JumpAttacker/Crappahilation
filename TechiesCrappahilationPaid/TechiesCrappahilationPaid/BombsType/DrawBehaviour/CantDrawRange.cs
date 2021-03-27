@@ -1,4 +1,5 @@
-using Ensage;
+using Divine;
+
 using SharpDX;
 
 namespace TechiesCrappahilationPaid.BombsType.DrawBehaviour
@@ -7,7 +8,7 @@ namespace TechiesCrappahilationPaid.BombsType.DrawBehaviour
     {
         public CantDrawRange(Unit me) : base(me)
         {
-            Particle.Remove($"{Me.Handle}Range");
+            ParticleManager.RemoveParticle($"{Me.Handle}Range");
         }
 
         public CantDrawRange(Unit me, float range, Color clr) : base(me, range, clr)

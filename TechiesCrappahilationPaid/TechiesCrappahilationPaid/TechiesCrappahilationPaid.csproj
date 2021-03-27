@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TechiesCrappahilationPaid</RootNamespace>
     <AssemblyName>TechiesCrappahilationPaid</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,84 +34,6 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <!-- NET -->
-    <Reference Include="clipper_library, Version=1.0.0.0, Culture=neutral, PublicKeyToken=07aeca4266f4b547">
-      <HintPath>F:\En\References\clipper_library.dll</HintPath>
-    </Reference>
-    <Reference Include="Divine.Core, Version=4.0.0.8, Culture=neutral, PublicKeyToken=null">
-      <HintPath>F:\En\References\Divine.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetZip, Version=1.10.1.0, Culture=neutral, PublicKeyToken=6583c7c814667745">
-      <HintPath>F:\En\References\DotNetZip.dll</HintPath>
-    </Reference>
-    <Reference Include="Ensage, Version=0.0.0.1, Culture=neutral, PublicKeyToken=a41ba14f653257a6">
-      <HintPath>F:\En\References\Ensage.dll</HintPath>
-    </Reference>
-    <Reference Include="Ensage.Common, Version=1.2.8.6, Culture=neutral, PublicKeyToken=9849de8727708dde">
-      <HintPath>F:\En\References\Ensage.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Ensage.SDK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2a0bb906a796e43b">
-      <HintPath>F:\En\References\Ensage.SDK.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.VisualStudio.Threading, Version=15.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>F:\En\References\Microsoft.VisualStudio.Threading.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.VisualStudio.Validation, Version=15.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>F:\En\References\Microsoft.VisualStudio.Validation.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-      <HintPath>F:\En\References\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
-      <HintPath>F:\En\References\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="O9K.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>F:\En\References\O9K.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="PlaySharp.Sentry, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1e7fb7ba433d028b">
-      <HintPath>F:\En\References\PlaySharp.Sentry.dll</HintPath>
-    </Reference>
-    <Reference Include="PlaySharp.Service, Version=1.0.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\PlaySharp.Service.dll</HintPath>
-    </Reference>
-    <Reference Include="PlaySharp.Toolkit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\PlaySharp.Toolkit.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX, Version=3.1.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct2D1, Version=3.1.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\SharpDX.Direct2D1.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D11, Version=3.1.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\SharpDX.Direct3D11.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=3.1.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\SharpDX.Direct3D9.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DXGI, Version=3.1.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\SharpDX.DXGI.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Mathematics, Version=3.1.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\SharpDX.Mathematics.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.XInput, Version=3.1.0.0, Culture=neutral, PublicKeyToken=7e3dc52b16ce4f66">
-      <HintPath>F:\En\References\SharpDX.XInput.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-      <HintPath>F:\En\References\System.ValueTuple.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Abilities\LandMineAbility.cs" />
     <Compile Include="Abilities\RemoteMineAbility.cs" />
     <Compile Include="Abilities\StasisMineAbility.cs" />
@@ -129,8 +52,9 @@
     <Compile Include="Features\ViewDamageFromBombs\ViewOnTopPanel.cs" />
     <Compile Include="Features\StackInfo.cs" />
     <Compile Include="Helpers\CustomExtensions.cs" />
+    <Compile Include="Helpers\customHudInfo.cs" />
     <Compile Include="Helpers\DamageCalcHelpers.cs" />
-    <Compile Include="Helpers\TextureHelper.cs" />
+    <Compile Include="Helpers\DamageHelpers.cs" />
     <Compile Include="Managers\BombDamageManager.cs" />
     <Compile Include="Managers\BombManager.cs" />
     <Compile Include="BombsType\BombBehaviour\CantDetonate.cs" />
@@ -151,6 +75,33 @@
     <Compile Include="Abilities\SuicideAbility.cs" />
     <Compile Include="TechiesCrappahilationPaid.cs" />
     <Compile Include="Managers\Updater.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Divine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Divine.dll</HintPath>
+    </Reference>
+    <Reference Include="Divine.Menu, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Divine.Menu.dll</HintPath>
+    </Reference>
+    <Reference Include="Divine.SDK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Divine.SDK.dll</HintPath>
+    </Reference>
+    <Reference Include="Divine.Zero, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Divine.Zero.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetZip, Version=1.13.8.0, Culture=neutral, PublicKeyToken=6583c7c814667745">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\DotNetZip.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\SharpDX.Mathematics.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
