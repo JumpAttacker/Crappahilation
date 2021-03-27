@@ -38,7 +38,7 @@ namespace TechiesCrappahilationPaid
             UseFocusedDetonation.SetTooltip("working only if setting above is enabled");
             DetonateAllInOnce.ValueChanged += (sender, args) =>
             {
-                if (!DetonateAllInOnce)
+                if (!args.Value)
                 {
                     UseFocusedDetonation.Value = false;
                 }

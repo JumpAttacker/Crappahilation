@@ -1,4 +1,5 @@
-﻿using Divine;
+﻿using System;
+using Divine;
 using Divine.SDK.Extensions;
 
 namespace TechiesCrappahilationPaid.Managers
@@ -18,7 +19,7 @@ namespace TechiesCrappahilationPaid.Managers
             BombManager = new BombManager(this);
 
             BombDamageManager = new BombDamageManager(this);
-
+            
             UpdateManager.CreateUpdate(500, () =>
             {
                 var me = EntityManager.LocalHero;
@@ -27,8 +28,8 @@ namespace TechiesCrappahilationPaid.Managers
             });
 
         }
-        public Item ForceStaff { get; set; }
-        public Item Eul { get; set; }
+        public Ability ForceStaff { get; set; }
+        public Ability Eul { get; set; }
         
         public DamageChecker DamageChecker { get; }
 

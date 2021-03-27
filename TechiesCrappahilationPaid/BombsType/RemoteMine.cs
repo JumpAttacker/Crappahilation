@@ -18,16 +18,19 @@ namespace TechiesCrappahilationPaid.BombsType
             Range = 425;
             RangeSystem = new CanDrawRange(Owner, Range, Color.Gray);
             Stacker = new Stacker();
-            
+
             //TODO: delete after update
             UpdateManager.BeginInvoke(500, async () =>
             {
                 try
                 {
-                    while (owner.Health <= 1)
+                    while (owner!=null && owner.IsValid && owner.Health <= 1)
                     {
                         await Task.Delay(100);
                     }
+
+                    if (owner == null || !owner.IsValid)
+                        return;
 
                     IsActive = true;
                     DisposeSpawnRange();

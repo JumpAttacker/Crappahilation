@@ -7,6 +7,7 @@ using Divine.SDK.Extensions;
 using Divine.SDK.Helpers;
 using Divine.SDK.Prediction;
 using Divine.SDK.Prediction.Collision;
+using SharpDX;
 using TechiesCrappahilationPaid.BombsType;
 using TechiesCrappahilationPaid.Helpers;
 
@@ -53,11 +54,12 @@ namespace TechiesCrappahilationPaid.Managers
                     var isForce = _updater.ForceStaff != null && _updater.ForceStaff.CanBeCasted();
                     var enemies = EntityManager.GetEntities<Hero>().Where(x =>
                         x.IsValid && x.IsVisible && x.IsAlive && x.IsEnemy(me) && !x.IsIllusion &&
-                        !x.IsMagicImmune() &&
-                        _updater._main.MenuManager.Targets.GetValue(x.HeroId));
+                        !x.IsMagicImmune()/* &&
+                        _updater._main.MenuManager.Targets.GetValue(x.HeroId)*/);
                     foreach (var enemy in enemies)
                     {
                         var handle = enemy.Handle;
+                        
                         if (MultiSleeper<uint>.Sleeping(handle))
                             continue;
                         if (enemy.HasModifiers(new[]
@@ -82,7 +84,6 @@ namespace TechiesCrappahilationPaid.Managers
                                 continue;
                             }
                         }
-
                         var startManaCalc = 0f;
                         var threshold = 0f;
                         var heroId = enemy.HeroId;
@@ -134,15 +135,15 @@ namespace TechiesCrappahilationPaid.Managers
                             Owner = me,
                             AreaOfEffect = false,
                             CollisionTypes = CollisionTypes.None,
-                            Delay = 250,
+                            Delay = 0.250f,
                             Speed = float.MaxValue,
                             Range = float.MaxValue,
                             Radius = 420,
                             PredictionSkillshotType = PredictionSkillshotType.SkillshotCircle
                         };
                         input = input.WithTarget(enemy);
-
                         var prediction = PredictionManager.GetPrediction(input);
+                        ParticleManager.CircleParticle("123", prediction.CastPosition, 150, Color.Red);
                         var predictedPosition =  prediction.CastPosition;
                         var pos = _updater._main.MenuManager.UsePrediction ? predictedPosition : enemy.Position;
                         var detList = new List<RemoteMine>();
@@ -290,11 +291,15 @@ namespace TechiesCrappahilationPaid.Managers
                                 health -= damage;
                                 if (health + enemy.HealthRegeneration * 0.25f * detList.Count < 0)
                                 {
+                                    if (MultiSleeper<string>.Sleeping("force" + heroId))
+                                        continue;
                                     if (isLinken)
                                         _updater.Eul.Cast(enemy);
                                     _updater.ForceStaff.Cast(enemy);
                                     MultiSleeper<string>.Sleep("heroAfterForce" + heroId, 500);
+                                    MultiSleeper<string>.Sleep("force" + heroId, 500);
                                 }
+                                
                             }
                         }
 

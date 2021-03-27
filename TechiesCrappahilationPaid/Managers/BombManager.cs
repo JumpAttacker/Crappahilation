@@ -88,6 +88,7 @@ namespace TechiesCrappahilationPaid.Managers
                 if (bomb == null)
                 {
                     var name = unit.Name;
+
                     BombBase bombBase = null;
                     switch (name)
                     {
@@ -114,31 +115,37 @@ namespace TechiesCrappahilationPaid.Managers
                     }
                 }
             }
-            
+
 
             EntityManager.EntityAdded += (sender) =>
             {
-                var unit = sender.Entity as Unit;
-                if (unit == null)
+                if (sender.IsCollection)
                     return;
-                var name = unit.Name;
-                switch (name)
+                UpdateManager.BeginInvoke(0, () =>
                 {
-                    case "npc_dota_techies_land_mine":
-                        AddNewBombToSystem(new LandMine(unit).SetDamage(_updater._main.LandMine.GetDamage()),
-                            BombEnums.BombTypes.LandMine);
-                        break;
-                    case "npc_dota_techies_stasis_trap":
-                        AddNewBombToSystem(new StasisTrap(unit, new CantDetonate()), BombEnums.BombTypes.StasisTrap);
-                        break;
-                    case "npc_dota_techies_remote_mine":
-                        var bomb = new RemoteMine(unit).UpdateStacker(RemoteMines)
-                            .SetDamage(_updater._main.RemoteMine.GetDamage(), true);
-                        AddNewBombToSystem(bomb,
-                            BombEnums.BombTypes.RemoveMine);
-                        (bomb as RemoteMine)?.DrawSpawnRange();
-                        break;
-                }
+                    var unit = sender.Entity as Unit;
+                    if (unit == null)
+                        return;
+                    var name = unit.Name;
+                    switch (name)
+                    {
+                        case "npc_dota_techies_land_mine":
+                            AddNewBombToSystem(new LandMine(unit).SetDamage(_updater._main.LandMine.GetDamage()),
+                                BombEnums.BombTypes.LandMine);
+                            break;
+                        case "npc_dota_techies_stasis_trap":
+                            AddNewBombToSystem(new StasisTrap(unit, new CantDetonate()),
+                                BombEnums.BombTypes.StasisTrap);
+                            break;
+                        case "npc_dota_techies_remote_mine":
+                            var bomb = new RemoteMine(unit).UpdateStacker(RemoteMines)
+                                .SetDamage(_updater._main.RemoteMine.GetDamage(), true);
+                            AddNewBombToSystem(bomb,
+                                BombEnums.BombTypes.RemoveMine);
+                            (bomb as RemoteMine)?.DrawSpawnRange();
+                            break;
+                    }
+                });
             };
 
             EntityManager.EntityRemoved += (sender) =>
@@ -156,57 +163,61 @@ namespace TechiesCrappahilationPaid.Managers
 
             Entity.NetworkPropertyChanged += (unit, args) =>
             {
-                var bomb = FullBombList.Find(x => x.Owner.Handle == unit.Handle);
-                if (bomb == null) return;
-                var propertyName = args.PropertyName;
-                if (propertyName == "m_iHealth")
+                
+                UpdateManager.BeginInvoke(() =>
                 {
-                    if (args.NewValue.GetInt32() <= 0)
-                        RemoveBombFromSystem(bomb);
-                }
-                else if (propertyName == "m_NetworkActivity")
-                {
-                    bomb.IsActive = args.NewValue.GetInt32() == (int) BombEnums.SpawnStatus.IsActive;
-                    if (bomb.IsActive)
+                    var bomb = FullBombList.Find(x => x.Owner.Handle == unit.Handle);
+                    if (bomb == null) return;
+                    var propertyName = args.PropertyName;
+                    if (propertyName == "m_iHealth")
                     {
-                        (bomb as RemoteMine)?.DisposeSpawnRange();
-                        var isVisible = bomb.Owner.IsVisibleToEnemies;
-                        bomb.ChangeDrawType(IsDrawEnabledForBombType(bomb),
-                            isVisible ? Color.Red : Color.White);
-                        if (bomb is LandMine mine)
-                            if (isVisible)
-                                mine.StartTimer();
+                        if (args.NewValue.GetInt32() <= 0)
+                            RemoveBombFromSystem(bomb);
                     }
-                    else
+                    else if (propertyName == "m_NetworkActivity")
                     {
-                        bomb.ChangeDrawType(true && IsDrawEnabledForBombType(bomb), Color.Gray);
-                    }
-                }
-
-                if (bomb is RemoteMine)
-                {
-                }
-                else if (bomb is LandMine land)
-                {
-                    if (propertyName == "m_iTaggedAsVisibleByTeam")
-                    {
-                        //UpdateManager.BeginInvoke(() =>
-                        //{
-                        // TechiesCrappahilationPaid.Log.Warn($"{bomb} is visible {args.NewValue}");
-                        land.BombStatus = (BombEnums.BombStatus) args.NewValue.GetInt32();
-                        var willDetonate = land.BombStatus == BombEnums.BombStatus.WillDetonate;
-                        bomb.ChangeDrawType(true && IsDrawEnabledForBombType(bomb),
-                            willDetonate
-                                ? Color.Red
-                                : Color.White);
-
-                        if (willDetonate)
-                            land.StartTimer();
+                        bomb.IsActive = args.NewValue.GetInt32() == (int) BombEnums.SpawnStatus.IsActive;
+                        if (bomb.IsActive)
+                        {
+                            (bomb as RemoteMine)?.DisposeSpawnRange();
+                            var isVisible = bomb.Owner.IsVisibleToEnemies;
+                            bomb.ChangeDrawType(IsDrawEnabledForBombType(bomb),
+                                isVisible ? Color.Red : Color.White);
+                            if (bomb is LandMine mine)
+                                if (isVisible)
+                                    mine.StartTimer();
+                        }
                         else
-                            land.StopTimer();
-                        //}, 25);
+                        {
+                            bomb.ChangeDrawType(true && IsDrawEnabledForBombType(bomb), Color.Gray);
+                        }
                     }
-                }
+
+                    if (bomb is RemoteMine)
+                    {
+                    }
+                    else if (bomb is LandMine land)
+                    {
+                        if (propertyName == "m_iTaggedAsVisibleByTeam")
+                        {
+                            //UpdateManager.BeginInvoke(() =>
+                            //{
+                            // TechiesCrappahilationPaid.Log.Warn($"{bomb} is visible {args.NewValue}");
+                            land.BombStatus = (BombEnums.BombStatus) args.NewValue.GetInt32();
+                            var willDetonate = land.BombStatus == BombEnums.BombStatus.WillDetonate;
+                            bomb.ChangeDrawType(true && IsDrawEnabledForBombType(bomb),
+                                willDetonate
+                                    ? Color.Red
+                                    : Color.White);
+
+                            if (willDetonate)
+                                land.StartTimer();
+                            else
+                                land.StopTimer();
+                            //}, 25);
+                        }
+                    }
+                });
             };
 
 
@@ -236,7 +247,7 @@ namespace TechiesCrappahilationPaid.Managers
                     {
                         Console.WriteLine(e);
                     }
-                    
+
                     await Task.Delay(1000);
                 }
             });

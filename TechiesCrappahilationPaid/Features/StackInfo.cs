@@ -99,7 +99,7 @@ namespace TechiesCrappahilationPaid.Features
 
                 if (IsIn(rectangle, mousePos))
                 {
-                    RendererManager.DrawFilledRectangle(rectangle, new SharpDX.Color(200, 10, 10, 10), Color.White, 1);
+                    RendererManager.DrawFilledRectangle(rectangle, Color.White, new SharpDX.Color(200, 10, 10, 10), 1);
                     RendererManager.DrawText(text,new Vector2(rectangle.X + rectangle.Width / 2 - textSize.X / 2, rectangle.Y),
                         
                         bomb.UnderTrueSight ? Color.OrangeRed : Color.White, 30);
@@ -109,7 +109,7 @@ namespace TechiesCrappahilationPaid.Features
                     {
                         var boxPos = new Vector2(rectangle.X + count++ * boxSize.X, rectangle.Y + textSize.Y);
                         var boxRect = new RectangleF(boxPos.X + 1, boxPos.Y - 1, boxSize.X, boxSize.Y);
-                        RendererManager.DrawTexture(target.Key, new RectangleF(boxPos.X,boxPos.Y, boxSize.X, boxSize.Y));
+                        RendererManager.DrawTexture(target.Key, new RectangleF(boxPos.X,boxPos.Y, boxSize.X, boxSize.Y), UnitTextureType.MiniUnit);
                         if (bomb.Stacker.DetonateDict.TryGetValue(target.Key, out var isEnable))
                         {
                             RendererManager.DrawRectangle(boxRect, isEnable ? Color.Green : Color.OrangeRed, 1);
@@ -129,7 +129,7 @@ namespace TechiesCrappahilationPaid.Features
                         }
                         else
                         {
-                            RendererManager.DrawFilledRectangle(boxRect, new SharpDX.Color(100, 50, 50, 50), Color.White, 0);
+                            RendererManager.DrawFilledRectangle(boxRect, Color.White, new SharpDX.Color(100, 50, 50, 50), 0);
                         }
                     }
                 }

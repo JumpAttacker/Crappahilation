@@ -20,6 +20,7 @@ namespace TechiesCrappahilationPaid.Helpers
                           false) &&
                       (hero.NetworkName != ClassId.CDOTA_Unit_Hero_Abaddon.ToString() ||
                        !CanBeCasted(hero.GetAbilityById(AbilityId.abaddon_borrowed_time)));
+            
             if (checkForAegis)
                 return mod && hero.GetItemById(AbilityId.item_aegis)!=null &&
                        (hero.NetworkName != ClassId.CDOTA_Unit_Hero_SkeletonKing.ToString() ||
@@ -52,12 +53,12 @@ namespace TechiesCrappahilationPaid.Helpers
             {
                 return false;
             }
-
-            var item = ability as Item;
-            if (item != null)
-            {
-                return item.CanBeCasted(bonusMana);
-            }
+            //
+            // var item = ability as Item;
+            // if (item != null)
+            // {
+            //     return item.CanBeCasted(bonusMana);
+            // }
 
             try
             {

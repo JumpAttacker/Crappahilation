@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Divine;
 using TechiesCrappahilationPaid.Abilities;
 using TechiesCrappahilationPaid.Features;
@@ -25,7 +26,7 @@ namespace TechiesCrappahilationPaid
         protected override void OnActivate()
         {
             Me = EntityManager.LocalHero;
-
+            Console.WriteLine("TECHIES!!!!!");
             if (Me == null || Me.HeroId != HeroId.npc_dota_hero_techies)
             {
                 return;

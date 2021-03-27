@@ -47,14 +47,14 @@ namespace TechiesCrappahilationPaid.Features
 
             _range.ValueChanged += (sender, args) => { Draw(); };
 
-            if (enable)
+            /*if (enable)
             {
                 Draw();
-            }
+            }*/
 
             enable.ValueChanged += (sender, args) =>
             {
-                if (enable)
+                if (args.Value)
                 {
                     Draw();
                 }

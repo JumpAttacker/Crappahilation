@@ -30,9 +30,9 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
             AbilityToggle = Main.MenuManager.DamagePanel.CreateAbilityToggler("Show damage counter", dict);
 
             AbilityToggle.ValueChanged += (sender, args) => { EnabledList = GetEnabledAbilities(); };
-            ShowDamageType = Main.MenuManager.DamagePanel.CreateSlider("Bomb damage draw type",
-                2, 0, 2);
-                // new StringList("Only for current hp", "Only for max hp", "For current & max hp"));
+            ShowDamageType = Main.MenuManager.DamagePanel.
+                CreateSelector("Bomb damage draw type", new []{"Only for current hp", "Only for max hp", "For current & max hp"});
+                // new StringList());
 
             PositionX = Main.MenuManager.DamagePanel.CreateSlider("Extra Position X",
                 0, -1000, 4000);
@@ -45,7 +45,7 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
                 ChangeView(new ViewOnTopPanel(this));
             InterfaceType.ValueChanged += (sender, args) =>
             {
-                if (InterfaceType.Value)
+                if (args.Value)
                     ChangeView(new ViewOnMovablePanel(this));
                 else
                     ChangeView(new ViewOnTopPanel(this));
@@ -56,7 +56,7 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 
         public MenuSlider PositionX { get; set; }
 
-        public MenuSlider ShowDamageType { get; set; }
+        public MenuSelector ShowDamageType { get; set; }
 
         public MenuAbilityToggler AbilityToggle { get; set; }
 

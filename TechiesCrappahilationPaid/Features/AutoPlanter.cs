@@ -172,7 +172,7 @@ namespace TechiesCrappahilationPaid.Features
 //
 //                Console.WriteLine(sb);
 
-                sub2.IsEnabled = enablePoximityMines;
+                sub2.IsEnabled = args.Value;
             };
             OrderManager.OrderAdding+= args =>
             {
