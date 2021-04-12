@@ -182,6 +182,13 @@ namespace TechiesCrappahilationPaid.Helpers
         //     var v = unit.Position + (unit.Vector3FromPolarAngle() * distance);
         //     return new Vector3(v.X, v.Y, 0);
         // }
+        public static Vector3 InFrontSuper(this Entity unit, float distance)
+        {
+            var alpha = unit.RotationRad;
+            var vector2FromPolarAngle = SharpDXExtensions.FromPolarCoordinates(1f, alpha);
 
+            var v = unit.Position + (vector2FromPolarAngle.ToVector3() * distance);
+            return new Vector3(v.X, v.Y, 0);
+        }
     }
 }

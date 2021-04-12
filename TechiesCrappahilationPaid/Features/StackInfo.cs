@@ -61,7 +61,7 @@ namespace TechiesCrappahilationPaid.Features
         {
             if (mouseEventArgs.MouseKey == MouseKey.Left)
             {
-                mouseEventArgs.Process = false;
+                // mouseEventArgs.Process = false;
                 UpdateManager.BeginInvoke(async () =>
                 {
                     IsButtonClicked = true;

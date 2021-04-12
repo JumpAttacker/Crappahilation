@@ -26,12 +26,10 @@ namespace TechiesCrappahilationPaid
         protected override void OnActivate()
         {
             Me = EntityManager.LocalHero;
-            Console.WriteLine("TECHIES!!!!!");
             if (Me == null || Me.HeroId != HeroId.npc_dota_hero_techies)
             {
                 return;
             }
-            
 
             LandMine = new LandMineAbility(Me.Spellbook.Spells.First(x => x.Id == AbilityId.techies_land_mines));
             StasisMine = new StasisMineAbility(Me.Spellbook.Spells.First(x => x.Id == AbilityId.techies_stasis_trap));

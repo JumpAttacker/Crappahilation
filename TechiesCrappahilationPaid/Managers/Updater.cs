@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using Divine;
 using Divine.SDK.Extensions;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Items;
 
 namespace TechiesCrappahilationPaid.Managers
 {
@@ -22,14 +25,15 @@ namespace TechiesCrappahilationPaid.Managers
             
             UpdateManager.CreateUpdate(500, () =>
             {
-                var me = EntityManager.LocalHero;
-                Eul = me.GetItemById(AbilityId.item_cyclone);
-                ForceStaff = me.GetItemById(AbilityId.item_force_staff);
+                Eul = O9K.Core.Managers.Entity.EntityManager9.GetAbility<EulsScepterOfDivinity>(EntityManager.LocalHero.Handle);
+                ForceStaff = O9K.Core.Managers.Entity.EntityManager9.GetAbility<ForceStaff>(EntityManager.LocalHero.Handle);
+                Hex = O9K.Core.Managers.Entity.EntityManager9.GetAbility<ScytheOfVyse>(EntityManager.LocalHero.Handle);
             });
 
         }
-        public Ability ForceStaff { get; set; }
-        public Ability Eul { get; set; }
+        public ForceStaff ForceStaff { get; set; }
+        public ScytheOfVyse Hex { get; set; }
+        public EulsScepterOfDivinity Eul { get; set; }
         
         public DamageChecker DamageChecker { get; }
 

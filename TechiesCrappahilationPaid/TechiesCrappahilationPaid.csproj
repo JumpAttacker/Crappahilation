@@ -93,6 +93,9 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="O9K.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\..\Program Files\Divine\Plugins\O9K.Core.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1">
       <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\SharpDX.dll</HintPath>
     </Reference>

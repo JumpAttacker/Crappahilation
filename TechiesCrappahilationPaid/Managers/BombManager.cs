@@ -163,19 +163,27 @@ namespace TechiesCrappahilationPaid.Managers
 
             Entity.NetworkPropertyChanged += (unit, args) =>
             {
-                
+                var propertyName = args.PropertyName;
+                if (!propertyName.Equals("m_iHealth") && !propertyName.Equals("m_NetworkActivity") &&
+                    !propertyName.Equals("m_iTaggedAsVisibleByTeam"))
+                    return;
                 UpdateManager.BeginInvoke(() =>
                 {
                     var bomb = FullBombList.Find(x => x.Owner.Handle == unit.Handle);
                     if (bomb == null) return;
-                    var propertyName = args.PropertyName;
+
                     if (propertyName == "m_iHealth")
                     {
                         if (args.NewValue.GetInt32() <= 0)
                             RemoveBombFromSystem(bomb);
+                        if (args.NewValue.GetInt32() <= 150)
+                        {
+                            (bomb as RemoteMine)?.Owner.Spellbook.Spell1.Cast();
+                        }
                     }
                     else if (propertyName == "m_NetworkActivity")
                     {
+                        Console.WriteLine(args.NewValue.GetInt32());
                         bomb.IsActive = args.NewValue.GetInt32() == (int) BombEnums.SpawnStatus.IsActive;
                         if (bomb.IsActive)
                         {
@@ -195,6 +203,12 @@ namespace TechiesCrappahilationPaid.Managers
 
                     if (bomb is RemoteMine)
                     {
+                        if (propertyName == "m_iTaggedAsVisibleByTeam")
+                        {
+                            var isVisible = (args.NewValue.GetInt32() & 15) == 14;
+                            bomb.ChangeDrawType(true,
+                                isVisible ? Color.Red : Color.White);
+                        }
                     }
                     else if (bomb is LandMine land)
                     {
@@ -202,7 +216,6 @@ namespace TechiesCrappahilationPaid.Managers
                         {
                             //UpdateManager.BeginInvoke(() =>
                             //{
-                            // TechiesCrappahilationPaid.Log.Warn($"{bomb} is visible {args.NewValue}");
                             land.BombStatus = (BombEnums.BombStatus) args.NewValue.GetInt32();
                             var willDetonate = land.BombStatus == BombEnums.BombStatus.WillDetonate;
                             bomb.ChangeDrawType(true && IsDrawEnabledForBombType(bomb),

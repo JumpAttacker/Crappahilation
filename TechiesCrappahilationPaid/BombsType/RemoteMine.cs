@@ -24,14 +24,14 @@ namespace TechiesCrappahilationPaid.BombsType
             {
                 try
                 {
-                    while (owner!=null && owner.IsValid && owner.Health <= 1)
+                    while (owner != null && owner.IsValid && owner.Health <= 1)
                     {
                         await Task.Delay(100);
                     }
-
+            
                     if (owner == null || !owner.IsValid)
                         return;
-
+            
                     IsActive = true;
                     DisposeSpawnRange();
                     var isVisible = Owner.IsVisibleToEnemies;
@@ -141,7 +141,7 @@ namespace TechiesCrappahilationPaid.BombsType
 
         public void DrawSpawnRange()
         {
-            ParticleManager.RangeParticle(Owner.Handle.ToString(), Owner, 255, Color.DimGray);
+            ParticleManager.RangeParticle(Owner.Handle.ToString(), Owner, 425, Color.DimGray);
             // RangeEffect = new ParticleEffect("materials/ensage_ui/particles/range_display_mod.vpcf", Owner.Position);
             // RangeEffect.SetControlPoint(1, new Vector3(Range, 255, 0));
             // RangeEffect.SetControlPoint(2, new Vector3(100, 100, 100));
