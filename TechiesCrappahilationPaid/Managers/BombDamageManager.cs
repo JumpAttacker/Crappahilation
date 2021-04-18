@@ -126,17 +126,17 @@ namespace TechiesCrappahilationPaid.Managers
                         }
 
 
-                        var raindrop = enemy.GetAbilityById(AbilityId.item_infused_raindrop);
+                        var raindrop = enemy.Abilities.FirstOrDefault(x => x.Id == AbilityId.item_infused_raindrop);
                         if (raindrop != null && raindrop.CanBeCasted())
                         {
-                            var extraHealth = raindrop.GetAbilitySpecialData("magic_damage_block");
+                            var extraHealth = raindrop.BaseAbility.GetAbilitySpecialData("magic_damage_block");
                             health += extraHealth;
                         }
 
                         var blockCount = enemy.GetModifierStacks("modifier_templar_assassin_refraction_absorb");
                         var graveKeeper = enemy.GetModifier("modifier_visage_gravekeepers_cloak");
                         var graveKeeperCount = graveKeeper?.StackCount;
-                        var aeon = enemy.GetAbilityById(AbilityId.item_aeon_disk);
+                        var aeon = enemy.Abilities.FirstOrDefault(x => x.Id == AbilityId.item_aeon_disk);
                         var breakHealthForAeon = enemy.MaximumHealth * .7f;
                         var input = new PredictionInput
                         {
@@ -312,7 +312,7 @@ namespace TechiesCrappahilationPaid.Managers
                                     if (isLinken)
                                         _updater.Eul.UseAbility(enemy);
                                     _updater.ForceStaff.UseAbility(enemy);
-                                    
+
                                     if (enemy.CanBecomeMagicImmune && _updater.Hex != null &&
                                         _updater.Hex.CanHit(enemy) &&
                                         _updater.Hex.CanBeCasted())

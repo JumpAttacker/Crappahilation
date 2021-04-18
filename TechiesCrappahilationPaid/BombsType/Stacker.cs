@@ -20,7 +20,7 @@ namespace TechiesCrappahilationPaid.BombsType
             foreach (var target in TargetManager.Targets.GroupBy(x => x.HeroId))
             {
                 DetonateDict.Add(target.Key, true);
-                Console.WriteLine("adding..." + target.Key);
+                // Console.WriteLine("adding..." + target.Key);
             }
         }
 
@@ -31,7 +31,7 @@ namespace TechiesCrappahilationPaid.BombsType
                 if (!DetonateDict.TryGetValue(target.Key, out _))
                 {
                     DetonateDict.Add(target.Key, true);
-                    Console.WriteLine("adding..." + target.Key);
+                    // Console.WriteLine("adding..." + target.Key);
                 }
             }
         }

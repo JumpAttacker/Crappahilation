@@ -183,7 +183,7 @@ namespace TechiesCrappahilationPaid.Managers
                     }
                     else if (propertyName == "m_NetworkActivity")
                     {
-                        Console.WriteLine(args.NewValue.GetInt32());
+                        // Console.WriteLine(args.NewValue.GetInt32());
                         bomb.IsActive = args.NewValue.GetInt32() == (int) BombEnums.SpawnStatus.IsActive;
                         if (bomb.IsActive)
                         {
