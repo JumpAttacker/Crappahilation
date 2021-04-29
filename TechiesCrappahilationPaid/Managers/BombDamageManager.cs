@@ -153,10 +153,17 @@ namespace TechiesCrappahilationPaid.Managers
                         var prediction = PredictionManager.GetPrediction(input);
                         // ParticleManager.CircleParticle("123", prediction.CastPosition, 150, Color.Red);
                         var predictedPosition = prediction.CastPosition;
-                        var pos = _updater._main.MenuManager.UsePrediction ? predictedPosition : enemy.Position;
+                        var pos = /*_updater._main.MenuManager.UsePrediction ? predictedPosition :*/ enemy.Position;
                         var detList = new List<RemoteMine>();
-                        var bombs = updater.BombManager.RemoteMines.Where(x =>
-                            x.IsActive && x.Position.IsInRange(pos, 420)).ToList();
+                        var bombs = updater
+                            .BombManager
+                            .RemoteMines
+                            .Where(x =>
+                                x.IsActive
+                                && _updater._main.MenuManager.UsePrediction
+                                    ? x.Position.IsInRange(pos, 420) && x.Position.IsInRange(predictedPosition, 420)
+                                    : x.Position.IsInRange(pos, 420))
+                            .ToList();
                         var underStasisTrap = enemy.HasModifier("modifier_techies_stasis_trap_stunned");
                         foreach (var remoteMine in bombs.Where(x =>
                             x.StackerMain == null && x.Stacker.DetonateDict.TryGetValue(heroId, out var isEnable) &&
