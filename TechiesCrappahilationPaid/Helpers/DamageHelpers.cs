@@ -23,10 +23,10 @@ namespace TechiesCrappahilationPaid.Helpers
             switch (damageType)
             {
                 case DamageType.Magical:
-                    reduction = target.MagicDamageResist;
+                    reduction = target.MagicalDamageResistance;
                     break;
                 case DamageType.Physical:
-                    reduction = target.DamageResist;
+                    reduction = target.PhysicalDamageResistance;
                     break;
             }
 
