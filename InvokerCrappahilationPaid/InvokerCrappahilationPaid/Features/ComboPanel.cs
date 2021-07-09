@@ -2,12 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-
-using Ensage.Common.Menu;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Input;
-using Ensage.SDK.Menu;
-using Ensage.SDK.Renderer;
 using SharpDX;
 using Color = System.Drawing.Color;
 

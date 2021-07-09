@@ -1,66 +1,53 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
+using Divine;
+using Divine.SDK.Extensions;
+using Divine.SDK.Prediction;
+using Divine.SDK.Prediction.Collision;
 using SharpDX;
 
 namespace InvokerCrappahilationPaid
 {
     public class NavMeshHelper
     {
-        private const int StaticZ = 256;
-        private readonly Dictionary<Unit, uint> _units = new Dictionary<Unit, uint>();
-        public NavMeshPathfinding Pathfinding = new NavMeshPathfinding();
-
-        public NavMeshHelper(InvokerCrappahilationPaid main)
+        public NavMeshHelper()
         {
-            MainUnit = main.Me;
+        }
 
-            EntityManager<Unit>.EntityAdded += (sender, unit) => { AddUnitToSystem(unit); };
 
-            UpdateManager.BeginInvoke(() =>
+        private void AddUnitToSystem(Hero target)
+        {
+            var localHero = EntityManager.LocalHero;
+            if (localHero == null)
             {
-                foreach (var unit in EntityManager<Unit>.Entities) AddUnitToSystem(unit);
-            }, 1000);
-        }
+                return;
+            }
 
-        public Hero MainUnit { get; set; }
-
-        private void AddUnitToSystem(Unit unit)
-        {
-            if (_units.ContainsKey(unit) || !unit.IsSpawned || !unit.IsAlive) return;
-            var nullable = AddObstacle(unit.NetworkPosition, unit.HullRadius);
-            if (!nullable.HasValue) return;
-            _units.Add(unit, nullable.Value);
-            UpdateManager.BeginInvoke(async () =>
+            if (target == null)
             {
-                while (unit.IsValid && unit.IsAlive)
-                {
-                    UpdateObstacle(nullable.Value, unit.NetworkPosition, unit.HullRadius);
-                    await Task.Delay(100);
-                }
+                return;
+            }
 
-                _units.Remove(unit);
-                RemoveObstacle(nullable.Value);
-            });
-        }
+            var sunStrike = localHero.Spellbook.MainSpells.FirstOrDefault(x => x.Id == AbilityId.invoker_sun_strike);
 
-        public uint? AddObstacle(Vector3 position, float radius, uint? obstacle = null)
-        {
-            if (obstacle.HasValue)
-                RemoveObstacle(obstacle.Value);
-            return Pathfinding.AddObstacle(position.SetZ(StaticZ), radius);
-        }
+            var input = new PredictionInput
+            {
+                Owner = localHero,
+                AreaOfEffect = false,
+                CollisionTypes = CollisionTypes.None,
+                Delay = sunStrike.CastPoint + sunStrike.GetAbilitySpecialData("delay"),
+                Speed = float.MaxValue,
+                Range = float.MaxValue,
+                Radius = sunStrike.GetAbilitySpecialData("area_of_effect"),
+                PredictionSkillshotType = PredictionSkillshotType.SkillshotCircle
+            };
 
-        public void UpdateObstacle(uint id, Vector3 position, float radius)
-        {
-            Pathfinding.UpdateObstacle(id, position.SetZ(StaticZ), radius);
-        }
+            input = input.WithTarget(target);
 
-        public void RemoveObstacle(uint id)
-        {
-            Pathfinding.RemoveObstacle(id);
+            var hookOutput = PredictionManager.GetPrediction(input);
+
+            ParticleManager.CircleParticle("CircleParticle1", hookOutput.CastPosition, input.Radius, Color.Red);
         }
     }
 }
