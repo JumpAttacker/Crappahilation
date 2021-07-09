@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using Divine;
-using Divine.Core.Helpers;
-using Divine.Core.Managers.Unit;
-using Divine.Core.Entities;
 using Divine.Zero.Loader;
+
 using SharpDX;
+
 using Color = System.Drawing.Color;
 
 namespace InvokerCrappahilationPaid

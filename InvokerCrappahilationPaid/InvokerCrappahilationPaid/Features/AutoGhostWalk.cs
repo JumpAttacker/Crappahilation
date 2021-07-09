@@ -1,11 +1,5 @@
 ﻿using System.Linq;
 
-using Ensage.Common.Menu;
-using Ensage.Common.Objects.UtilityObjects;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Menu;
-
 namespace InvokerCrappahilationPaid.Features
 {
     public class AutoGhostWalk

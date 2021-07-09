@@ -1,5 +1,8 @@
-﻿using Divine;
-using Divine.SDK.Extensions;
+﻿using Divine.Extensions;
+using Divine.Update;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Abilities.Items;
+using Divine.Entity.Entities.Units.Heroes;
 
 namespace TechiesCrappahilationPaid.Managers
 {

@@ -1,7 +1,14 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Divine;
-using Divine.SDK.Extensions;
+
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units;
+using Divine.Entity.Entities.Units.Components;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Extensions;
+using Divine.Update;
+
 using TechiesCrappahilationPaid.Helpers;
 
 namespace TechiesCrappahilationPaid.Abilities

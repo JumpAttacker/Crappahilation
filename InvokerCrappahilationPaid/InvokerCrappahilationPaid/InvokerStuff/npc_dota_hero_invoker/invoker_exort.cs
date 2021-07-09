@@ -2,11 +2,6 @@
 //    Copyright (c) 2017 Ensage.
 // </copyright>
 
-
-using Ensage.SDK.Abilities;
-using Ensage.SDK.Abilities.Components;
-using Ensage.SDK.Extensions;
-
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
     public class InvokerExort : ActiveAbility, IHasModifier

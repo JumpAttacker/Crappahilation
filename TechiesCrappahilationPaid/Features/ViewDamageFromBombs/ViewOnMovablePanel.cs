@@ -1,7 +1,11 @@
 using System.Linq;
-using Divine;
-using SharpDX;
-using RendererManager = Divine.RendererManager;
+
+using Divine.Entity;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Players;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Numerics;
+using Divine.Renderer;
 
 namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 {
@@ -28,7 +32,7 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
             RendererManager.DrawFilledRectangle(
                 new RectangleF(PanelPosition.X, PanelPosition.Y, width, count * _iconSize.Y),
                
-                Color.Black,  new SharpDX.Color(50, 50, 50, 50),1);
+                Color.Black,  new Color(50, 50, 50, 50),1);
             DrawHorizontalsIcons( currentLoc, _iconSize, ViewManager.EnabledList);
 
             foreach (var enemy in enumerable.Select(x => x.Hero).Where(x =>
@@ -36,14 +40,14 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
             {
                 var heroId = enemy.HeroId;
                 currentLoc.Y += 25;
-                RendererManager.DrawTexture(heroId,
-                    new RectangleF(currentLoc.X, currentLoc.Y, _iconSize.X, _iconSize.Y), UnitTextureType.MiniUnit, true);
+                RendererManager.DrawImage(heroId,
+                    new RectangleF(currentLoc.X, currentLoc.Y, _iconSize.X, _iconSize.Y), UnitImageType.MiniUnit, true);
                 DrawHorizontalsDamage(currentLoc, _iconSize, enemy, ViewManager.EnabledList);
             }
 
             RendererManager.DrawRectangle(
                 new RectangleF(PanelPosition.X, PanelPosition.Y, width, count * _iconSize.Y),
-                new SharpDX.Color(100,100,100,50));
+                new Color(100,100,100,50));
         }
 
         public void DrawHorizontalsIcons(Vector2 startPos, Vector2 size, params AbilityId[] ids)
@@ -51,8 +55,8 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
             var pos = startPos + new Vector2(size.X * 1.5f, 0);
             for (var i = 1; i <= ids.Length; i++)
             {
-                RendererManager.DrawTexture(ids[i - 1],
-                    new RectangleF(pos.X, startPos.Y, _iconSize.X, _iconSize.Y),loadTexture: true);
+                RendererManager.DrawImage(ids[i - 1],
+                    new RectangleF(pos.X, startPos.Y, _iconSize.X, _iconSize.Y), loadImage: true);
                 pos += new Vector2(size.X * 2, 0);
             }
         }

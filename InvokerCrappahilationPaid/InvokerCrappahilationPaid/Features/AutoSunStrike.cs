@@ -2,17 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Ensage.Common;
-using Ensage.Common.Menu;
-using Ensage.Common.Objects.UtilityObjects;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Menu;
-using Ensage.SDK.Prediction;
-using Ensage.SDK.Renderer;
-using Ensage.SDK.Renderer.Particle;
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
+
 using SharpDX;
+
 using UnitExtensions = Ensage.Common.Extensions.UnitExtensions;
 
 namespace InvokerCrappahilationPaid.Features

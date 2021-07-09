@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using Divine;
+
 using Divine.Menu.Items;
-using SharpDX;
+using Divine.Numerics;
+using Divine.Particle;
 
 namespace TechiesCrappahilationPaid.Features
 {
@@ -75,7 +76,7 @@ namespace TechiesCrappahilationPaid.Features
             foreach (var pos in _list)
             {
                 ParticleManager.CircleParticle($"{index++}_pos_helper", pos, _range,
-                    SharpDX.Color.Purple);
+                    Color.Purple);
             }
         }
     }

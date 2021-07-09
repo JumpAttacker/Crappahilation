@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Linq;
 
-using Ensage.Common.Extensions;
-using Ensage.Common.Menu;
-using Ensage.Common.Objects.UtilityObjects;
-using Ensage.SDK.Helpers;
-using Ensage.SDK.Input;
-using Ensage.SDK.Menu;
-using Ensage.SDK.Renderer;
 using SharpDX;
+
 using Color = System.Drawing.Color;
 using UnitExtensions = Ensage.SDK.Extensions.UnitExtensions;
 

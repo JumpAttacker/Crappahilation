@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Divine;
-using Divine.Menu;
+
+using Divine.Entity.Entities.Units.Heroes.Components;
 using Divine.Menu.Items;
-using SharpDX;
+using Divine.Numerics;
 
 namespace TechiesCrappahilationPaid
 {

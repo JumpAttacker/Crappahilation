@@ -5,9 +5,6 @@
 using System.Collections.Generic;
 using System.Windows.Input;
 
-using Ensage.SDK.Abilities;
-using Ensage.SDK.Extensions;
-
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
     public class InvokerForgeSpirit : ActiveAbility, IInvokableAbility, IHaveFastInvokeKey

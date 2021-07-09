@@ -1,7 +1,8 @@
 ﻿using System;
-using Divine;
-using Divine.Zero.Loader;
-using SharpDX;
+using Divine.Game;
+using Divine.Numerics;
+using Divine.Renderer;
+using Divine.Entity.Entities.Units;
 using TechiesCrappahilationPaid.BombsType.BombBehaviour;
 using TechiesCrappahilationPaid.BombsType.DrawBehaviour;
 

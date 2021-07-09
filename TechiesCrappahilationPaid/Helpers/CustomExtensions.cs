@@ -1,9 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Divine;
-using Divine.SDK.Extensions;
-using SharpDX;
+
+using Divine.Entity.Entities;
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Components;
+using Divine.Entity.Entities.Units;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Extensions;
+using Divine.Game;
+using Divine.Numerics;
 
 namespace TechiesCrappahilationPaid.Helpers
 {
@@ -20,9 +27,9 @@ namespace TechiesCrappahilationPaid.Helpers
                           false) &&
                       (hero.NetworkName != ClassId.CDOTA_Unit_Hero_Abaddon.ToString() ||
                        !CanBeCasted(hero.GetAbilityById(AbilityId.abaddon_borrowed_time)));
-            
+
             if (checkForAegis)
-                return mod && hero.GetItemById(AbilityId.item_aegis)!=null &&
+                return mod && hero.GetItemById(AbilityId.item_aegis) != null &&
                        (hero.NetworkName != ClassId.CDOTA_Unit_Hero_SkeletonKing.ToString() ||
                         !CanBeCasted(hero.GetAbilityById(AbilityId.skeleton_king_reincarnation)));
             return mod;
@@ -30,23 +37,20 @@ namespace TechiesCrappahilationPaid.Helpers
 
         public static float ManaPercent(this Unit unit)
         {
-            return (float) unit.Mana / (float) unit.MaximumMana;
+            return (float)unit.Mana / (float)unit.MaximumMana;
         }
 
         public static string ToCopyFormat(this object obj)
         {
-            switch (obj)
+            return obj switch
             {
-                case null:
-                    return string.Empty;
-                case Enum _:
-                    return obj.GetType().Name + "." + obj;
-                case Vector3 v3:
-                    return (int) v3.X + ", " + (int) v3.Y + ", " + (int) v3.Z;
-                default:
-                    return obj.ToString();
-            }
+                null => string.Empty,
+                Enum _ => obj.GetType().Name + "." + obj,
+                Vector3 v3 => (int)v3.X + ", " + (int)v3.Y + ", " + (int)v3.Z,
+                _ => obj.ToString(),
+            };
         }
+
         public static bool CanBeCasted(this Ability ability, float bonusMana = 0)
         {
             if (ability == null || !ability.IsValid)
@@ -79,8 +83,8 @@ namespace TechiesCrappahilationPaid.Helpers
 
                 var name = ability.Id;
                 if (name != AbilityId.invoker_invoke && name != AbilityId.invoker_quas && name != AbilityId.invoker_wex
-                    && name != AbilityId.invoker_exort && ability.AbilitySlot != AbilitySlot.Slot_4
-                    && ability.AbilitySlot != AbilitySlot.Slot_5)
+                    && name != AbilityId.invoker_exort && ability.AbilitySlot != AbilitySlot.Slot4
+                    && ability.AbilitySlot != AbilitySlot.Slot5)
                 {
                     return false;
                 }
@@ -95,18 +99,6 @@ namespace TechiesCrappahilationPaid.Helpers
             }
         }
 
-        /// <summary>
-        ///     Checks if given ability can be used
-        /// </summary>
-        /// <param name="ability">
-        ///     The ability.
-        /// </param>
-        /// <param name="target">
-        ///     The target.
-        /// </param>
-        /// <returns>
-        ///     returns true in case ability can be used
-        /// </returns>
         public static bool CanBeCasted(this Ability ability, Unit target)
         {
             if (ability == null || !ability.IsValid)
@@ -132,7 +124,7 @@ namespace TechiesCrappahilationPaid.Helpers
 
             return canBeCasted;
         }
-        
+
         public static bool CanHit(this Ability ability, params Unit[] targets)
         {
             if (!targets.Any())
@@ -148,24 +140,9 @@ namespace TechiesCrappahilationPaid.Helpers
             // moar checks
             return false;
         }
-        
-        /// <summary>
-        ///     The rot speed dictionary.
-        /// </summary>
+
         public static Dictionary<float, double> RotSpeedDictionary = new Dictionary<float, double>();
-        
-        /// <summary>
-        ///     Checks if a unit is currently changing their direction
-        /// </summary>
-        /// <param name="unit">
-        ///     The unit.
-        /// </param>
-        /// <param name="tolerancy">
-        ///     tolerancy of rotation speed
-        /// </param>
-        /// <returns>
-        ///     The <see cref="bool" />.
-        /// </returns>
+
         public static bool IsTurning(this Unit unit, double tolerancy = 0)
         {
             double rotSpeed;
@@ -176,19 +153,19 @@ namespace TechiesCrappahilationPaid.Helpers
 
             return Math.Abs(rotSpeed) > tolerancy;
         }
-        
-        // public static Vector3 InFront(this Unit unit, float distance)
-        // {
-        //     var v = unit.Position + (unit.Vector3FromPolarAngle() * distance);
-        //     return new Vector3(v.X, v.Y, 0);
-        // }
+
         public static Vector3 InFrontSuper(this Entity unit, float distance)
         {
             var alpha = unit.RotationRad;
-            var vector2FromPolarAngle = SharpDXExtensions.FromPolarCoordinates(1f, alpha);
+            var vector2FromPolarAngle = FromPolarCoordinates(1f, alpha);
 
             var v = unit.Position + (vector2FromPolarAngle.ToVector3() * distance);
             return new Vector3(v.X, v.Y, 0);
+        }
+
+        private static Vector2 FromPolarCoordinates(float radial, float polar)
+        {
+            return new Vector2((float)Math.Cos(polar) * radial, (float)Math.Sin(polar) * radial);
         }
     }
 }

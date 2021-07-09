@@ -7,11 +7,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-using Ensage.SDK.Abilities;
-using Ensage.SDK.Abilities.Components;
-using Ensage.SDK.Extensions;
-using Ensage.SDK.Helpers;
 using SharpDX;
+
 using Vector3Extensions = Ensage.Common.Extensions.SharpDX.Vector3Extensions;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker

@@ -1,6 +1,6 @@
-using Divine;
-
-using SharpDX;
+using Divine.Numerics;
+using Divine.Particle;
+using Divine.Entity.Entities.Units;
 
 namespace TechiesCrappahilationPaid.BombsType.DrawBehaviour
 {

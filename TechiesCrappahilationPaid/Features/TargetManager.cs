@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Divine;
+using Divine.Entity;
+using Divine.Update;
+using Divine.Entity.Entities.Units;
+using Divine.Entity.Entities.Units.Heroes;
 
 namespace TechiesCrappahilationPaid.Features
 {

@@ -1,4 +1,4 @@
-using SharpDX;
+using Divine.Numerics;
 
 namespace TechiesCrappahilationPaid.BombsType.DrawBehaviour
 {

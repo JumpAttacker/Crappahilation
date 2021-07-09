@@ -1,5 +1,4 @@
-﻿using Divine;
-
+﻿using Divine.Entity.Entities.Abilities;
 
 namespace TechiesCrappahilationPaid.Abilities
 {

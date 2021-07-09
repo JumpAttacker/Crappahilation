@@ -1,4 +1,4 @@
-﻿using Divine;
+﻿using Divine.Entity.Entities.Abilities;
 
 namespace TechiesCrappahilationPaid.BombsType.BombBehaviour
 {

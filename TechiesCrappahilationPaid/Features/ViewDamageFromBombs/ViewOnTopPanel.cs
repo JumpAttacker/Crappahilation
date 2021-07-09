@@ -1,5 +1,5 @@
-using Divine;
-using SharpDX;
+using Divine.Numerics;
+using Divine.Renderer;
 
 namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 {

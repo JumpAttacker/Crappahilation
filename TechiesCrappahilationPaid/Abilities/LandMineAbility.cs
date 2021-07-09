@@ -1,5 +1,8 @@
-﻿using Divine;
-using Divine.SDK.Extensions;
+﻿using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units;
+using Divine.Extensions;
+
 using TechiesCrappahilationPaid.Helpers;
 
 namespace TechiesCrappahilationPaid.Abilities

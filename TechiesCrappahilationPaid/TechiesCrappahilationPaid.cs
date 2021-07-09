@@ -1,10 +1,16 @@
-﻿using System;
-using System.Linq;
-using Divine;
+﻿using System.Linq;
+
+using Divine.Entity;
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Entity.Entities.Units.Heroes.Components;
+using Divine.Service;
+
 using TechiesCrappahilationPaid.Abilities;
 using TechiesCrappahilationPaid.Features;
 using TechiesCrappahilationPaid.Features.ViewDamageFromBombs;
-using TechiesCrappahilationPaid.Helpers;
+
 using Updater = TechiesCrappahilationPaid.Managers.Updater;
 
 namespace TechiesCrappahilationPaid

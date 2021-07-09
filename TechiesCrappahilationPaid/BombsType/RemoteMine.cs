@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Divine;
-using Divine.SDK.Extensions;
-using SharpDX;
+using Divine.Extensions;
+using Divine.Numerics;
+using Divine.Particle;
+using Divine.Update;
+using Divine.Entity.Entities.Units;
 using TechiesCrappahilationPaid.BombsType.DrawBehaviour;
 
 namespace TechiesCrappahilationPaid.BombsType

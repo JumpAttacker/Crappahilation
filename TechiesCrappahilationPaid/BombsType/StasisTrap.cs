@@ -1,6 +1,5 @@
-﻿using Divine;
-
-using SharpDX;
+﻿using Divine.Numerics;
+using Divine.Entity.Entities.Units;
 using TechiesCrappahilationPaid.BombsType.BombBehaviour;
 using TechiesCrappahilationPaid.BombsType.DrawBehaviour;
 

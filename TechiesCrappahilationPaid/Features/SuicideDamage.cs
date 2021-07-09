@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Divine;
+
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units.Heroes;
 using Divine.Menu.Items;
-using SharpDX;
+using Divine.Numerics;
+using Divine.Renderer;
+
 using TechiesCrappahilationPaid.Helpers;
 
 namespace TechiesCrappahilationPaid.Features
@@ -79,10 +83,10 @@ namespace TechiesCrappahilationPaid.Features
                         var willDie = _main.Updater.BombDamageManager.DamageDictionary[enemy.HeroId].HeroWillDieSuicide;
                         var rect = new RectangleF(drawPos.X - 26 + PositionX, drawPos.Y + PositionY, TextSize * 2 - 2,
                             TextSize * 2 - 2);
-                        RendererManager.DrawTexture($"{AbilityId.techies_suicide}_icon", rect);
+                        RendererManager.DrawImage($"{AbilityId.techies_suicide}_icon", rect);
                         var clr = willDie ? Color.LimeGreen : Color.Red;
                         RendererManager.DrawFilledRectangle(rect,
-                            new SharpDX.Color((float) clr.R, clr.G, clr.B, 35),
+                            new Color((float) clr.R, clr.G, clr.B, 35),
                             willDie ? Color.LimeGreen : Color.Red, 0.5f);
                     }
                 }

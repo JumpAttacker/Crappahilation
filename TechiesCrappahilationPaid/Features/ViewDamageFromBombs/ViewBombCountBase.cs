@@ -1,5 +1,6 @@
 using System;
-using Divine;
+using Divine.Renderer;
+using Divine.Entity.Entities.Units.Heroes;
 
 namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 {

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Linq;
-using Divine;
-using Divine.SDK.Extensions;
-using O9K.Core.Entities.Abilities.Base;
+﻿using Divine.Entity;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Update;
+
 using O9K.Core.Entities.Abilities.Items;
 
 namespace TechiesCrappahilationPaid.Managers

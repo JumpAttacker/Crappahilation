@@ -2,13 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Divine;
-using Divine.SDK.Extensions;
-using Divine.SDK.Helpers;
-using Divine.SDK.Prediction;
-using Divine.SDK.Prediction.Collision;
+
+using Divine.Entity;
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Entity.Entities.Units.Heroes.Components;
+using Divine.Extensions;
+using Divine.Game;
+using Divine.GameConsole;
+using Divine.Helpers;
+using Divine.Prediction;
+using Divine.Prediction.Collision;
+using Divine.Update;
+
 using O9K.Core.Entities.Heroes;
-using SharpDX;
+
 using TechiesCrappahilationPaid.BombsType;
 using TechiesCrappahilationPaid.Helpers;
 
@@ -206,7 +215,7 @@ namespace TechiesCrappahilationPaid.Managers
                                 {
                                     var heroPos = enemy.Position;
                                     var consolePosition = $"{heroPos.X} {heroPos.Y}";
-                                    GameManager.ExecuteCommand($"dota_camera_set_lookatpos {consolePosition}");
+                                    GameConsoleManager.ExecuteCommand($"dota_camera_set_lookatpos {consolePosition}");
                                 }
 
                                 if (_updater._main.MenuManager.DelayOnDetonate.Value > 0 && !passedDelay &&
