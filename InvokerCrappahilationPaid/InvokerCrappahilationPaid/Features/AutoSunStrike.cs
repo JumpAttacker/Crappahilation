@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+<<<<<<< HEAD
 using System.Linq;
 
+=======
+>>>>>>> e5540ca6453d07fa19eccaaee870d87217e5a893
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
 
 using SharpDX;
@@ -339,7 +342,6 @@ namespace InvokerCrappahilationPaid.Features
             if (_timeDictionary.TryGetValue(handle, out var time))
             {
                 timing = currentTime - time;
-                //InvokerCrappahilationPaid.Log.Warn($"Timing: {currentTime - time}");
                 return timing >= SsTiming / 1000f;
             }
 

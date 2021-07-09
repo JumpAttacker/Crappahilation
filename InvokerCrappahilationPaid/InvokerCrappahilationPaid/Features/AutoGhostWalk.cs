@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 ﻿using System.Linq;
 
 namespace InvokerCrappahilationPaid.Features
+=======
+﻿namespace InvokerCrappahilationPaid.Features
+>>>>>>> e5540ca6453d07fa19eccaaee870d87217e5a893
 {
     public class AutoGhostWalk
     {

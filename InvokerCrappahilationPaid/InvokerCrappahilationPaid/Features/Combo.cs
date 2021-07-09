@@ -1,9 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+<<<<<<< HEAD
 
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
 
+=======
+using Divine;
+using Divine.SDK.Prediction;
+using Divine.Zero.Loader;
+using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Heroes.Invoker.Helpers;
+>>>>>>> e5540ca6453d07fa19eccaaee870d87217e5a893
 using SharpDX;
 
 using Prediction = Ensage.Common.Prediction;
@@ -119,7 +128,7 @@ namespace InvokerCrappahilationPaid.Features
             _main.Config.ComboPanel.IsAutoComboSelected ? ComboTypeEnum.Auto : ComboTypeEnum.CustomCombo;
 
         public Unit Target { get; set; }
-        private Hero Me => (Hero) _main.Context.Owner;
+        private Hero Me => _main.Me;
 
         /*private void InvokeThisShit(ActiveAbility ability)
         {

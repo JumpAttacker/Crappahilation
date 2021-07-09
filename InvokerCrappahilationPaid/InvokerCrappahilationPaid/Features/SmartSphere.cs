@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Linq;
+<<<<<<< HEAD
 
+=======
+using Divine;
+using O9K.Core.Entities.Heroes;
+>>>>>>> e5540ca6453d07fa19eccaaee870d87217e5a893
 using SharpDX;
 
 using Color = System.Drawing.Color;
-using UnitExtensions = Ensage.SDK.Extensions.UnitExtensions;
+using InputManager = Divine.Core.Managers.Input.InputManager;
 
 namespace InvokerCrappahilationPaid.Features
 {
@@ -32,18 +37,18 @@ namespace InvokerCrappahilationPaid.Features
         public SmartSphere(Config config)
         {
             _config = config;
-            var main = _config.Factory.Menu("Smart Sphere");
-            Enable = main.Item("Enable", true);
-            DisableKey = main.Item("Disable key", new KeyBind('0'));
-            CheckForModifiers = main.Item("Check for modifiers", true);
-            VerySmartSpheres = main.Item("Very smart spheres", true);
-            HpSlider = main.Item("Hp % for VerySmartSpheres", new Slider(80, 1, 99));
+            var main = _config.Factory.CreateMenu("Smart Sphere");
+            Enable = main.CreateSwitcher("Enable", true);
+            DisableKey = main.CreateToggleKey("Disable key");
+            CheckForModifiers = main.CreateSwitcher("Check for modifiers", true);
+            VerySmartSpheres = main.CreateSwitcher("Very smart spheres", true);
+            HpSlider = main.CreateSlider("Hp % for VerySmartSpheres", 80, 1, 99);
             VerySmartSpheres.Item.SetTooltip(
                 "Will use quas on moving if u have less then 50% hp. And wex on moving if more then 50%");
             //Movable = main.Item("Movable", true);
-            PosX = main.Item("Pos X", new Slider(500, 0, 2500));
-            PosY = main.Item("Pos Y", new Slider(500, 0, 2500));
-            Size = main.Item("Size", new Slider(100, 0, 200));
+            PosX = main.CreateSlider("Pos X",500, 0, 2500);
+            PosY = main.CreateSlider("Pos Y", 500, 0, 2500);
+            Size = main.CreateSlider("Size", 100, 0, 200);
             DrawingStartPosition = new Vector2(PosX, PosY);
             _iconSize = 50f / 100f * Size;
             _multySleeper = new MultiSleeper();
@@ -95,33 +100,20 @@ namespace InvokerCrappahilationPaid.Features
             };*/
         }
 
-        private IRenderManager Renderer => _config.Main.Context.RenderManager;
-        private IInputManager InputManager => _config.Main.Context.Input;
-
-        public MenuItem<KeyBind> DisableKey { get; set; }
-
-        public MenuItem<Slider> HpSlider { get; set; }
-
-        public MenuItem<bool> VerySmartSpheres { get; set; }
-
-        public MenuItem<bool> CheckForModifiers { get; set; }
+        private InputManager InputManager => InputManager;
 
         public Vector2 DrawingStartPosition { get; set; }
-        private Hero Me => _config.Main.Me;
+        private Hero9 Me => _config.Main.Me;
 
         public int MaxIcons { get; set; }
 
-        public MenuItem<Slider> PosX { get; set; }
-        public MenuItem<Slider> PosY { get; set; }
-        public MenuItem<Slider> Size { get; set; }
 
-        public MenuItem<bool> Enable { get; set; }
 
         private void Activate()
         {
-            Renderer.Draw += RendererOnDraw;
+            RendererManager.Draw += RendererOnDraw;
             //Entity.OnInt32PropertyChange += OnNetworkActivity;
-            Player.OnExecuteOrder += PlayerOnOnExecuteOrder;
+            OrderManager.OrderAdding += PlayerOnOnExecuteOrder;
             InChanging = new Sleeper();
             if (true)
             {
@@ -133,8 +125,8 @@ namespace InvokerCrappahilationPaid.Features
 
         private void Deactivate()
         {
-            Renderer.Draw -= RendererOnDraw;
-            Player.OnExecuteOrder -= PlayerOnOnExecuteOrder;
+            RendererManager.Draw -= RendererOnDraw;
+            OrderManager.OrderAdding -= PlayerOnOnExecuteOrder;
             if (_movable)
             {
                 InputManager.MouseClick -= InputOnMouseClick;
@@ -143,7 +135,7 @@ namespace InvokerCrappahilationPaid.Features
             }
         }
 
-        private void PlayerOnOnExecuteOrder(Player player, ExecuteOrderEventArgs args)
+        private void PlayerOnOnExecuteOrder(OrderAddingEventArgs orderAddingEventArgs)
         {
             /*if (!args.IsPlayerInput)
                 return;*/
@@ -327,7 +319,7 @@ namespace InvokerCrappahilationPaid.Features
             }
         }
 
-        private void RendererOnDraw(IRenderer renderer)
+        private void RendererOnDraw()
         {
             if (MaxIcons == 0)
                 return;

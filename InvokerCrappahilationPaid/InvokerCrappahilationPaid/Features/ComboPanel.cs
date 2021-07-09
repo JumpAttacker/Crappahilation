@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+<<<<<<< HEAD
 
+=======
+>>>>>>> e5540ca6453d07fa19eccaaee870d87217e5a893
 using SharpDX;
 
 using Color = System.Drawing.Color;
