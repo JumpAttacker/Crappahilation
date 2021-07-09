@@ -52,6 +52,9 @@
     <Reference Include="Divine.Zero, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Divine.Zero.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetZip, Version=1.13.8.0, Culture=neutral, PublicKeyToken=6583c7c814667745">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\DotNetZip.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Threading, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\En\References\Microsoft.VisualStudio.Threading.dll</HintPath>
@@ -67,11 +70,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\En\References\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="O9K.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\Plugins\O9K.Core.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1">
       <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct2D1, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\SharpDX.Direct2D1.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1">
       <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\SharpDX.Mathematics.dll</HintPath>
@@ -95,6 +104,7 @@
     <Compile Include="Features\AutoGhostWalk.cs" />
     <Compile Include="Features\AutoSunStrike.cs" />
     <Compile Include="Features\Combo.cs" />
+    <Compile Include="ComboType.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Features\ComboPanel.cs" />
     <Compile Include="Extensions.cs" />
@@ -103,16 +113,23 @@
     <Compile Include="InvokerCrappahilationPaid.cs" />
     <Compile Include="AbilitiesInCombo.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\IHaveFastInvokeKey.cs" />
+    <Compile Include="InvokerStuff\npc_dota_hero_invoker\IInvokableAbility.cs" />
+    <Compile Include="InvokerStuff\npc_dota_hero_invoker\InvokeHelper.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_alacrity.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_chaos_meteor.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_cold_snap.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_deafening_blast.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_emp.cs" />
+    <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_exort.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_forge_spirit.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_ghost_walk.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_ice_wall.cs" />
+    <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_invoke.cs" />
+    <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_quas.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_sun_strike.cs" />
     <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_tornado.cs" />
+    <Compile Include="InvokerStuff\npc_dota_hero_invoker\invoker_wex.cs" />
+    <Compile Include="NotificationHelper.cs" />
     <Compile Include="NavMeshHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Features\SmartSphere.cs" />
