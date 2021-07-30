@@ -4,26 +4,26 @@
 
 using System.Collections.Generic;
 using System.Windows.Input;
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Heroes.Invoker;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
-    public class InvokerForgeSpirit : ActiveAbility, IInvokableAbility, IHaveFastInvokeKey
+    public class InvokerForgeSpirit : InvokerBaseAbility
     {
-        private readonly InvokeHelper<InvokerForgeSpirit> _invokeHelper;
+        private readonly InvokeHelper<ForgeSpirit> _invokeHelper;
 
-        public InvokerForgeSpirit(Ability ability)
+        public InvokerForgeSpirit(ForgeSpirit ability)
             : base(ability)
         {
-            _invokeHelper = new InvokeHelper<InvokerForgeSpirit>(this);
+            _invokeHelper = new InvokeHelper<ForgeSpirit>(ability);
         }
 
-        public override bool CanBeCasted => base.CanBeCasted && _invokeHelper.CanInvoke(!IsInvoked);
+        public override Key Key { get; set; }
 
-        public override float Duration => Ability.GetAbilitySpecialData("spirit_duration", _invokeHelper.Quas.Level);
-
-        public Key Key { get; set; }
-
-        public bool CanBeInvoked
+        public override bool CanBeInvoked
         {
             get
             {
@@ -33,19 +33,14 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
             }
         }
 
-        public bool IsInvoked => _invokeHelper.IsInvoked;
+        public override bool IsInvoked => _invokeHelper.IsInvoked;
 
-        public AbilityId[] RequiredOrbs { get; } =
+        public override AbilityId[] RequiredOrbs { get; } =
             {AbilityId.invoker_exort, AbilityId.invoker_exort, AbilityId.invoker_quas};
 
-        public bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
+        public override bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
         {
             return _invokeHelper.Invoke(currentOrbs, skip);
-        }
-
-        public override bool UseAbility()
-        {
-            return Invoke() && base.UseAbility() && _invokeHelper.Casted();
         }
     }
 }

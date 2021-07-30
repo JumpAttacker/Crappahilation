@@ -1,34 +1,28 @@
-﻿// <copyright file="invoker_alacrity.cs" company="Ensage">
-//    Copyright (c) 2017 Ensage.
-// </copyright>
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Input;
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Heroes.Invoker;
+using O9K.Core.Entities.Units;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
-    public class InvokerAlacrity : ActiveAbility, IInvokableAbility, IHasModifier, IHaveFastInvokeKey
+    public class InvokerAlacrity : InvokerBaseAbility, IInvokableAbility, IHaveFastInvokeKey
     {
-        private readonly InvokeHelper<InvokerAlacrity> _invokeHelper;
+        private readonly InvokeHelper<Alacrity> _invokeHelper;
 
-        public InvokerAlacrity(Ability ability)
-            : base(ability)
+        public InvokerAlacrity(Alacrity ability) : base(ability)
         {
-            _invokeHelper = new InvokeHelper<InvokerAlacrity>(this);
+            _invokeHelper = new InvokeHelper<Alacrity>(ability);
         }
 
-        public float BonusDamage =>
-            Ability.GetAbilitySpecialDataWithTalent(Owner, "bonus_damage", _invokeHelper.Exort.Level);
-
-        public override bool CanBeCasted => base.CanBeCasted && _invokeHelper.CanInvoke(!IsInvoked);
-
-        public override float Duration => Ability.GetAbilitySpecialData("duration");
 
         public string ModifierName { get; } = "modifier_invoker_alacrity";
 
-        public Key Key { get; set; }
+        public override Key Key { get; set; }
 
-        public bool CanBeInvoked
+        public override bool CanBeInvoked
         {
             get
             {
@@ -38,19 +32,20 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
             }
         }
 
-        public bool IsInvoked => _invokeHelper.IsInvoked;
+        public override bool IsInvoked => _invokeHelper.IsInvoked;
 
-        public AbilityId[] RequiredOrbs { get; } =
+        public override AbilityId[] RequiredOrbs { get; } =
             {AbilityId.invoker_wex, AbilityId.invoker_wex, AbilityId.invoker_exort};
 
-        public bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
+        public override bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
         {
             return _invokeHelper.Invoke(currentOrbs, skip);
         }
 
-        public override bool UseAbility(Unit target)
+        public bool UseAbility(Unit9 unit9, bool queue, bool bypass)
         {
-            return Invoke() && base.UseAbility(target) && _invokeHelper.Casted();
+            return Invoke() && BaseAbility.UseAbility(unit9, queue, bypass) && _invokeHelper.Casted();
         }
+
     }
 }

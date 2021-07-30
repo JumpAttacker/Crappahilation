@@ -1,35 +1,33 @@
-﻿using System.ComponentModel.Composition;
-
-using Divine;
-
+﻿using Divine;
+using Divine.Entity;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Entity.Entities.Units.Heroes.Components;
+using Divine.Service;
 using InvokerCrappahilationPaid.Features;
+using O9K.Core.Entities.Heroes;
 
 namespace InvokerCrappahilationPaid
 {
     public sealed class InvokerCrappahilationPaid : Bootstrapper
     {
-        [ImportingConstructor]
-        public InvokerCrappahilationPaid([Import] IServiceContext context)
-        {
-            Context = context;
-        }
-
-        public static AbilityFactory AbilityFacory { get; set; }
-
-        public IServiceContext Context { get; }
         public Config Config { get; private set; }
         public Combo Combo { get; private set; }
         public Updater Updater { get; private set; }
         public AbilitiesInCombo AbilitiesInCombo { get; private set; }
 
         public Hero Me { get; set; }
+        public Hero9 Me9 { get; set; }
         public NotificationHelper NotificationHelper { get; private set; }
-        public NavMeshHelper NavMeshHelper { get; private set; }
 
         protected override void OnActivate()
         {
-            Me = Context.Owner as Hero;
-            AbilityFacory = Context.AbilityFactory;
+            Me = EntityManager.LocalHero;
+            if (Me == null || Me.HeroId != HeroId.npc_dota_hero_invoker)
+            {
+                return;
+            }
+
+            Me9 = new Hero9(Me);
 
             AbilitiesInCombo = new AbilitiesInCombo(this);
 
@@ -40,11 +38,6 @@ namespace InvokerCrappahilationPaid
             Combo = new Combo(this);
 
             NotificationHelper = new NotificationHelper(this);
-
-            NavMeshHelper = new NavMeshHelper(this);
-
-            //var test=new DivineSuccess();
-
         }
     }
 }

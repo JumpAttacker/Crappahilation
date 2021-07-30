@@ -4,35 +4,29 @@
 
 using System.Collections.Generic;
 using System.Windows.Input;
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units.Components;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Heroes.Invoker;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
-    public class InvokerGhostWalk : ActiveAbility, IInvokableAbility, IHasModifier, IHasTargetModifier,
-        IAreaOfEffectAbility, IHaveFastInvokeKey
+    public class InvokerGhostWalk : InvokerBaseAbility
     {
-        private readonly InvokeHelper<InvokerGhostWalk> _invokeHelper;
+        private readonly InvokeHelper<GhostWalk> _invokeHelper;
 
-        public InvokerGhostWalk(Ability ability)
+        public InvokerGhostWalk(GhostWalk ability)
             : base(ability)
         {
-            _invokeHelper = new InvokeHelper<InvokerGhostWalk>(this);
+            _invokeHelper = new InvokeHelper<GhostWalk>(ability);
         }
-
-        public override UnitState AppliesUnitState { get; } = UnitState.Invisible;
-
-        public override bool CanBeCasted => base.CanBeCasted && _invokeHelper.CanInvoke(!IsInvoked);
-
-        public override float Duration => Ability.GetAbilitySpecialData("duration");
-
-        public float Radius => Ability.GetAbilitySpecialData("area_of_effect");
 
         public string ModifierName { get; } = "modifier_invoker_ghost_walk_self";
 
-        public string TargetModifierName { get; } = "modifier_invoker_ghost_walkenemy";
+        public override Key Key { get; set; }
 
-        public Key Key { get; set; }
-
-        public bool CanBeInvoked
+        public override bool CanBeInvoked
         {
             get
             {
@@ -42,19 +36,19 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
             }
         }
 
-        public bool IsInvoked => _invokeHelper.IsInvoked;
+        public override bool IsInvoked => _invokeHelper.IsInvoked;
 
-        public AbilityId[] RequiredOrbs { get; } =
+        public override AbilityId[] RequiredOrbs { get; } =
             {AbilityId.invoker_quas, AbilityId.invoker_quas, AbilityId.invoker_wex};
 
-        public bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
+        public override bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
         {
             return _invokeHelper.Invoke(currentOrbs, skip);
         }
 
-        public override bool UseAbility()
-        {
-            return Invoke() && base.UseAbility() && _invokeHelper.Casted();
-        }
+        // public override bool UseAbility()
+        // {
+        //     return Invoke() && base.UseAbility() && _invokeHelper.Casted();
+        // }
     }
 }

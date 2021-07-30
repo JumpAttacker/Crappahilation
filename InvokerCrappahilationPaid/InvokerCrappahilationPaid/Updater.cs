@@ -3,8 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Divine;
-
-using SharpDX;
+using Divine.Entity;
+using Divine.Entity.Entities;
+using Divine.Entity.Entities.Units;
+using Divine.Game;
+using Divine.Numerics;
+using Divine.Particle;
+using Divine.Update;
 
 namespace InvokerCrappahilationPaid
 {
@@ -28,15 +33,15 @@ namespace InvokerCrappahilationPaid
                     if (Units.Find(x => x.Unit.Handle == unit.Handle) == null)
                         UpdateManager.BeginInvoke(500, () => { Units.Add(new UnitUnderControl(unit)); });
                 }
-                else if (unit.Name.Contains("npc_dota_necronomicon") && unit != _main.Me && unit.IsControllable &&
-                         _main.Config.UseNecros)
-                {
-                    if (Units.Find(x => x.Unit.Handle == unit.Handle) == null)
-                    {
-                        UpdateManager.BeginInvoke(500, () => { Units.Add(new UnitUnderControl(unit)); });
-                        if (_main.Config.AutoPurge) AutoPurge(unit);
-                    }
-                }
+                // else if (unit.Name.Contains("npc_dota_necronomicon") && unit != _main.Me && unit.IsControllable &&
+                //          _main.Config.UseNecros)
+                // {
+                //     if (Units.Find(x => x.Unit.Handle == unit.Handle) == null)
+                //     {
+                //         UpdateManager.BeginInvoke(500, () => { Units.Add(new UnitUnderControl(unit)); });
+                //         if (_main.Config.AutoPurge) AutoPurge(unit);
+                //     }
+                // }
             };
             EntityManager.EntityRemoved += (sender) =>
             {
@@ -51,21 +56,21 @@ namespace InvokerCrappahilationPaid
                 {
                     if (Units.Find(x => x.Unit.Handle == unit.Handle) == null) Units.Add(new UnitUnderControl(unit));
                 }
-                else if (unit.Name.Contains("npc_dota_necronomicon") && unit != _main.Me && unit.IsControllable &&
-                         _main.Config.UseNecros)
-                {
-                    if (Units.Find(x => x.Unit.Handle == unit.Handle) == null)
-                        UpdateManager.BeginInvoke(500, () => { Units.Add(new UnitUnderControl(unit)); });
-                    if (_main.Config.AutoPurge) AutoPurge(unit);
-                }
+                // else if (unit.Name.Contains("npc_dota_necronomicon") && unit != _main.Me && unit.IsControllable &&
+                //          _main.Config.UseNecros)
+                // {
+                //     if (Units.Find(x => x.Unit.Handle == unit.Handle) == null)
+                //         UpdateManager.BeginInvoke(500, () => { Units.Add(new UnitUnderControl(unit)); });
+                //     if (_main.Config.AutoPurge) AutoPurge(unit);
+                // }
 
-            Entity.OnParticleEffectAdded += (sender, args) =>
+                ParticleManager.ParticleAdded += (args) =>
             {
-                if (args.Name == "particles/units/heroes/hero_invoker/invoker_emp.vpcf")
+                if (args.Particle.Name == "particles/units/heroes/hero_invoker/invoker_emp.vpcf")
                     UpdateManager.BeginInvoke(10, () =>
                     {
                         var time = GameManager.RawGameTime;
-                        EmpPositions.Add(time, args.ParticleEffect.GetControlPoint(0));
+                        EmpPositions.Add(time, args.Particle.GetControlPoint(0));
                         UpdateManager.BeginInvoke(2900, () =>
                         {
                             if (EmpPositions.ContainsKey(time))
@@ -77,33 +82,9 @@ namespace InvokerCrappahilationPaid
 
         public List<UnitUnderControl> Units { get; set; }
 
-        private void AutoPurge(Unit unit)
-        {
-            var sleeper = new Sleeper();
-            UpdateManager.BeginInvoke(async () =>
-            {
-                while (unit != null && unit.IsValid && unit.IsAlive)
-                {
-                    var spell = unit.Spellbook.Spell1;
-                    if (spell.CanBeCasted() && !sleeper.Sleeping)
-                    {
-                        var target = _main.Config.Main.Combo.Target ??
-                                     _main.Config.Main.Context.TargetSelector?.Active.GetTargets().FirstOrDefault();
-                        if (target != null && spell.CanHit(target))
-                        {
-                            spell.UseAbility(target);
-                            sleeper.Sleep(500);
-                        }
-                    }
-
-                    await Task.Delay(500);
-                }
-            }, 100);
-        }
 
         public class UnitUnderControl
         {
-            public IOrbwalkerManager Orbwalker;
             public Unit Unit;
 
             public UnitUnderControl(Unit unit)
@@ -142,7 +123,6 @@ namespace InvokerCrappahilationPaid
 
             public bool CanWork { get; set; }
 
-            public EnsageServiceContext Context { get; set; }
         }
     }
 }

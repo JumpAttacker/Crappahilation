@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using Divine;
+using Divine.Entity.Entities.Abilities.Components;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {

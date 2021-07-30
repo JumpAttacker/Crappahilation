@@ -4,37 +4,30 @@
 
 using System.Collections.Generic;
 using System.Windows.Input;
-
-using SharpDX;
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units;
+using Divine.Numerics;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Heroes.Invoker;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
-    public class InvokerDeafeningBlast : ConeAbility, IInvokableAbility, IHaveFastInvokeKey, IHasTargetModifier
+    public class InvokerDeafeningBlast : InvokerBaseAbility
     {
-        private readonly InvokeHelper<InvokerDeafeningBlast> _invokeHelper;
+        private readonly InvokeHelper<DeafeningBlast> _invokeHelper;
 
-        public InvokerDeafeningBlast(Ability ability)
+        public InvokerDeafeningBlast(DeafeningBlast ability)
             : base(ability)
         {
-            _invokeHelper = new InvokeHelper<InvokerDeafeningBlast>(this);
+            _invokeHelper = new InvokeHelper<DeafeningBlast>(ability);
         }
 
-        public override UnitState AppliesUnitState { get; } = UnitState.Disarmed;
-
-        public override bool CanBeCasted => base.CanBeCasted && _invokeHelper.CanInvoke(!IsInvoked);
-
-        public override float EndRadius => Ability.GetAbilitySpecialData("radius_end");
-
-        public override float Radius => Ability.GetAbilitySpecialData("radius_start");
-
-        public override float Speed => Ability.GetAbilitySpecialData("travel_speed");
-
-        protected override float RawDamage => Ability.GetAbilitySpecialData("damage", _invokeHelper.Exort.Level);
         public string TargetModifierName { get; } = "modifier_invoker_deafening_blast_knockback";
 
-        public Key Key { get; set; }
+        public override Key Key { get; set; }
 
-        public bool CanBeInvoked
+        public override bool CanBeInvoked
         {
             get
             {
@@ -44,24 +37,24 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
             }
         }
 
-        public bool IsInvoked => _invokeHelper.IsInvoked;
+        public override bool IsInvoked => _invokeHelper.IsInvoked;
 
-        public AbilityId[] RequiredOrbs { get; } =
+        public override AbilityId[] RequiredOrbs { get; } =
             {AbilityId.invoker_quas, AbilityId.invoker_wex, AbilityId.invoker_exort};
 
-        public bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
+        public override bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
         {
             return _invokeHelper.Invoke(currentOrbs, skip);
         }
-
-        public override bool UseAbility(Unit target)
-        {
-            return Invoke() && base.UseAbility(target) && _invokeHelper.Casted();
-        }
-
-        public override bool UseAbility(Vector3 position)
-        {
-            return Invoke() && base.UseAbility(position) && _invokeHelper.Casted();
-        }
+        //
+        // public override bool UseAbility(Unit target)
+        // {
+        //     return Invoke() && base.UseAbility(target) && _invokeHelper.Casted();
+        // }
+        //
+        // public override bool UseAbility(Vector3 position)
+        // {
+        //     return Invoke() && base.UseAbility(position) && _invokeHelper.Casted();
+        // }
     }
 }

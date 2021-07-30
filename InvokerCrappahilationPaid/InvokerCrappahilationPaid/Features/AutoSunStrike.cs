@@ -1,12 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using Divine.Entity;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units.Components;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Extensions;
+using Divine.Game;
+using Divine.GameConsole;
+using Divine.Menu.Items;
+using Divine.Numerics;
+using Divine.Particle;
+using Divine.Plugins.Humanizer;
+using Divine.Prediction;
+using Divine.Renderer;
+using Divine.Update;
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
-
-using SharpDX;
-
-using UnitExtensions = Ensage.Common.Extensions.UnitExtensions;
+using O9K.Core.Entities.Heroes;
+using O9K.Core.Entities.Units;
+using O9K.Core.Helpers;
+using O9K.Core.Prediction.Data;
 
 namespace InvokerCrappahilationPaid.Features
 {
@@ -22,129 +35,126 @@ namespace InvokerCrappahilationPaid.Features
         public AutoSunStrike(Config config)
         {
             _config = config;
-            var main = _config.Factory.Menu("Auto SunStrike");
-            Enable = main.Item("Enable", true);
-            KillStealOnly = main.Item("Kill Steal Only", true);
-            UseOnlyOnStunnedEnemies = main.Item("Only on stunned enemies", true);
-            DrawPrediction = main.Item("Draw prediction", true);
-            DrawPredictionKillSteal = main.Item("Draw prediction only when target will die after ss", true);
-            InvokeSunStike = main.Item("Invoke sun strike", true);
-            Notification = main.Item("Notification if target is Killable", true);
-            SsTiming = main.Item("Timing for auto SunStrike (in ms)", new Slider(2000, 100, 3500));
+            var main = _config.Factory.CreateMenu("Auto SunStrike");
+            Enable = main.CreateSwitcher("Enable", true);
+            KillStealOnly = main.CreateSwitcher("Kill Steal Only", true);
+            UseOnlyOnStunnedEnemies = main.CreateSwitcher("Only on stunned enemies", true);
+            DrawPrediction = main.CreateSwitcher("Draw prediction", true);
+            DrawPredictionKillSteal = main.CreateSwitcher("Draw prediction only when target will die after ss", true);
+            InvokeSunStike = main.CreateSwitcher("Invoke sun strike", true);
+            Notification = main.CreateSwitcher("Notification if target is Killable", true);
+            SsTiming = main.CreateSlider("Timing for auto SunStrike (in ms)", 2000, 100, 3500);
 
-            DrawDamage = main.Item("Draw damage from SunStrike", true);
-            MoveCamera = main.Item("Move camera", true);
+            DrawDamage = main.CreateSwitcher("Draw damage from SunStrike", true);
+            MoveCamera = main.CreateSwitcher("Move camera", true);
             //DrawDamageType = main.Item("Type of drawing", new StringList("Only text","Icon + text"));
 
             _damageDict = new Dictionary<uint, int>();
 
-            if (Enable) Activate();
+            // if (Enable) Activate();
 
-            if (DrawDamage) Drawing.OnDraw += OnDraw;
+            // if (DrawDamage) RendererManager.Draw += OnDraw;
 
-            DrawDamage.PropertyChanged += (sender, args) =>
+            DrawDamage.ValueChanged += (sender, args) =>
             {
-                if (DrawDamage)
-                    Drawing.OnDraw += OnDraw;
+                if (args.Value)
+                    RendererManager.Draw += OnDraw;
                 else
-                    Drawing.OnDraw -= OnDraw;
+                    RendererManager.Draw -= OnDraw;
             };
 
-            Enable.PropertyChanged += (sender, args) =>
+            Enable.ValueChanged += (sender, args) =>
             {
-                if (Enable)
+                if (args.Value)
                     Activate();
                 else
                     Deactivate();
             };
 
-            HpBarSize = new Vector2(HUDInfo.GetHpBarSizeY() * 2.5f);
-            HpBarY = HUDInfo.GetHpBarSizeY();
+            var sizeY = Hud.Info.ScreenRatio * 6;
+
+            HpBarSize = new Vector2(sizeY * 2.5f);
+            HpBarY = sizeY;
         }
 
-        private IRenderManager Renderer => _config.Main.Context.RenderManager;
+        public MenuSwitcher MoveCamera { get; set; }
 
-        public MenuItem<bool> MoveCamera { get; set; }
+        public MenuSwitcher DrawDamage { get; set; }
 
-        public MenuItem<bool> Notification { get; set; }
+        public MenuSlider SsTiming { get; set; }
 
-        public MenuItem<StringList> DrawDamageType { get; set; }
+        public MenuSwitcher Notification { get; set; }
+
+        public MenuSwitcher InvokeSunStike { get; set; }
+
+        public MenuSwitcher DrawPredictionKillSteal { get; set; }
+
+        public MenuSwitcher DrawPrediction { get; set; }
+
+        public MenuSwitcher UseOnlyOnStunnedEnemies { get; set; }
+
+        public MenuSwitcher KillStealOnly { get; set; }
+
+        public MenuSwitcher Enable { get; set; }
 
         public float HpBarY { get; set; }
 
         public Vector2 HpBarSize { get; set; }
 
-        public MenuItem<bool> DrawDamage { get; set; }
-
-        public IParticleManager ParitecleManager => _config.Main.Context.Particle;
-
-        public MenuItem<bool> KillStealOnly { get; set; }
-
         public Hero Me => _config.Main.Me;
 
-        public MenuItem<bool> DrawPredictionKillSteal { get; set; }
-
-        public MenuItem<bool> InvokeSunStike { get; set; }
-
-        public MenuItem<bool> DrawPrediction { get; set; }
 
         public InvokerSunStrike SunStrike => _config.Main.AbilitiesInCombo.SunStrike;
 
-        public MenuItem<bool> UseOnlyOnStunnedEnemies { get; set; }
 
-        public MenuItem<Slider> SsTiming { get; set; }
-
-        public MenuItem<bool> Enable { get; set; }
-
-        private void OnDraw(EventArgs args)
+        private void OnDraw()
         {
-            var allEnemies = EntityManager<Hero>.Entities.Where(x =>
+            var allEnemies = EntityManager.GetEntities<Hero>().Where(x =>
                 x.IsValid && x.IsAlive && x.IsVisible && x.IsEnemy(Me) && !x.IsIllusion);
             foreach (var enemy in allEnemies)
             {
-                var pos = HUDInfo.GetHPbarPosition(enemy);
+                var pos = HUDInfo.GetHpBarPosition(enemy);
                 if (pos.IsZero)
                     continue;
                 if (!Enable) UpdateDamage(enemy, out _);
                 if (_damageDict.TryGetValue(enemy.Handle, out var damage))
                 {
                     var fontSize = HpBarY * 1.5f;
-                    var mesText = Drawing.MeasureText($"{damage}", "arial", new Vector2(fontSize), FontFlags.None);
-                    Drawing.DrawText($"{damage}", pos - new Vector2(mesText.X + 5, 0), new Vector2(fontSize),
-                        Color.White, FontFlags.None);
+                    var mesText = RendererManager.MeasureText($"{damage}", "arial", fontSize);
+                    RendererManager.DrawText($"{damage}", pos - new Vector2(mesText.X + 5, 0), Color.White, fontSize);
                 }
             }
         }
 
         public void Activate()
         {
-            UpdateManager.Subscribe(SunStrikeAction, 25);
+            UpdateManager.CreateIngameUpdate(25, SunStrikeAction);
         }
 
         public void Deactivate()
         {
-            UpdateManager.Unsubscribe(SunStrikeAction);
+            UpdateManager.DestroyIngameUpdate(SunStrikeAction);
         }
 
 
         private void SunStrikeAction()
         {
-            if (_config.ComboKey) return;
+            if (_config.ComboKey.Value) return;
             if (!Me.IsAlive || Me.IsSilenced())
                 return;
-            var allEnemies = EntityManager<Hero>.Entities.Where(x =>
+            var allEnemies = EntityManager.GetEntities<Hero>().Where(x =>
                 x.IsValid && x.IsEnemy(Me) && !x.IsIllusion);
 
             var enumerable = allEnemies as Hero[] ?? allEnemies.ToArray();
-            if (!SunStrike.CanBeCasted)
+            if (!SunStrike.CanBeCasted())
                 foreach (var enemy in enumerable)
                 {
                     if (UpdateDamage(enemy, out _) && Notification && enemy.IsAlive)
                         _config.Main.NotificationHelper.Notificate(enemy, AbilityId.invoker_sun_strike, 0f);
                     else
                         _config.Main.NotificationHelper.Deactivate(enemy);
-                    if (!SunStrike.CanBeCasted)
-                        ParitecleManager.Remove($"AutoSunStikePrediction{enemy.Handle}");
+                    if (!SunStrike.CanBeCasted())
+                        ParticleManager.RemoveParticle($"AutoSunStikePrediction{enemy.Handle}");
                     return;
                 }
 
@@ -162,7 +172,7 @@ namespace InvokerCrappahilationPaid.Features
                     FlushTiming(enemy);
                     if (!isAlive)
                         _config.Main.NotificationHelper.Deactivate(enemy);
-                    ParitecleManager.Remove($"AutoSunStikePrediction{enemy.Handle}");
+                    ParticleManager.RemoveParticle($"AutoSunStikePrediction{enemy.Handle}");
                     continue;
                 }
 
@@ -170,81 +180,77 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     if (Notification && heroWillDie)
                         _config.Main.NotificationHelper.Notificate(enemy, AbilityId.invoker_sun_strike, 0f);
-                    var stunned = UnitExtensions.IsStunned(enemy, out var stunDuration);
+                    // var stunned = UnitExtensions.IsStunned(enemy, out var stunDuration);
+                    var o9kEnemy = new Hero9(enemy);
+                    var stunDuration = o9kEnemy.GetImmobilityDuration();
+                    var invulDuration = o9kEnemy.GetInvulnerabilityDuration();
+                    var isInvulnerable = o9kEnemy.IsInvulnerable;
                     var immobile = stunDuration >= 1.5f; //_config.Main.AbilitiesInCombo.SunStrike.ActivationDelay;
-                    var invulModifier =
-                        enemy.GetModifierByName("modifier_eul_cyclone") ??
-                        enemy.GetModifierByName(_config.Main.AbilitiesInCombo.Tornado.TargetModifierName) ??
-                        enemy.GetModifierByName("modifier_brewmaster_storm_cyclone") ??
-                        enemy.GetModifierByName("modifier_shadow_demon_disruption") ??
-                        enemy.GetModifierByName("modifier_obsidian_destroyer_astral_imprisonment_prison");
+                    // var invulModifier =
+                    //     enemy.GetModifierByName("modifier_eul_cyclone") ??
+                    //     enemy.GetModifierByName(_config.Main.AbilitiesInCombo.Tornado.TargetModifierName) ??
+                    //     enemy.GetModifierByName("modifier_brewmaster_storm_cyclone") ??
+                    //     enemy.GetModifierByName("modifier_shadow_demon_disruption") ??
+                    //     enemy.GetModifierByName("modifier_obsidian_destroyer_astral_imprisonment_prison");
 
-                    PredictionInput input = null;
-                    PredictionOutput output = null;
+                    PredictionInput9 input = null;
+                    PredictionOutput9 output = null;
                     if (DrawPrediction && (heroWillDie || !DrawPredictionKillSteal))
                     {
-                        input = SunStrike.GetPredictionInput(enemy);
-                        output = SunStrike.GetPredictionOutput(input);
+                        input = SunStrike.BaseAbility.GetPredictionInput(o9kEnemy);
+                        output = SunStrike.BaseAbility.GetPredictionOutput(input);
 
-                        ParitecleManager.DrawTargetLine(enemy, $"AutoSunStikePrediction{enemy.Handle}",
-                            output.UnitPosition, CanSunStikerHit(enemy) ? Color.AliceBlue : Color.Red);
+                        ParticleManager.TargetLineParticle($"AutoSunStikePrediction{enemy.Handle}", enemy,
+                            output.TargetPosition, CanSunStikerHit(enemy) ? Color.AliceBlue : Color.Red);
                     }
                     else
                     {
-                        ParitecleManager.Remove($"AutoSunStikePrediction{enemy.Handle}");
+                        ParticleManager.RemoveParticle($"AutoSunStikePrediction{enemy.Handle}");
                     }
 
                     if (enemy.HasModifier(_config.Main.AbilitiesInCombo.ColdSnap.TargetModifierName) &&
                         !enemy.HasModifier(_config.Main.AbilitiesInCombo.Tornado.TargetModifierName))
                         continue;
 
-                    if ((enemy.UnitState & UnitState.Stunned) == 0 && invulModifier == null)
+                    if ((enemy.UnitState & UnitState.Stunned) == 0 && !isInvulnerable)
                         if (UseOnlyOnStunnedEnemies)
                             continue;
 
 
-                    if (invulModifier != null)
+                    if (isInvulnerable)
                     {
-                        if (invulModifier.RemainingTime <= 1.7f + Game.Ping * 0.75f / 1000f &&
-                            invulModifier.RemainingTime >= 1.0f)
+                        if (invulDuration <= 1.7f + GameManager.Ping * 0.75f / 1000f &&
+                            invulDuration >= 1.0f)
                         {
-                            InvokerCrappahilationPaid.Log.Warn(
-                                $"[AutoSunStrike] use on invul modifiers [{enemy.HeroId}] (mod RemTime: {invulModifier.RemainingTime}ms + ping: {Game.Ping * 0.75f}ms) total: {1.7f + Game.Ping * 0.75f / 1000f}");
-                            CameraAction(enemy.NetworkPosition);
-                            SunStrike.UseAbility(enemy.NetworkPosition);
+                            CameraAction(enemy.Position);
+                            SunStrike.UseAbility(enemy.Position);
                         }
                     }
                     else
                     {
                         if (input == null)
                         {
-                            input = SunStrike.GetPredictionInput(enemy);
-                            output = SunStrike.GetPredictionOutput(input);
+                            input = SunStrike.BaseAbility.GetPredictionInput(o9kEnemy);
+                            output = SunStrike.BaseAbility.GetPredictionOutput(input);
                         }
 
-                        if (output.HitChance == HitChance.High || output.HitChance == HitChance.VeryHigh ||
-                            output.HitChance == HitChance.Medium ||
-                            immobile && output.HitChance == HitChance.Immobile)
+                        if (output.HitChance is O9K.Core.Prediction.Data.HitChance.High or O9K.Core.Prediction.Data.HitChance.Medium || immobile && output.HitChance == O9K.Core.Prediction.Data.HitChance.Immobile)
                         {
                             if ((enemy.UnitState & UnitState.Stunned) != 0)
                             {
                                 if (stunDuration >= 1.5f)
                                 {
-                                    InvokerCrappahilationPaid.Log.Warn(
-                                        $"[AutoSunStrike] use on stunned enemy [{enemy.HeroId}] (left {stunDuration}ms) HitChance: {output.HitChance}");
-                                    CameraAction(enemy.NetworkPosition);
-                                    SunStrike.UseAbility(enemy.NetworkPosition);
+                                    CameraAction(enemy.Position);
+                                    SunStrike.UseAbility(enemy.Position);
                                 }
                                 else
                                 {
-                                    InvokerCrappahilationPaid.Log.Warn(
-                                        $"[AutoSunStrike] DONT use on stunned enemy [{enemy.HeroId}] (left {stunDuration}ms) HitChance: {output.HitChance}");
+                                    
                                 }
                             }
                             else if (heroWillDie && CanSunStrikeHitWithPrediction(enemy))
                             {
-                                InvokerCrappahilationPaid.Log.Warn(
-                                    $"[AutoSunStrike] use cuz killSteal on predicted position [{enemy.HeroId}] HitChance: {output.HitChance}");
+                                
                             }
                         }
                     }
@@ -252,18 +258,18 @@ namespace InvokerCrappahilationPaid.Features
                 else
                 {
                     _config.Main.NotificationHelper.Deactivate(enemy);
-                    ParitecleManager.Remove($"AutoSunStikePrediction{enemy.Handle}");
+                    ParticleManager.RemoveParticle($"AutoSunStikePrediction{enemy.Handle}");
                 }
             }
         }
 
-        private void CameraAction(Vector3 enemyNetworkPosition)
+        private void CameraAction(Vector3 enemyPosition)
         {
             if (MoveCamera)
-                if (Drawing.WorldToScreen(enemyNetworkPosition).IsZero)
+                if (RendererManager.WorldToScreen(enemyPosition).IsZero)
                 {
-                    var consolePosition = $"{enemyNetworkPosition.X} {enemyNetworkPosition.Y}";
-                    Game.ExecuteCommand($"dota_camera_set_lookatpos {consolePosition}");
+                    var consolePosition = $"{enemyPosition.X} {enemyPosition.Y}";
+                    GameConsoleManager.ExecuteCommand($"dota_camera_set_lookatpos {consolePosition}");
                 }
         }
 
@@ -271,21 +277,21 @@ namespace InvokerCrappahilationPaid.Features
         {
             if (!target.IsRotating() && target.IsMoving)
             {
-                var num1 = target.MovementSpeed * 1.75f + Game.Ping / 1000f;
+                var num1 = target.MovementSpeed * 1.75f + GameManager.Ping / 1000f;
                 var position = target.InFront(num1);
                 var num2 = 0;
-                while (num2 < (double) num1)
-                {
-                    num2 += 64;
-                    _config.Main.NavMeshHelper.Pathfinding.GetCellPosition(target.InFront(num2), out var cellX,
-                        out var cellY);
-                    var flag =
-                        _config.Main.NavMeshHelper.Pathfinding.GetCell(cellX, cellY).NavMeshCellFlags;
-
-                    if (CheckForFlags(flag)) continue;
-                    FlushTiming(target);
-                    return false;
-                }
+                // while (num2 < (double) num1)
+                // {
+                //     num2 += 64;
+                //     _config.Main.NavMeshHelper.Pathfinding.GetCellPosition(target.InFront(num2), out var cellX,
+                //         out var cellY);
+                //     var flag =
+                //         _config.Main.NavMeshHelper.Pathfinding.GetCell(cellX, cellY).NavMeshCellFlags;
+                //
+                //     if (CheckForFlags(flag)) continue;
+                //     FlushTiming(target);
+                //     return false;
+                // }
 
                 if (!CheckForTiming(target)) return false;
                 CameraAction(position);
@@ -301,28 +307,28 @@ namespace InvokerCrappahilationPaid.Features
         private bool CanSunStikerHit(Hero target)
         {
             if (target.IsRotating()) return false;
-            var num1 = target.MovementSpeed * 1.75f + Game.Ping / 1000f;
+            var num1 = target.MovementSpeed * 1.75f + GameManager.Ping / 1000f;
             var num2 = 0;
-            while (num2 < (double) num1)
-            {
-                num2 += 64;
-                _config.Main.NavMeshHelper.Pathfinding.GetCellPosition(target.InFront(num2), out var cellX,
-                    out var cellY);
-                var flag = _config.Main.NavMeshHelper.Pathfinding.GetCell(cellX, cellY).NavMeshCellFlags;
-                if (!CheckForFlags(flag))
-                    return false;
-            }
+            // while (num2 < (double) num1)
+            // {
+            //     num2 += 64;
+            //     _config.Main.NavMeshHelper.Pathfinding.GetCellPosition(target.InFront(num2), out var cellX,
+            //         out var cellY);
+            //     var flag = _config.Main.NavMeshHelper.Pathfinding.GetCell(cellX, cellY).NavMeshCellFlags;
+            //     if (!CheckForFlags(flag))
+            //         return false;
+            // }
 
             return true;
         }
 
-        private bool CheckForFlags(NavMeshCellFlags flag)
-        {
-            return flag.HasFlag(NavMeshCellFlags.Walkable) &&
-                   !flag.HasFlag(NavMeshCellFlags.Tree) &&
-                   !flag.HasFlag(NavMeshCellFlags.GridFlagObstacle) &&
-                   !flag.HasFlag(NavMeshCellFlags.MovementBlocker);
-        }
+        // private bool CheckForFlags(NavMeshCellFlags flag)
+        // {
+        //     return flag.HasFlag(NavMeshCellFlags.Walkable) &&
+        //            !flag.HasFlag(NavMeshCellFlags.Tree) &&
+        //            !flag.HasFlag(NavMeshCellFlags.GridFlagObstacle) &&
+        //            !flag.HasFlag(NavMeshCellFlags.MovementBlocker);
+        // }
 
         private void FlushTiming(Hero target)
         {
@@ -335,7 +341,7 @@ namespace InvokerCrappahilationPaid.Features
         private bool CheckForTiming(Hero target, out float timing)
         {
             var handle = target.Handle;
-            var currentTime = Game.RawGameTime;
+            var currentTime = GameManager.RawGameTime;
             if (_timeDictionary.TryGetValue(handle, out var time))
             {
                 timing = currentTime - time;
@@ -355,7 +361,7 @@ namespace InvokerCrappahilationPaid.Features
 
         private bool UpdateDamage(Hero enemy, out bool heroWillDie)
         {
-            if (_multiSleeper.Sleeping(enemy.Handle))
+            if (_multiSleeper.IsSleeping(enemy.Handle))
             {
                 if (_damageDict.TryGetValue(enemy.Handle, out var hp))
                 {
@@ -369,12 +375,12 @@ namespace InvokerCrappahilationPaid.Features
                 return false;
             }
 
-            _multiSleeper.Sleep(50, enemy.Handle);
+            _multiSleeper.Sleep(enemy.Handle, .50f);
             var willTakeDamageFromTornado =
                 enemy.GetModifierByName(_config.Main.AbilitiesInCombo.Tornado.TargetModifierName) != null;
             var damageFromTornado =
-                willTakeDamageFromTornado ? _config.Main.AbilitiesInCombo.Tornado.GetDamage(enemy) : 0;
-            var healthAfterCast = enemy.Health + enemy.HealthRegeneration * 2 - SunStrike.GetDamage(enemy) -
+                willTakeDamageFromTornado ? _config.Main.AbilitiesInCombo.Tornado.BaseAbility.GetDamage(new Unit9(enemy)) : 0;
+            var healthAfterCast = enemy.Health + enemy.HealthRegeneration * 2 - SunStrike.BaseAbility.GetDamage(new Unit9(enemy)) -
                                   damageFromTornado;
             if (!_damageDict.TryGetValue(enemy.Handle, out _))
                 _damageDict.Add(enemy.Handle, (int) healthAfterCast);

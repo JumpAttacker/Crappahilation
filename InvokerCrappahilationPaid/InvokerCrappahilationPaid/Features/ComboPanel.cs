@@ -2,17 +2,24 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Input;
+using Divine.Input.EventArgs;
+using Divine.Menu.EventArgs;
+using Divine.Menu.Items;
+using Divine.Numerics;
+using Divine.Renderer;
+using Divine.Update;
+using InputManager = Divine.Input.InputManager;
+using MouseEventArgs = Divine.Input.EventArgs.MouseEventArgs;
 
-using SharpDX;
-
-using Color = System.Drawing.Color;
 
 namespace InvokerCrappahilationPaid.Features
 {
     public class ComboPanel
     {
         private readonly Config _config;
-        private readonly MenuFactory _main;
         private Vector2 _drawMousePosition;
         private float _iconSize;
         private bool _isMoving;
@@ -21,16 +28,17 @@ namespace InvokerCrappahilationPaid.Features
         private bool _movable;
 
         public List<MyLittleCombo> Combos;
+        private readonly Menu _main;
 
         public ComboPanel(Config config)
         {
             _config = config;
-            _main = _config.Factory.Menu("Combo Panel");
-            Enable = _main.Item("Enable", true);
-            Movable = _main.Item("Movable", true);
-            PosX = _main.Item("Pos X", new Slider(500, 0, 2500));
-            PosY = _main.Item("Pos Y", new Slider(500, 0, 2500));
-            Size = _main.Item("Size", new Slider(100, 0, 200));
+            _main = _config.Factory.CreateMenu("Combo Panel");
+            Enable = _main.CreateSwitcher("Enable", true);
+            Movable = _main.CreateSwitcher("Movable", true);
+            PosX = _main.CreateSlider("Pos X", 500, 0, 2500);
+            PosY = _main.CreateSlider("Pos Y", 500, 0, 2500);
+            Size = _main.CreateSlider("Size", 100, 0, 200);
             DrawingStartPosition = new Vector2(PosX, PosY);
 
             _iconSize = 50f / 100f * Size;
@@ -41,26 +49,26 @@ namespace InvokerCrappahilationPaid.Features
 
             Combos.Add(new MyLittleCombo(-1, this));
 
-            Size.PropertyChanged += (sender, args) => { _iconSize = 50f / 100f * Size; };
+            Size.ValueChanged += (sender, args) => { _iconSize = 50f / 100f * Size; };
 
-            if (Enable) Activate();
+            // if (Enable) Activate();
             MaxIcons = 0;
 
-            Enable.PropertyChanged += (sender, args) =>
+            Enable.ValueChanged += (sender, args) =>
             {
-                if (Enable)
+                if (args.Value)
                     Activate();
                 else
                     Deactivate();
             };
 
-            Movable.PropertyChanged += (sender, args) =>
+            Movable.ValueChanged += (sender, args) =>
             {
-                if (Movable)
+                if (args.Value)
                 {
                     if (!_movable)
                     {
-                        InputManager.MouseClick += InputOnMouseClick;
+                        InputManager.MouseKeyDown += InputOnMouseClick;
                         InputManager.MouseMove += InputOnMouseMove;
                         _movable = true;
                     }
@@ -69,7 +77,7 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     if (_movable)
                     {
-                        InputManager.MouseClick -= InputOnMouseClick;
+                        InputManager.MouseKeyDown -= InputOnMouseClick;
                         InputManager.MouseMove -= InputOnMouseMove;
                         _movable = false;
                     }
@@ -77,8 +85,16 @@ namespace InvokerCrappahilationPaid.Features
             };
         }
 
-        private IRenderManager Renderer => _config.Main.Context.RenderManager;
-        private IInputManager InputManager => _config.Main.Context.Input;
+        public MenuSlider Size { get; set; }
+
+        public MenuSlider PosY { get; set; }
+
+        public MenuSlider PosX { get; set; }
+
+        public MenuSwitcher Movable { get; set; }
+
+        public MenuSwitcher Enable { get; set; }
+
 
         public Vector2 DrawingStartPosition { get; set; }
 
@@ -86,23 +102,17 @@ namespace InvokerCrappahilationPaid.Features
 
         public bool IsAutoComboSelected { get; set; }
 
-        public MenuItem<bool> Movable { get; set; }
 
         public int MaxIcons { get; set; }
 
-        public MenuItem<Slider> PosX { get; set; }
-        public MenuItem<Slider> PosY { get; set; }
-        public MenuItem<Slider> Size { get; set; }
-
-        public MenuItem<bool> Enable { get; set; }
 
         private void Activate()
         {
-            Renderer.Draw += RendererOnDraw;
-            InputManager.MouseClick += OnComboClickSelecteor;
+            RendererManager.Draw += RendererOnDraw;
+            InputManager.MouseKeyDown += OnComboClickSelecteor;
             if (Movable)
             {
-                InputManager.MouseClick += InputOnMouseClick;
+                InputManager.MouseKeyDown += InputOnMouseClick;
                 InputManager.MouseMove += InputOnMouseMove;
                 _movable = true;
             }
@@ -110,42 +120,42 @@ namespace InvokerCrappahilationPaid.Features
 
         private void Deactivate()
         {
-            Renderer.Draw -= RendererOnDraw;
-            InputManager.MouseClick -= OnComboClickSelecteor;
+            RendererManager.Draw -= RendererOnDraw;
+            InputManager.MouseKeyDown -= OnComboClickSelecteor;
             if (_movable)
             {
-                InputManager.MouseClick -= InputOnMouseClick;
+                InputManager.MouseKeyDown -= InputOnMouseClick;
                 InputManager.MouseMove -= InputOnMouseMove;
                 _movable = false;
             }
         }
 
-        private void InputOnMouseMove(object sender, MouseEventArgs e)
+        private void InputOnMouseMove(MouseMoveEventArgs e)
         {
             if (_isMoving)
             {
                 var newValue = new Vector2(e.Position.X - _drawMousePosition.X,
                     e.Position.Y - _drawMousePosition.Y);
-                newValue.X = Math.Max(PosX.Value.MinValue, Math.Min(PosX.Value.MaxValue, newValue.X));
-                newValue.Y = Math.Max(PosY.Value.MinValue, Math.Min(PosY.Value.MaxValue, newValue.Y));
+                newValue.X = Math.Max(PosX.MinValue, Math.Min(PosX.MaxValue, newValue.X));
+                newValue.Y = Math.Max(PosY.MinValue, Math.Min(PosY.MaxValue, newValue.Y));
                 DrawingStartPosition = newValue;
             }
         }
 
-        private void InputOnMouseClick(object sender, MouseEventArgs e)
+        private void InputOnMouseClick(MouseEventArgs e)
         {
             var mousePos = e.Position;
             var size = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons,
                 _iconSize);
 
             var isIn = size.Contains(mousePos);
-            if (_isMoving && (e.Buttons & MouseButtons.LeftUp) == MouseButtons.LeftUp)
+            if (_isMoving && e.MouseKey == MouseKey.Left)
             {
-                PosX.Item.SetValue(new Slider((int) DrawingStartPosition.X, 0, 2500));
-                PosY.Item.SetValue(new Slider((int) DrawingStartPosition.Y, 0, 2500));
+                PosX.Value = (int) DrawingStartPosition.X;
+                PosY.Value = (int) DrawingStartPosition.Y;
                 _isMoving = false;
             }
-            else if (isIn && (e.Buttons & MouseButtons.LeftDown) == MouseButtons.LeftDown)
+            else if (isIn && e.MouseKey == MouseKey.Left)
             {
                 var startPos = new Vector2(PosX, PosY);
                 _drawMousePosition = e.Position - startPos;
@@ -153,9 +163,9 @@ namespace InvokerCrappahilationPaid.Features
             }
         }
 
-        private void OnComboClickSelecteor(object sender, MouseEventArgs e)
+        private void OnComboClickSelecteor(MouseEventArgs e)
         {
-            if ((e.Buttons & MouseButtons.LeftUp) != MouseButtons.LeftUp)
+            if (e.MouseKey == MouseKey.Left)
                 return;
             var mousePos = e.Position;
             var fullRectangleF = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons,
@@ -174,18 +184,18 @@ namespace InvokerCrappahilationPaid.Features
                     }
         }
 
-        private void RendererOnDraw(IRenderer renderer)
+        private void RendererOnDraw()
         {
             if (MaxIcons == 0)
                 return;
             var rect = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons,
                 _iconSize - 2);
-            renderer.DrawFilledRectangle(rect, Color.FromArgb(10,127,255,0), Color.FromArgb(210, 0, 0, 0), 1f);
+            RendererManager.DrawFilledRectangle(rect, new Color(0, 0, 0, 210), new Color(0, 127, 255, 10), 1f);
             rect.Height = (rect.Height + 2) * (1 + Combos.Count(x => x.Enable || x.Id == -1));
-            renderer.DrawFilledRectangle(rect, Color.FromArgb(10,127,255,0), Color.FromArgb(155, 0, 0, 0), 1f);
+            RendererManager.DrawFilledRectangle(rect, new Color(0, 127, 255, 10), new Color(0, 0, 0, 155), 1f);
 
             rect.Height = _iconSize;
-            renderer.DrawText(rect, "Combo Panel", Color.White, RendererFontFlags.Center, _iconSize * 0.75f);
+            RendererManager.DrawText("Combo Panel", rect, Color.White, FontFlags.Center, _iconSize * 0.75f);
             rect.Width = _iconSize;
             rect.Y += _iconSize;
 
@@ -197,11 +207,11 @@ namespace InvokerCrappahilationPaid.Features
                     var index = 0;
                     foreach (var item in combo.Items)
                     {
-                        renderer.DrawRectangle(startRect, Color.DodgerBlue);
-                        renderer.DrawTexture(item, startRect);
+                        RendererManager.DrawRectangle(startRect, Color.DodgerBlue);
+                        RendererManager.DrawImage(item, startRect, AbilityImageType.Default, true);
                         if (combo.IsSelected && index == combo.AbilityInAction)
-                            renderer.DrawFilledRectangle(startRect, Color.FromArgb(25,255,255,0),
-                                Color.FromArgb(75, 173, 255, 47));
+                            RendererManager.DrawFilledRectangle(startRect,
+                                new Color(47, 173, 255, 75), new Color(0, 255, 255, 25), 1);
                         index++;
                         startRect.X += _iconSize;
                     }
@@ -210,7 +220,7 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     startRect = rect;
                     startRect.Width = _iconSize * MaxIcons;
-                    renderer.DrawText(startRect, "Dynamic Combo", Color.White, RendererFontFlags.Left,
+                    RendererManager.DrawText("Dynamic Combo", startRect, Color.White, FontFlags.Center,
                         _iconSize * 0.75f);
                 }
 
@@ -223,12 +233,12 @@ namespace InvokerCrappahilationPaid.Features
                 combo.Rect = startRect;
                 if (combo.IsSelected)
                 {
-                    renderer.DrawRectangle(startRect, Color.Fuchsia, 2f);
+                    RendererManager.DrawRectangle(startRect, Color.Fuchsia, 2f);
                 }
                 else
                 {
-                    var clr = Color.FromArgb(50, 50, 50, 50);
-                    renderer.DrawFilledRectangle(startRect, clr, clr);
+                    var clr = new Color(50, 50, 50, 50);
+                    RendererManager.DrawFilledRectangle(startRect, clr, clr, 1);
                 }
 
                 rect.Y += _iconSize;
@@ -238,21 +248,62 @@ namespace InvokerCrappahilationPaid.Features
         public class MyLittleCombo
         {
             private readonly ComboPanel _comboPanel;
-            public MenuItem<bool> Enable;
             public bool IsSelected;
-            public List<string> Items;
+            public List<AbilityId> Items;
             public string Text;
+            public MenuHoldKey Key;
+            public MenuSwitcher Enable;
 
             public MyLittleCombo(int id, ComboPanel comboPanel)
             {
                 _comboPanel = comboPanel;
                 Id = id;
-                MenuFactory main;
+                Menu main;
+
+
+                IsSelected = false;
+                main = comboPanel._main.CreateMenu($"Combo #{id}");
+                Enable = main.CreateSwitcher("Enable", Id == 0);
+                Key = main.CreateHoldKey("Key");
+                Enable.ValueChanged += OnUpdateToggle;
+                Key.ValueChanged += (sender, args) =>
+                {
+                    if (Key && args.Value)
+                    {
+                        /*foreach (var combo in _comboPanel.Combos.Where(x => x.Enable || x.Id == -1))
+                        {
+                            combo.IsSelected = combo == this;
+                        }*/
+                        _comboPanel.Combos.ForEach(littleCombo => littleCombo.IsSelected = false);
+                        IsSelected = true;
+                        comboPanel.IsAutoComboSelected = false;
+                        comboPanel.SelectedCombo = this;
+                        AbilityInAction = 0;
+                    }
+                };
+                var list = new List<AbilityId>
+                {
+                    AbilityId.item_refresher,
+                    AbilityId.item_cyclone,
+//                    AbilityId.invoker_ghost_walk.ToString()
+                };
+                list.AddRange(
+                    comboPanel._config.Main.AbilitiesInCombo.AllAbilities.Select(ability => ability.Id));
+
+                var dict = list.ToDictionary(x => x, x => true);
+                Abilities = main.CreateAbilityToggler("Abilities:", dict, true);
+                // AbilitiesPriority = main.CreateAbilityToggler("Priority:", dict.ToDictionary(z => z.Key, z => z.Value), true);
+                NextAbilityAfterRefresher = main.CreateSlider("Ability index after refresher", 2, 0, 10);
+                Abilities.ValueChanged += OnUpdate;
+                // AbilitiesPriority.ValueChanged += OnUpdate;
+                // if (Enable)
+                //     UpdateItems(true);
+
                 if (id == -1)
                 {
-                    main = comboPanel._main.Menu("Dynamic combo");
-                    Key = main.Item("Key", new KeyBind('0'));
-                    Key.PropertyChanged += (sender, args) =>
+                    main = comboPanel._main.CreateMenu("Dynamic combo");
+                    Key = main.CreateHoldKey("Key");
+                    Key.ValueChanged += (sender, args) =>
                     {
                         if (Key)
                         {
@@ -268,90 +319,57 @@ namespace InvokerCrappahilationPaid.Features
                         }
                     };
                     IsSelected = true;
-                    return;
                 }
-
-                IsSelected = false;
-                main = comboPanel._main.Menu($"Combo #{id}");
-                Enable = main.Item("Enable", Id == 0);
-                Key = main.Item("Key", new KeyBind('0'));
-                Enable.PropertyChanged += OnUpdate;
-                Key.PropertyChanged += (sender, args) =>
-                {
-                    if (Key && Enable)
-                    {
-                        /*foreach (var combo in _comboPanel.Combos.Where(x => x.Enable || x.Id == -1))
-                        {
-                            combo.IsSelected = combo == this;
-                        }*/
-                        _comboPanel.Combos.ForEach(littleCombo => littleCombo.IsSelected = false);
-                        IsSelected = true;
-                        comboPanel.IsAutoComboSelected = false;
-                        comboPanel.SelectedCombo = this;
-                        AbilityInAction = 0;
-                    }
-                };
-                var list = new List<string>
-                {
-                    AbilityId.item_refresher.ToString(),
-                    AbilityId.item_cyclone.ToString(),
-//                    AbilityId.invoker_ghost_walk.ToString()
-                };
-                UpdateManager.BeginInvoke(() =>
-                {
-                    list.AddRange(
-                        comboPanel._config.Main.AbilitiesInCombo.AllAbilities.Select(ability =>
-                            ability.Ability.Id.ToString()));
-
-                    var dict = list.ToDictionary(x => x, x => true);
-                    Abilities = main.Item("Abilities:", new AbilityToggler(dict));
-                    AbilitiesPriority = main.Item("Priority:", new PriorityChanger(list));
-                    NextAbilityAfterRefresher = main.Item("Ability index after refresher", new Slider(2, 0, 10));
-                    Abilities.PropertyChanged += OnUpdate;
-                    AbilitiesPriority.PropertyChanged += OnUpdate;
-                    if (Enable)
-                        UpdateItems(true);
-                }, 500);
             }
+
+            public MenuSlider NextAbilityAfterRefresher { get; set; }
+
+            // public MenuAbilityToggler AbilitiesPriority { get; set; }
+
+            public MenuAbilityToggler Abilities { get; set; }
 
             public int Id { get; }
 
-            public MenuItem<KeyBind> Key { get; set; }
-
-            public MenuItem<Slider> NextAbilityAfterRefresher { get; set; }
-
-            public MenuItem<PriorityChanger> AbilitiesPriority { get; set; }
-
-            public MenuItem<AbilityToggler> Abilities { get; set; }
-            public RectangleF Rect { get; set; }
             public int AbilityInAction { get; set; }
+            public RectangleF Rect { get; set; }
 
 
-            private void OnUpdate(object o, PropertyChangedEventArgs args)
+            private void OnUpdateToggle(MenuSwitcher switcher, SwitcherEventArgs switcherEventArgs)
             {
-                var isBoolChanged = o.ToString() == "Ensage.SDK.Menu.MenuItem`1[System.Boolean]";
-                var firstTime = isBoolChanged && !Enable;
-                //InvokerCrappahilationPaid.Log.Warn($"{o} {o.ToString() == "Ensage.SDK.Menu.MenuItem`1[System.Boolean]"}");
-                UpdateItems(firstTime);
+                UpdateItems(switcherEventArgs.Value);
+            }
+
+            private void OnUpdate(MenuAbilityToggler toggler, AbilityTogglerEventArgs abilityTogglerEventArgs)
+            {
+                UpdateItems();
             }
 
 
             public void UpdateItems(bool isFirstTime = false)
             {
-                Items = new List<string>();
-                Items.AddRange(Abilities.Value.Dictionary.Select(z => z.Key).Where(x => Abilities.Value.IsEnabled(x)));
-                Items = new List<string>(Items.OrderByDescending(x => AbilitiesPriority.Value.GetPriority(x)));
-                UpdateManager.BeginInvoke(() =>
+                if (Abilities == null)
                 {
+                    return;
+                }
+
+                UpdateManager.BeginInvoke(150, () =>
+                {
+                    Items = new List<AbilityId>();
+                    var allAbilities = _comboPanel._config.Main.AbilitiesInCombo.AllAbilities.Select(ability => ability.Id).ToList();
+                    // Console.WriteLine($"allAbilities: {string.Join(';', allAbilities)}");
+                    // Console.WriteLine(Abilities!=null);
+                    var toAdd = allAbilities.Where(x => Abilities.GetValue(x)).ToList();
+                    if (toAdd.Any())
+                        Items.AddRange(toAdd);
+                    Items = new List<AbilityId>(Items.OrderByDescending(x => Abilities.GetPriority(x)));
                     if (Enable || isFirstTime)
                     {
                         //var count = 0;
                         _comboPanel.MaxIcons = 0;
                         foreach (var combo in _comboPanel.Combos.Where(x => Items != null && x.Enable && x.Id >= 0))
                         {
-                            var localCount = new List<string>();
-                            localCount.AddRange(combo.Abilities.Value.Dictionary.Select(z => z.Key)
-                                .Where(x => combo.Abilities.Value.IsEnabled(x)));
+                            var localCount = new List<AbilityId>();
+                            localCount.AddRange(allAbilities.Where(x => combo.Abilities.GetValue(x)));
                             //_comboPanel.MaxIcons = Math.Max(Enable ? Items.Count : 0, localCount);
                             _comboPanel.MaxIcons = Math.Max(_comboPanel.MaxIcons, localCount.Count);
                             //InvokerCrappahilationPaid.Log.Warn($"[{count++}] Max: {_comboPanel.MaxIcons}");
@@ -359,7 +377,7 @@ namespace InvokerCrappahilationPaid.Features
 
                         //InvokerCrappahilationPaid.Log.Warn($"TotalMax for combo# {Id}: {_comboPanel.MaxIcons}");
                     }
-                }, 500);
+                });
                 /*if (_comboPanel.MaxIcons < Items.Count)
                     _comboPanel.MaxIcons = Items.Count;*/
             }

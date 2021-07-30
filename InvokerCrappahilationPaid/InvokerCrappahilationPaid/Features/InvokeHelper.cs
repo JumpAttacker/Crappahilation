@@ -1,9 +1,20 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
-
+using Divine.Entity;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Extensions;
+using Divine.Game;
+using Divine.Menu.Items;
+using Divine.Update;
+using InvokerCrappahilationPaid.Extensions;
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Helpers;
 
 namespace InvokerCrappahilationPaid.Features
 {
@@ -11,52 +22,50 @@ namespace InvokerCrappahilationPaid.Features
     {
         private readonly Config _config;
 
-        private readonly MenuFactory _main;
 
 //        private MenuItem<bool> useCataclysm;
         private bool isFirstClick;
-        private MenuItem<Slider> delayForCataclysm;
+        private readonly Menu _main;
+        private MenuSlider delayForCataclysm;
+
 
         public InvokeHelper(Config config)
         {
             _config = config;
-            _main = _config.Factory.Menu("Invoke helper");
+            _main = _config.Factory.CreateMenu("Invoke helper");
 
-            UpdateManager.BeginInvoke(() =>
+            UpdateManager.BeginInvoke(500, () =>
             {
                 foreach (var activeAbility in config.Main.AbilitiesInCombo.AllAbilities) MakeMenu(activeAbility);
 
                 MakeMenu(config.Main.AbilitiesInCombo.GhostWalk);
-            }, 500);
+            });
 
             Sleeper = new Sleeper();
         }
 
         public Sleeper Sleeper { get; }
 
-        private void MakeMenu(ActiveAbility activeAbility)
+        private void MakeMenu(InvokerBaseAbility activeAbility)
         {
-            var main = _main.MenuWithTexture("", $"{activeAbility.Ability.Id}", $"{activeAbility.Ability.Id}");
-            var enable = main.Item("Enable", true);
-            var key = main.Item("Invoke Key", new KeyBind('0'));
-            var ignore = main.Item("Ignore invisibility", false);
-            MenuItem<bool> useOnMainHeroAfterInvoke = null;
-            MenuItem<bool> use = null;
-            if (activeAbility is InvokerAlacrity || activeAbility is InvokerForgeSpirit ||
-                activeAbility is InvokerGhostWalk || activeAbility is InvokerIceWall)
+            var main = _main.CreateMenu(activeAbility.Id.ToString());
+            var enable = main.CreateSwitcher("Enable", true);
+            var key = main.CreateHoldKey("Invoke Key");
+            var ignore = main.CreateSwitcher("Ignore invisibility", false);
+            MenuSwitcher useOnMainHeroAfterInvoke = null;
+            MenuSwitcher use = null;
+            if (activeAbility is InvokerAlacrity or InvokerForgeSpirit or InvokerGhostWalk or InvokerIceWall)
             {
-                useOnMainHeroAfterInvoke = main.Item("Use on main hero after Invoke", false);
-                use = main.Item("Use if already invoked", false);
+                useOnMainHeroAfterInvoke = main.CreateSwitcher("Use on main hero after Invoke", false);
+                use = main.CreateSwitcher("Use if already invoked", false);
             }
-            else if (activeAbility is InvokerTornado || activeAbility is InvokerChaosMeteor ||
-                     activeAbility is InvokerDeafeningBlast || activeAbility is InvokerEmp ||
-                     activeAbility is InvokerSunStrike || activeAbility is InvokerColdSnap)
+            else if (activeAbility is InvokerTornado or InvokerChaosMeteor or InvokerDeafeningBlast or InvokerEmp or InvokerSunStrike or InvokerColdSnap)
             {
-                useOnMainHeroAfterInvoke = main.Item("Use after Invoke", false);
-                use = main.Item("Use if already invoked", false);
+                useOnMainHeroAfterInvoke = main.CreateSwitcher("Use after Invoke", false);
+                use = main.CreateSwitcher("Use if already invoked", false);
                 if (activeAbility is InvokerSunStrike)
                 {
-                    delayForCataclysm = main.Item("time for double click for cataclysm", new Slider(0, 0, 100));
+                    delayForCataclysm = main.CreateSlider("time for double click for cataclysm", 0, 0, 100);
                 }
 
 //                if (activeAbility is InvokerSunStrike)
@@ -65,75 +74,78 @@ namespace InvokerCrappahilationPaid.Features
 //                }
             }
 
-            var reInvoke = main.Item("Use invoke if skill in slot #5", false);
+            var reInvoke = main.CreateSwitcher("Use invoke if skill in slot #5", false);
             ((IHaveFastInvokeKey) activeAbility).Key =
-                key.Value.Key == '0' ? Key.None : KeyInterop.KeyFromVirtualKey((int) key.Value.Key);
+                key.Key is Key.None ? Key.None : KeyInterop.KeyFromVirtualKey((int) key.Key);
 
-            var value = key.Value.Active;
             isFirstClick = true;
-            key.PropertyChanged += async (sender, args) =>
+            var oldKey = Key.None;
+            UpdateManager.CreateIngameUpdate(5000, () =>
+            {
+                if (oldKey != key.Key)
+                {
+                    oldKey = key.Key;
+                    ((IHaveFastInvokeKey) activeAbility).Key = key.Key;
+                    Console.WriteLine(
+                        $"({activeAbility}) Changed: from {((IHaveFastInvokeKey) activeAbility).Key} key ({key.Key})");
+                }
+            });
+            key.ValueChanged += async (sender, args) =>
             {
                 if (!enable) return;
-                if (key)
+                if (args.Value)
                 {
-                    if (value)
-                        return;
-                    value = true;
-                    if (_config.SmartSphere.InChanging.Sleeping)
-                        while (_config.SmartSphere.InChanging.Sleeping)
+                    Console.WriteLine("1");
+                    if (_config.SmartSphere.InChanging.IsSleeping)
+                        while (_config.SmartSphere.InChanging.IsSleeping)
                             await Task.Delay(5);
-
-                    if (!_config.Main.Me.IsAlive || !_config.Main.Me.CanCastAbilities())
+                    Console.WriteLine("2");
+                    if (!_config.Main.Me.IsAlive || !_config.Main.Me9.CanUseAbilities)
                         return;
+                    Console.WriteLine("3");
                     if ( /*|| !activeAbility.CanBeCasted ||*/
                         _config.Main.Me.HasAnyModifiers(_config.Main.AbilitiesInCombo.GhostWalk.ModifierName,
                             "item_glimmer_cape") && !ignore)
                         return;
-                    if (!ObjectManager.LocalPlayer.Selection.Any(x => x.Equals(_config.Main.Me)))
+                    Console.WriteLine("4");
+                    if (EntityManager.LocalPlayer is not null && !EntityManager.LocalPlayer.SelectedUnits.Any(x => x.Equals(_config.Main.Me)))
                         return;
-                    var slot = activeAbility.Ability.AbilitySlot;
-                    if (reInvoke && slot == AbilitySlot.Slot_5)
+                    Console.WriteLine("5");
+                    var slot = activeAbility.AbilitySlot;
+                    if (reInvoke && slot == AbilitySlot.Slot5)
                     {
                         _config.Main.Combo.InvokeThisShit(activeAbility);
                         return;
                     }
-
-                    if (slot == AbilitySlot.Slot_4 ||
-                        slot == AbilitySlot.Slot_5)
+                    Console.WriteLine("6");
+                    if (slot is AbilitySlot.Slot4 or AbilitySlot.Slot5)
                     {
-                        if (use != null && use) JustUse(activeAbility);
+                        if (use is {Value: true}) JustUse(activeAbility);
 
                         return;
                     }
-
-                    if (!_config.Main.AbilitiesInCombo.Invoke.CanBeCasted)
+                    Console.WriteLine("7");
+                    if (!_config.Main.AbilitiesInCombo.Invoke.BaseAbility.CanBeCasted())
                         return;
+                    Console.WriteLine("8");
                     if (useOnMainHeroAfterInvoke == null)
                         InvokeThenCast(activeAbility);
                     else
                         InvokeThenCast(activeAbility, useOnMainHeroAfterInvoke);
                 }
-                else
-                {
-                    if (value)
-                    {
-                        value = false;
-                    }
-                    else
-                    {
-                        ((IHaveFastInvokeKey) activeAbility).Key = KeyInterop.KeyFromVirtualKey((int) key.Value.Key);
-                        Console.WriteLine(
-                            $"({activeAbility}) Changed: to {((IHaveFastInvokeKey) activeAbility).Key} ({key.Value.Key})");
-                    }
-
-                    //Console.WriteLine($"({activeAbility}) Changed: to {((IHaveFastInvokeKey)activeAbility).Key} ({key.Value.Key})");
-                }
             };
         }
 
-        private void InvokeThenCast(ActiveAbility activeAbility, bool thenCast = false)
+        private Unit GetActualTarget()
         {
-            if (Sleeper.Sleeping)
+            var target = _config.Main.Combo.Target ??
+                         EntityManager.GetEntities<Hero>().Where(x => x.IsValid && x.IsEnemy(_config.Main.Me) && x.IsAlive && x.IsVisibleToEnemies).OrderBy(z => z.Distance2D(_config.Main.Me)).FirstOrDefault();
+            return target;
+        }
+
+        private void InvokeThenCast(InvokerBaseAbility activeAbility, bool thenCast = false)
+        {
+            if (Sleeper.IsSleeping)
                 return;
             var invoked = false;
             switch (activeAbility)
@@ -149,21 +161,22 @@ namespace InvokerCrappahilationPaid.Features
                     invoked = ability.Invoke();
                     if (invoked)
                         if (thenCast)
-                            activeAbility.UseAbility(Game.MousePosition);
+                            activeAbility.UseAbility(GameManager.MousePosition);
 
                     break;
                 case InvokerSunStrike ability:
                     invoked = ability.Invoke();
+                    Console.WriteLine($"Invoke {invoked}");
                     if (invoked)
                         if (thenCast)
-                            activeAbility.UseAbility(Game.MousePosition);
+                            activeAbility.UseAbility(GameManager.MousePosition);
 
                     break;
                 case InvokerEmp ability:
                     invoked = ability.Invoke();
                     if (invoked)
                         if (thenCast)
-                            activeAbility.UseAbility(Game.MousePosition);
+                            activeAbility.UseAbility(GameManager.MousePosition);
 
                     break;
                 case InvokerColdSnap ability:
@@ -172,10 +185,10 @@ namespace InvokerCrappahilationPaid.Features
                         if (thenCast)
                         {
                             var target = _config.Main.Combo.Target ??
-                                         _config.Main.Context.TargetSelector?.Active.GetTargets().FirstOrDefault();
+                                         EntityManager.GetEntities<Hero>().Where(x => x.IsValid &&  x.IsEnemy(_config.Main.Me) && x.IsAlive && x.IsVisibleToEnemies).OrderBy(z => z.Distance2D(_config.Main.Me)).FirstOrDefault();
                             if (target == null)
                                 break;
-                            ability.UseAbility(target);
+                            ability.BaseAbility.BaseAbility.Cast(target);
                         }
 
                     break;
@@ -183,7 +196,7 @@ namespace InvokerCrappahilationPaid.Features
                     invoked = ability.Invoke();
                     if (invoked)
                         if (thenCast)
-                            activeAbility.UseAbility(Game.MousePosition);
+                            activeAbility.UseAbility(GameManager.MousePosition);
 
                     break;
                 case InvokerForgeSpirit ability:
@@ -198,11 +211,11 @@ namespace InvokerCrappahilationPaid.Features
                     if (invoked)
                         if (thenCast)
                         {
-                            Sleeper.Sleep(1000);
-                            _config.SmartSphere.Sleeper.Sleep(2500);
-                            UpdateManager.BeginInvoke(() =>
+                            Sleeper.Sleep(1f);
+                            _config.SmartSphere.Sleeper.Sleep(2.500f);
+                            UpdateManager.BeginInvoke(250, () =>
                             {
-                                if (activeAbility.CanBeCasted)
+                                if (activeAbility.CanBeCasted())
                                 {
                                     if (!_config.Main.Me.HasAnyModifiers(_config.Main.AbilitiesInCombo.GhostWalk
                                         .ModifierName))
@@ -214,7 +227,7 @@ namespace InvokerCrappahilationPaid.Features
 
                                     activeAbility.UseAbility();
                                 }
-                            }, 250);
+                            });
                         }
 
                     break;
@@ -229,21 +242,21 @@ namespace InvokerCrappahilationPaid.Features
                     invoked = ability.Invoke();
                     if (invoked)
                         if (thenCast)
-                            activeAbility.UseAbility(Game.MousePosition);
+                            activeAbility.UseAbility(GameManager.MousePosition);
 
                     break;
             }
 
             if (invoked)
-                Sleeper.Sleep(500);
+                Sleeper.Sleep(.500f);
         }
 
-        private void JustUse(ActiveAbility activeAbility)
+        private void JustUse(InvokerBaseAbility activeAbility)
         {
             switch (activeAbility)
             {
                 case InvokerAlacrity ability:
-                    ability.UseAbility(activeAbility.Owner);
+                    ability.UseAbility(activeAbility.Owner, false, false);
                     break;
                 case InvokerForgeSpirit ability:
                     ability.UseAbility();
@@ -258,11 +271,10 @@ namespace InvokerCrappahilationPaid.Features
                     ability.UseAbility();
                     break;
                 case InvokerColdSnap ability:
-                    var target = _config.Main.Combo.Target ??
-                                 _config.Main.Context.TargetSelector?.Active.GetTargets().FirstOrDefault();
+                    var target = GetActualTarget();
                     if (target == null)
                         break;
-                    ability.UseAbility(target);
+                    ability.BaseAbility.BaseAbility.Cast(target);
                     break;
                 case InvokerSunStrike ability:
                     if (isFirstClick)
@@ -270,26 +282,26 @@ namespace InvokerCrappahilationPaid.Features
                         isFirstClick = false;
                         if (delayForCataclysm == 0)
                         {
-                            ability.Ability.UseAbility(Game.MousePosition);
+                            ability.BaseAbility.BaseAbility.Cast(GameManager.MousePosition);
                             isFirstClick = true;
                         }
                         else
-                            UpdateManager.BeginInvoke(() =>
+                            UpdateManager.BeginInvoke(delayForCataclysm, () =>
                             {
                                 if (isFirstClick) return;
-                                ability.UseAbility(Game.MousePosition);
+                                ability.UseAbility(GameManager.MousePosition);
                                 isFirstClick = true;
-                            }, delayForCataclysm);
+                            });
                     }
                     else
                     {
-                        ability.Ability.UseAbility(ability.Owner);
+                        ability.BaseAbility.BaseAbility.Cast(ability.Owner);
                         isFirstClick = true;
                     }
 
                     break;
                 default:
-                    activeAbility.UseAbility(Game.MousePosition);
+                    activeAbility.UseAbility(GameManager.MousePosition);
                     break;
             }
         }

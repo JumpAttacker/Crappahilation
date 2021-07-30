@@ -1,10 +1,22 @@
 ﻿using System;
 using System.Linq;
-
-using SharpDX;
-
-using Color = System.Drawing.Color;
-using UnitExtensions = Ensage.SDK.Extensions.UnitExtensions;
+using Divine.Entity.Entities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Components;
+using Divine.Entity.Entities.Players;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Extensions;
+using Divine.Input;
+using Divine.Input.EventArgs;
+using Divine.Menu.Items;
+using Divine.Numerics;
+using Divine.Order;
+using Divine.Order.EventArgs;
+using Divine.Order.Orders;
+using Divine.Order.Orders.Components;
+using Divine.Renderer;
+using Divine.Update;
+using O9K.Core.Helpers;
 
 namespace InvokerCrappahilationPaid.Features
 {
@@ -23,7 +35,7 @@ namespace InvokerCrappahilationPaid.Features
         private bool _isMoving;
 
         private bool _movable;
-        private readonly MultiSleeper _multySleeper;
+        private readonly MultiSleeper<string> _multySleeper;
 
         public Button[] Buttons;
 
@@ -32,26 +44,26 @@ namespace InvokerCrappahilationPaid.Features
         public SmartSphere(Config config)
         {
             _config = config;
-            var main = _config.Factory.Menu("Smart Sphere");
-            Enable = main.Item("Enable", true);
-            DisableKey = main.Item("Disable key", new KeyBind('0'));
-            CheckForModifiers = main.Item("Check for modifiers", true);
-            VerySmartSpheres = main.Item("Very smart spheres", true);
-            HpSlider = main.Item("Hp % for VerySmartSpheres", new Slider(80, 1, 99));
-            VerySmartSpheres.Item.SetTooltip(
+            var main = _config.Factory.CreateMenu("Smart Sphere");
+            Enable = main.CreateSwitcher("Enable", true);
+            DisableKey = main.CreateHoldKey("Disable key");
+            CheckForModifiers = main.CreateSwitcher("Check for modifiers", true);
+            VerySmartSpheres = main.CreateSwitcher("Very smart spheres", true);
+            HpSlider = main.CreateSlider("Hp % for VerySmartSpheres", 80, 1, 99);
+            VerySmartSpheres.SetTooltip(
                 "Will use quas on moving if u have less then 50% hp. And wex on moving if more then 50%");
             //Movable = main.Item("Movable", true);
-            PosX = main.Item("Pos X", new Slider(500, 0, 2500));
-            PosY = main.Item("Pos Y", new Slider(500, 0, 2500));
-            Size = main.Item("Size", new Slider(100, 0, 200));
+            PosX = main.CreateSlider("Pos X", 500, 0, 2500);
+            PosY = main.CreateSlider("Pos Y", 500, 0, 2500);
+            Size = main.CreateSlider("Size", 00, 0, 200);
             DrawingStartPosition = new Vector2(PosX, PosY);
             _iconSize = 50f / 100f * Size;
-            _multySleeper = new MultiSleeper();
-            Size.PropertyChanged += (sender, args) => { _iconSize = 50f / 100f * Size; };
+            _multySleeper = new MultiSleeper<string>();
+            Size.ValueChanged += (sender, args) => { _iconSize = 50f / 100f * Size; };
 
             if (Enable) Activate();
 
-            UpdateManager.BeginInvoke(() => { MaxIcons = config.Main.AbilitiesInCombo.AllAbilities.Count; }, 500);
+            UpdateManager.BeginInvoke(500, () => { MaxIcons = config.Main.AbilitiesInCombo.AllAbilities.Count; });
 
             Buttons = new Button[6];
 
@@ -64,9 +76,9 @@ namespace InvokerCrappahilationPaid.Features
             Buttons[5] = new Button(AbilityId.invoker_exort, TypeEnum.Move, false);
 
 
-            Enable.PropertyChanged += (sender, args) =>
+            Enable.ValueChanged += (sender, args) =>
             {
-                if (Enable)
+                if (sender.Value)
                     Activate();
                 else
                     Deactivate();
@@ -78,7 +90,7 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     if (!_movable)
                     {
-                        InputManager.MouseClick += InputOnMouseClick;
+                        InputManager.MouseKeyDown += InputOnMouseClick;
                         InputManager.MouseMove += InputOnMouseMove;
                         _movable = true;
                     }
@@ -87,7 +99,7 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     if (_movable)
                     {
-                        InputManager.MouseClick -= InputOnMouseClick;
+                        InputManager.MouseKeyDown -= InputOnMouseClick;
                         InputManager.MouseMove -= InputOnMouseMove;
                         _movable = false;
                     }
@@ -95,37 +107,38 @@ namespace InvokerCrappahilationPaid.Features
             };*/
         }
 
-        private IRenderManager Renderer => _config.Main.Context.RenderManager;
-        private IInputManager InputManager => _config.Main.Context.Input;
+        public MenuSlider PosY { get; set; }
 
-        public MenuItem<KeyBind> DisableKey { get; set; }
+        public MenuSlider PosX { get; set; }
 
-        public MenuItem<Slider> HpSlider { get; set; }
+        public MenuSwitcher VerySmartSpheres { get; set; }
 
-        public MenuItem<bool> VerySmartSpheres { get; set; }
+        public MenuSlider HpSlider { get; set; }
 
-        public MenuItem<bool> CheckForModifiers { get; set; }
+        public MenuSwitcher CheckForModifiers { get; set; }
+
+        public MenuSlider Size { get; set; }
+
+        public MenuHoldKey DisableKey { get; set; }
+
+        public MenuSwitcher Enable { get; set; }
+
 
         public Vector2 DrawingStartPosition { get; set; }
         private Hero Me => _config.Main.Me;
 
         public int MaxIcons { get; set; }
 
-        public MenuItem<Slider> PosX { get; set; }
-        public MenuItem<Slider> PosY { get; set; }
-        public MenuItem<Slider> Size { get; set; }
-
-        public MenuItem<bool> Enable { get; set; }
 
         private void Activate()
         {
-            Renderer.Draw += RendererOnDraw;
+            RendererManager.Draw += RendererOnDraw;
             //Entity.OnInt32PropertyChange += OnNetworkActivity;
-            Player.OnExecuteOrder += PlayerOnOnExecuteOrder;
+            OrderManager.OrderAdding += PlayerOnOnExecuteOrder;
             InChanging = new Sleeper();
             if (true)
             {
-                InputManager.MouseClick += InputOnMouseClick;
+                InputManager.MouseKeyDown += InputOnMouseClick;
                 InputManager.MouseMove += InputOnMouseMove;
                 _movable = true;
             }
@@ -133,179 +146,175 @@ namespace InvokerCrappahilationPaid.Features
 
         private void Deactivate()
         {
-            Renderer.Draw -= RendererOnDraw;
-            Player.OnExecuteOrder -= PlayerOnOnExecuteOrder;
+            RendererManager.Draw -= RendererOnDraw;
+            OrderManager.OrderAdding -= PlayerOnOnExecuteOrder;
             if (_movable)
             {
-                InputManager.MouseClick -= InputOnMouseClick;
+                InputManager.MouseKeyDown -= InputOnMouseClick;
                 InputManager.MouseMove -= InputOnMouseMove;
                 _movable = false;
             }
         }
 
-        private void PlayerOnOnExecuteOrder(Player player, ExecuteOrderEventArgs args)
+        private void PlayerOnOnExecuteOrder(OrderAddingEventArgs args)
         {
             /*if (!args.IsPlayerInput)
                 return;*/
-            if (!args.Entities.Any(x => x.Equals(Me)))
+            if (!args.Order.Units.Any(x => x.Equals(Me)))
                 return;
             if (_config.ComboKey || DisableKey)
                 return;
             if (Me.IsInvisible() || UnitExtensions.HasAnyModifiers(Me, "modifier_invoker_ghost_walk_self",
-                    "modifier_rune_invis", "modifier_invisible"))
+                "modifier_rune_invis", "modifier_invisible"))
                 return;
-            var order = args.OrderId;
-            if (args.IsPlayerInput)
-                if (order == OrderId.Ability)
+            var order = args.Order.Type;
+            if (!args.IsCustom)
+                if (order == OrderType.Cast)
                 {
-                    var abilityId = args.Ability.Id;
-                    if (abilityId == AbilityId.invoker_quas || abilityId == AbilityId.invoker_wex ||
-                        abilityId == AbilityId.invoker_exort || abilityId == AbilityId.invoker_invoke ||
-                        abilityId == AbilityId.invoker_ghost_walk)
-                        Sleeper.Sleep(1500);
+                    var abilityId = args.Order.Ability?.Id;
+                    if (abilityId is AbilityId.invoker_quas or AbilityId.invoker_wex or AbilityId.invoker_exort or AbilityId.invoker_invoke or AbilityId.invoker_ghost_walk)
+                        Sleeper.Sleep(1.500f);
                 }
 
-            if (Sleeper.Sleeping || Me.IsSilenced())
+            if (Sleeper.IsSleeping || Me.IsSilenced())
                 return;
-            if (order == OrderId.AttackLocation || order == OrderId.AttackTarget)
+            if (order is OrderType.AttackPosition or OrderType.AttackTarget)
             {
-                if (_multySleeper.Sleeping("attack"))
+                if (_multySleeper.IsSleeping("attack"))
                     return;
-                _multySleeper.Sleep(250, "attack");
+                _multySleeper.Sleep("attack", .250f);
                 var activeSphereForAttack =
                     Me.GetAbilityById(Buttons.First(x => x.IsActive && x.Type == TypeEnum.Attack).Id);
-                if (activeSphereForAttack.CanBeCasted())
+                if (activeSphereForAttack.Level > 0)
                 {
                     if (CheckForModifiers)
                     {
                         var countOfModifiers =
                             Me.Modifiers.Count(x => x.Name == $"modifier_{activeSphereForAttack.Id}_instance");
                         if (countOfModifiers >= 3) return;
-                        for (var i = countOfModifiers; i < 3; i++) activeSphereForAttack.UseAbility();
-                        InChanging.Sleep(250);
+                        for (var i = countOfModifiers; i < 3; i++) activeSphereForAttack.Cast();
+                        InChanging.Sleep(.250f);
                     }
                     else
                     {
-                        InChanging.Sleep(250);
-                        activeSphereForAttack.UseAbility();
-                        activeSphereForAttack.UseAbility();
-                        activeSphereForAttack.UseAbility();
+                        InChanging.Sleep(.250f);
+                        activeSphereForAttack.Cast();
+                        activeSphereForAttack.Cast();
+                        activeSphereForAttack.Cast();
                     }
                 }
             }
-            else if (order == OrderId.MoveLocation || order == OrderId.MoveTarget)
+            else if (order is OrderType.MovePosition or OrderType.MoveTarget)
             {
-                if (args.Target != null && args.Target.NetworkName == ClassId.CDOTA_BaseNPC_Healer.ToString())
+                if (args.Order.Target != null && args.Order.Target.NetworkName == ClassId.CDOTA_BaseNPC_Healer.ToString())
                     return;
 
-                if (_multySleeper.Sleeping("move"))
+                if (_multySleeper.IsSleeping("move"))
                     return;
-                _multySleeper.Sleep(250, "move");
+                _multySleeper.Sleep("move", .250f);
 
                 var activeSphereForMove =
                     Me.GetAbilityById(Buttons.First(x => x.IsActive && x.Type == TypeEnum.Move).Id);
                 if (VerySmartSpheres)
                 {
-                    if (UnitExtensions.HealthPercent(Me) <= HpSlider / 100f)
+                    if (Me.HealthPercent() <= HpSlider / 100f)
                     {
-                        if (_config.Main.AbilitiesInCombo.Quas.Level > 0)
-                            activeSphereForMove = _config.Main.AbilitiesInCombo.Quas;
+                        if (_config.Main.AbilitiesInCombo.Quas.BaseAbility.Level > 0)
+                            activeSphereForMove = _config.Main.AbilitiesInCombo.Quas.BaseAbility;
                         else
-                            activeSphereForMove = _config.Main.AbilitiesInCombo.Wex;
+                            activeSphereForMove = _config.Main.AbilitiesInCombo.Wex.BaseAbility;
                     }
                     else
                     {
-                        if (_config.Main.AbilitiesInCombo.Wex.Level > 0)
-                            activeSphereForMove = _config.Main.AbilitiesInCombo.Wex;
+                        if (_config.Main.AbilitiesInCombo.Wex.BaseAbility.Level > 0)
+                            activeSphereForMove = _config.Main.AbilitiesInCombo.Wex.BaseAbility;
                         else
-                            activeSphereForMove = _config.Main.AbilitiesInCombo.Quas;
+                            activeSphereForMove = _config.Main.AbilitiesInCombo.Quas.BaseAbility;
                     }
 
                     foreach (var typeButton in Buttons.Where(x => x.Type == TypeEnum.Move))
                         typeButton.IsActive = typeButton.Id == activeSphereForMove.Id;
                 }
 
-                if (activeSphereForMove.CanBeCasted())
+                if (activeSphereForMove.Level > 0)
                 {
                     if (CheckForModifiers)
                     {
                         var countOfModifiers =
                             Me.Modifiers.Count(x => x.Name == $"modifier_{activeSphereForMove.Id}_instance");
                         if (countOfModifiers >= 3) return;
-                        for (var i = countOfModifiers; i < 3; i++) activeSphereForMove.UseAbility();
-                        InChanging.Sleep(250);
+                        for (var i = countOfModifiers; i < 3; i++) activeSphereForMove.Cast();
+                        InChanging.Sleep(.250f);
                     }
                     else
                     {
-                        InChanging.Sleep(250);
-                        activeSphereForMove.UseAbility();
-                        activeSphereForMove.UseAbility();
-                        activeSphereForMove.UseAbility();
+                        InChanging.Sleep(.250f);
+                        activeSphereForMove.Cast();
+                        activeSphereForMove.Cast();
+                        activeSphereForMove.Cast();
                     }
                 }
             }
 
-            if (!args.IsPlayerInput)
-                if (!InChanging.Sleeping && order == OrderId.Ability)
+            if (args.IsCustom)
+                if (!InChanging.IsSleeping && order == OrderType.Cast)
                 {
-                    var abilityId = args.Ability.Id;
-                    if (abilityId == AbilityId.invoker_quas || abilityId == AbilityId.invoker_wex ||
-                        abilityId == AbilityId.invoker_exort || abilityId == AbilityId.invoker_invoke ||
-                        abilityId == AbilityId.invoker_ghost_walk)
+                    var abilityId = args.Order.Ability?.Id;
+                    if (abilityId is AbilityId.invoker_quas or AbilityId.invoker_wex or AbilityId.invoker_exort or AbilityId.invoker_invoke or AbilityId.invoker_ghost_walk)
                     {
-                        _multySleeper.Sleep(250, "attack");
-                        _multySleeper.Sleep(250, "move");
+                        _multySleeper.Sleep("attack", .250f);
+                        _multySleeper.Sleep("move", .250f);
                         //InvokerCrappahilationPaid.Log.Warn($"On Sleep");
                     }
                 }
         }
 
-        private void OnNetworkActivity(Entity sender, Int32PropertyChangeEventArgs args)
-        {
-            if (sender != Me) return;
+        // private void OnNetworkActivity(Entity sender, Int32PropertyChangeEventArgs args)
+        // {
+        //     if (sender != Me) return;
+        //
+        //     if (!args.PropertyName.Equals("m_networkactivity", StringComparison.InvariantCultureIgnoreCase)) return;
+        //     var order = args.NewValue;
+        //     if (order == 1503 || order == 1504)
+        //     {
+        //         _config.Main.AbilitiesInCombo.Exort.UseAbility();
+        //         _config.Main.AbilitiesInCombo.Exort.UseAbility();
+        //         _config.Main.AbilitiesInCombo.Exort.UseAbility();
+        //     }
+        //     else
+        //     {
+        //         _config.Main.AbilitiesInCombo.Wex.UseAbility();
+        //         _config.Main.AbilitiesInCombo.Wex.UseAbility();
+        //         _config.Main.AbilitiesInCombo.Wex.UseAbility();
+        //     }
+        //
+        //     Console.WriteLine(args.NewValue);
+        // }
 
-            if (!args.PropertyName.Equals("m_networkactivity", StringComparison.InvariantCultureIgnoreCase)) return;
-            var order = args.NewValue;
-            if (order == 1503 || order == 1504)
-            {
-                _config.Main.AbilitiesInCombo.Exort.UseAbility();
-                _config.Main.AbilitiesInCombo.Exort.UseAbility();
-                _config.Main.AbilitiesInCombo.Exort.UseAbility();
-            }
-            else
-            {
-                _config.Main.AbilitiesInCombo.Wex.UseAbility();
-                _config.Main.AbilitiesInCombo.Wex.UseAbility();
-                _config.Main.AbilitiesInCombo.Wex.UseAbility();
-            }
-
-            Console.WriteLine(args.NewValue);
-        }
-
-        private void InputOnMouseMove(object sender, MouseEventArgs e)
+        private void InputOnMouseMove(MouseMoveEventArgs e)
         {
             if (_isMoving)
             {
                 var newValue = new Vector2(e.Position.X - _drawMousePosition.X,
                     e.Position.Y - _drawMousePosition.Y);
-                newValue.X = Math.Max(PosX.Value.MinValue, Math.Min(PosX.Value.MaxValue, newValue.X));
-                newValue.Y = Math.Max(PosY.Value.MinValue, Math.Min(PosY.Value.MaxValue, newValue.Y));
+                newValue.X = Math.Max(PosX.MinValue, Math.Min(PosX.MaxValue, newValue.X));
+                newValue.Y = Math.Max(PosY.MinValue, Math.Min(PosY.MaxValue, newValue.Y));
                 DrawingStartPosition = newValue;
             }
         }
 
-        private void InputOnMouseClick(object sender, MouseEventArgs e)
+        private void InputOnMouseClick(MouseEventArgs e)
         {
             var size = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * 2, _iconSize * 2);
 
             var isIn = size.Contains(e.Position);
-            if (_isMoving && (e.Buttons & MouseButtons.LeftUp) == MouseButtons.LeftUp)
+            if (_isMoving && e.MouseKey == MouseKey.Left)
             {
-                PosX.Item.SetValue(new Slider((int) DrawingStartPosition.X, 0, 2500));
-                PosY.Item.SetValue(new Slider((int) DrawingStartPosition.Y, 0, 2500));
+                PosX.Value =  (int) DrawingStartPosition.X;
+                PosY.Value =  (int) DrawingStartPosition.Y;
                 _isMoving = false;
             }
-            else if ((e.Buttons & MouseButtons.LeftDown) == MouseButtons.LeftDown)
+            else if (e.MouseKey == MouseKey.Left)
             {
                 if (isIn)
                 {
@@ -327,7 +336,7 @@ namespace InvokerCrappahilationPaid.Features
             }
         }
 
-        private void RendererOnDraw(IRenderer renderer)
+        private void RendererOnDraw()
         {
             if (MaxIcons == 0)
                 return;
@@ -340,33 +349,32 @@ namespace InvokerCrappahilationPaid.Features
 
             attackRectangleF.Width = _iconSize * 2;
             movingRectangleF.Width = _iconSize * 2;
-            renderer.DrawFilledRectangle(allRect, Color.FromArgb(10,127,255,0), Color.FromArgb(200, 0, 0, 0), 0);
-            renderer.DrawText(attackRectangleF, "Attack", Color.White,
-                RendererFontFlags.Center, _iconSize * 0.75f);
-            renderer.DrawText(movingRectangleF, "Move", Color.White,
-                RendererFontFlags.Center, _iconSize * 0.75f);
+            RendererManager.DrawFilledRectangle(allRect, new Color(0, 127, 255, 10), new Color(0, 0, 0, 200), 0);
+            RendererManager.DrawText( "Attack", attackRectangleF,Color.White, FontFlags.Center, _iconSize * 0.75f);
+            RendererManager.DrawText( "Move", movingRectangleF,Color.White, FontFlags.Center, _iconSize * 0.75f);
             attackRectangleF.Width = _iconSize;
             attackRectangleF.X += _iconSize * 2;
-            DrawButton(renderer, Buttons[0], ref attackRectangleF);
-            DrawButton(renderer, Buttons[1], ref attackRectangleF);
-            DrawButton(renderer, Buttons[2], ref attackRectangleF);
+            DrawButton(Buttons[0], ref attackRectangleF);
+            DrawButton(Buttons[1], ref attackRectangleF);
+            DrawButton(Buttons[2], ref attackRectangleF);
 
             movingRectangleF.Width = _iconSize;
             movingRectangleF.X += _iconSize * 2;
-            DrawButton(renderer, Buttons[3], ref movingRectangleF);
-            DrawButton(renderer, Buttons[4], ref movingRectangleF);
-            DrawButton(renderer, Buttons[5], ref movingRectangleF);
+            DrawButton(Buttons[3], ref movingRectangleF);
+            DrawButton(Buttons[4], ref movingRectangleF);
+            DrawButton(Buttons[5], ref movingRectangleF);
 
 //            renderer.DrawRectangle(allRect, Color.Chartreuse);
         }
 
-        private void DrawButton(IRenderer renderer, Button button, ref RectangleF rect)
+        private void DrawButton(Button button, ref RectangleF rect)
         {
-            renderer.DrawTexture(button.TextureId, rect, opacity: button.IsActive ? 1f : 0.2f);
+            // RendererManager.DrawImage(button.TextureId, rect, button.IsActive ? 1f : 0.2f);
+            RendererManager.DrawImage(button.Id, rect, AbilityImageType.Default, true);
             button.RectangleF = rect;
             /*if (!button.IsActive)
             {
-                Renderer.DrawFilledRectangle(rect, Color.Chartreuse, Color.FromArgb(200, 0, 0, 0), 0);
+                Renderer.DrawFilledRectangle(rect, Color.Chartreuse, new Color(200, 0, 0, 0), 0);
             }*/
             rect.X += _iconSize;
         }
@@ -381,12 +389,10 @@ namespace InvokerCrappahilationPaid.Features
             public Button(AbilityId id, TypeEnum type, bool isActive)
             {
                 Id = id;
-                TextureId = id.ToString();
                 Type = type;
                 IsActive = isActive;
             }
 
-            public string TextureId { get; set; }
         }
     }
 }

@@ -2,11 +2,14 @@
 using System.Linq;
 
 using Divine;
-using Divine.Zero.Loader;
-
-using SharpDX;
-
-using Color = System.Drawing.Color;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Components;
+using Divine.Entity.Entities.Units.Heroes;
+using Divine.Game;
+using Divine.Numerics;
+using Divine.Plugins.Humanizer;
+using Divine.Renderer;
+using Divine.Update;
 
 namespace InvokerCrappahilationPaid
 {
@@ -19,46 +22,38 @@ namespace InvokerCrappahilationPaid
         public NotificationHelper(InvokerCrappahilationPaid main)
         {
             _main = main;
-            Renderer = main.Context.RenderManager;
             var startPosition = HUDInfo.GetCustomTopPanelPosition(0, Team.Radiant) +
                                 new Vector2(0, HUDInfo.TopPanelSizeY);
 
             Notifications = new List<Notification>();
             var sizeX = HUDInfo.TopPanelSizeX;
             var sizeY = HUDInfo.TopPanelSizeY;
-            Renderer.Draw += renderer =>
+            RendererManager.Draw +=() => 
             {
                 foreach (var notification in Notifications)
                     if (notification.IsActive)
                     {
                         var rect = new RectangleF(notification.StartPosition.X, notification.StartPosition.Y, sizeX,
                             notification.CurrentPosition.Y - notification.StartPosition.Y);
-                        renderer.DrawFilledRectangle(rect, Color.FromArgb(155, 50, 50, 50),
-                            Color.FromArgb(255, 0, 0, 0));
+                        RendererManager.DrawFilledRectangle(rect, new Color(50, 50, 50, 155));
                         if (notification.State == Notification.StateType.Staying)
                         {
                             var r = new RectangleF(rect.X, rect.Y + rect.Height - sizeX, sizeX, sizeX);
-                            renderer.DrawTexture(notification.TextureId, r);
+                            RendererManager.DrawImage(notification.TextureId, r, UnitImageType.SquareUnit);
                         }
                     }
             };
 
-            UpdateManager.Subscribe(() =>
+            UpdateManager.GameUpdate += () =>
             {
                 foreach (var notification in Notifications)
                     if (notification.IsActive)
                         notification.Move();
 
                 Notifications.RemoveAll(x => !x.IsActive);
-            }, 25);
-
-            /*_main.Context.Input.RegisterHotkey("Toster", Key.S, args =>
-            {
-                Notificate(_main.Me, AbilityId.invoker_sun_strike);
-            });*/
+            };
         }
 
-        private IRenderManager Renderer { get; }
 
         public Notification Notificate(Hero hero, AbilityId id, float time)
         {
@@ -66,7 +61,7 @@ namespace InvokerCrappahilationPaid
             if (find != null)
                 return find;
             var n = new Notification(hero,
-                HUDInfo.GetTopPanelPosition((CHero) UnitManager.GetUnitByHandle(hero.Handle)), id, time);
+                HUDInfo.GetTopPanelPosition(hero), id, time);
             Notifications.Add(n);
             return n;
         }
@@ -118,7 +113,7 @@ namespace InvokerCrappahilationPaid
                         if (CurrentPosition.Y >= MaxSize)
                         {
                             State = StateType.Staying;
-                            Time = Game.RawGameTime;
+                            Time = GameManager.RawGameTime;
                         }
 
                         break;
@@ -128,7 +123,7 @@ namespace InvokerCrappahilationPaid
                         break;
                     case StateType.Staying:
                         if (MaxTime > 0)
-                            if (Game.RawGameTime - Time >= MaxTime)
+                            if (GameManager.RawGameTime - Time >= MaxTime)
                                 State = StateType.Down;
                         break;
                 }

@@ -1,4 +1,6 @@
-﻿namespace InvokerCrappahilationPaid
+﻿using Divine.Menu.Items;
+
+namespace InvokerCrappahilationPaid
 {
     public class ComboType
     {
@@ -7,11 +9,10 @@
         public ComboType(Config config)
         {
             _config = config;
-            var main = _config.Factory.Menu("Gameplay");
-            GameplayType = main.Item("Type: ",
-                new StringList("Quas + Exort (Damage)" /*, "Wex + Quas (Disable)", "Auto mode"*/));
+            var main = _config.Factory.CreateMenu("Gameplay");
+            GameplayType = main.CreateSelector("Type", new[] {"Quas + Exort (Damage)"});
         }
 
-        public MenuItem<StringList> GameplayType { get; set; }
+        public MenuSelector GameplayType { get; set; }
     }
 }

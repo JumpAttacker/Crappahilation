@@ -1,28 +1,28 @@
-﻿// <copyright file="InvokeHelper.cs" company="Ensage">
-//    Copyright (c) 2017 Ensage.
-// </copyright>
+﻿
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
-
-using Divine;
-using Divine.SDK.Extensions;
-using Divine.Zero.Loader;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Entity.Entities.Units;
+using Divine.Extensions;
+using Divine.Game;
+using InvokerCrappahilationPaid.Extensions;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Heroes.Invoker.BaseAbilities;
+using O9K.Core.Managers.Entity;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
-    internal class InvokeHelper<T>
-        where T : ActiveAbility, IInvokableAbility, IHaveFastInvokeKey
+    internal class InvokeHelper<T> where T: ActiveAbility, O9K.Core.Entities.Abilities.Heroes.Invoker.Helpers.IInvokableAbility
     {
         private readonly T _invokableAbility;
 
         private readonly InvokerInvoke _invoke;
 
-        private readonly HashSet<ActiveAbility> _myOrbs = new HashSet<ActiveAbility>();
+        private readonly HashSet<ActiveAbility> _myOrbs = new();
 
-        private readonly Dictionary<string, AbilityId> _orbModifiers = new Dictionary<string, AbilityId>(3);
+        private readonly Dictionary<string, AbilityId> _orbModifiers = new(3);
 
         private readonly Unit _owner;
 
@@ -31,75 +31,59 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
         public InvokeHelper(T ability)
         {
             _invokableAbility = ability;
+            // Console.WriteLine($"InvokeHelper {ability.BaseAbility.Owner}");
             _owner = ability.Owner;
 
-            var wexAbility = _owner.GetAbilityById(AbilityId.invoker_wex) ??
-                             EntityManager<Ability>.Entities.FirstOrDefault(x =>
-                                 x.IsValid && x.Id == AbilityId.invoker_wex);
-            if (wexAbility != null)
-            {
-                Wex = new InvokerWex(wexAbility);
-                _orbModifiers.Add(Wex.ModifierName, Wex.Ability.Id);
-                _myOrbs.Add(Wex);
-            }
+            var wexAbility = _owner.GetAbilityById(AbilityId.invoker_wex);
+            Wex = EntityManager9.GetAbility(wexAbility.Handle) as Wex;
+            _orbModifiers.Add(Wex.ModifierName ?? string.Empty, Wex.BaseAbility.Id);
+            _myOrbs.Add(Wex);
 
-            var quasAbility = _owner.GetAbilityById(AbilityId.invoker_quas) ??
-                              EntityManager<Ability>.Entities.FirstOrDefault(x =>
-                                  x.IsValid && x.Id == AbilityId.invoker_quas);
-            if (quasAbility != null)
-            {
-                Quas = new InvokerQuas(quasAbility);
-                _orbModifiers.Add(Quas.ModifierName, Quas.Ability.Id);
-                _myOrbs.Add(Quas);
-            }
+            var quasAbility = _owner.GetAbilityById(AbilityId.invoker_quas);
+            Quas = EntityManager9.GetAbility(quasAbility.Handle) as Quas;
+            _orbModifiers.Add(Quas.ModifierName, Quas.BaseAbility.Id);
+            _myOrbs.Add(Quas);
 
-            var exortAbility = _owner.GetAbilityById(AbilityId.invoker_exort)
-                               ?? EntityManager<Ability>.Entities.FirstOrDefault(x =>
-                                   x.IsValid && x.Id == AbilityId.invoker_exort);
-            if (exortAbility != null)
-            {
-                Exort = new InvokerExort(exortAbility);
-                _orbModifiers.Add(Exort.ModifierName, Exort.Ability.Id);
-                _myOrbs.Add(Exort);
-            }
+            var exortAbility = _owner.GetAbilityById(AbilityId.invoker_exort);
+            Exort = EntityManager9.GetAbility(exortAbility.Handle) as Exort;
+            _orbModifiers.Add(Exort.ModifierName, Exort.BaseAbility.Id);
+            _myOrbs.Add(Exort);
 
             var invokeAbility = _owner.GetAbilityById(AbilityId.invoker_invoke);
-            if (invokeAbility != null) _invoke = new InvokerInvoke(invokeAbility);
+            _invoke = new InvokerInvoke(EntityManager9.GetAbility(invokeAbility.Handle) as Invoke);
         }
-
-        public InvokerExort Exort { get; }
+        
+        public Exort Exort { get; }
 
         public bool IsInvoked
         {
             get
             {
-                if (!_invokableAbility.Ability.IsHidden) return true;
+                if (!_invokableAbility.BaseAbility.IsHidden) return true;
 
-                return _invokeTime + 0.5f > Game.RawGameTime;
+                return _invokeTime + 0.5f > GameManager.RawGameTime;
             }
         }
 
-        public InvokerQuas Quas { get; }
+        public Quas Quas { get; }
 
-        public InvokerWex Wex { get; }
+        public Wex Wex { get; }
 
         public bool CanInvoke(bool checkAbilityManaCost)
         {
             if (IsInvoked) return true;
 
-            if (_invoke?.CanBeCasted != true) return false;
+            if (_invoke?.BaseAbility.CanBeCasted() != true) return false;
 
-            if (checkAbilityManaCost && _owner.Mana < _invoke.ManaCost + _invokableAbility.ManaCost) return false;
+            if (checkAbilityManaCost && _owner.Mana < _invoke.BaseAbility.ManaCost + _invokableAbility.BaseAbility.ManaCost) return false;
 
             return true;
         }
 
         public bool Invoke(List<AbilityId> currentOrbs, bool skipCheckingForInvoked = false)
         {
-            if (IsInvoked && (!skipCheckingForInvoked || _invokableAbility.Ability.AbilitySlot == AbilitySlot.Slot_4))
+            if (IsInvoked && (!skipCheckingForInvoked || _invokableAbility.BaseAbility.AbilitySlot == AbilitySlot.Slot4))
             {
-                InvokerCrappahilationPaid.Log.Debug(
-                    $"[Invoke] {_invokableAbility} already invoked -> {IsInvoked} Skip: {skipCheckingForInvoked}");
                 return IsInvoked;
             }
 
@@ -107,46 +91,36 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
             {
                 return InvokeThisShit();
             }*/
-
-            if (_invoke?.CanBeCasted != true)
+            if (_invoke.BaseAbility.CanBeCasted() != true)
             {
-                InvokerCrappahilationPaid.Log.Debug(
-                    $"[Invoke] {_invokableAbility} cant cast invoke ({_invoke?.Ability.Cooldown})");
                 return false;
             }
-
             var orbs = currentOrbs ?? _owner.Modifiers.Where(x => !x.IsHidden && _orbModifiers.ContainsKey(x.Name))
                            .Select(x => _orbModifiers[x.Name]).ToList();
             var missingOrbs = GetMissingOrbs(orbs);
 
             foreach (var id in missingOrbs)
             {
-                var orb = _myOrbs.FirstOrDefault(x => x.Ability.Id == id && x.CanBeCasted);
+                var orb = _myOrbs.FirstOrDefault(x => x.Id == id && x.BaseAbility.CanBeCasted());
                 if (orb == null)
                 {
-                    InvokerCrappahilationPaid.Log.Debug(
-                        $"[Invoke] {_invokableAbility} cant cast needed sphere [{id}] (1)");
                     return false;
                 }
 
-                if (!orb.UseAbility())
+                if (!orb.BaseAbility.Cast())
                 {
-                    InvokerCrappahilationPaid.Log.Debug(
-                        $"[Invoke] {_invokableAbility} cant cast needed sphere [{id}] (2)");
                     return false;
                 }
             }
-
-            var invoked = _invoke.UseAbility();
-            if (invoked) _invokeTime = Game.RawGameTime;
-            InvokerCrappahilationPaid.Log.Debug($"[Invoke] {_invokableAbility} invoked");
+            var invoked = _invoke.BaseAbility.BaseAbility.Cast();
+            if (invoked) _invokeTime = GameManager.RawGameTime;
             return invoked;
         }
 
 
         public bool SafeInvoke(ActiveAbility target)
         {
-            if (target.Ability.AbilitySlot == AbilitySlot.Slot_5)
+            if (target.AbilitySlot == AbilitySlot.Slot5)
             {
                 var a = InvokeThisShit(target);
                 var b = InvokeThisShit();
@@ -162,26 +136,23 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 
         private bool InvokeThisShit()
         {
-            if (_invoke.CanBeCasted)
+            if (_invoke.BaseAbility.CanBeCasted())
             {
                 var requiredOrbs = _invokableAbility.RequiredOrbs;
                 if (requiredOrbs != null)
                 {
                     foreach (var abilityId in requiredOrbs)
                     {
-                        var sphere = _myOrbs.FirstOrDefault(x => x.Ability.Id == abilityId && x.CanBeCasted);
+                        var sphere = _myOrbs.FirstOrDefault(x => x.Id == abilityId && x.BaseAbility.CanBeCasted());
                         if (sphere == null) return false;
                         if (!sphere.UseAbility()) return false;
-                        InvokerCrappahilationPaid.Log.Debug($"Invoke [Sphere: {abilityId}] ({_invokableAbility})");
                     }
 
-                    var invoked = _invoke.UseAbility();
-                    if (invoked) _invokeTime = Game.RawGameTime;
-                    InvokerCrappahilationPaid.Log.Debug($"Invoke [{_invokableAbility}]");
+                    var invoked = _invoke.BaseAbility.UseAbility();
+                    if (invoked) _invokeTime = GameManager.RawGameTime;
                     return true;
                 }
 
-                InvokerCrappahilationPaid.Log.Debug($"Error in Invoke function: {_invokableAbility.Ability.Id}");
                 return false;
             }
 
@@ -190,42 +161,32 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 
         private bool InvokeThisShit(ActiveAbility ability)
         {
-            InvokerCrappahilationPaid.Log.Debug($"Trying to invoke -> {ability.Ability.Id}");
-            if (_invoke.Ability.AbilityState == AbilityState.Ready)
+            if (_invoke.BaseAbility.BaseAbility.AbilityState == AbilityState.Ready)
             {
                 var requiredOrbs = (ability as IInvokableAbility)?.RequiredOrbs;
                 if (requiredOrbs != null)
                 {
                     foreach (var abilityId in requiredOrbs)
                     {
-                        var sphere = _myOrbs.FirstOrDefault(x => x.Ability.Id == abilityId && x.CanBeCasted);
+                        var sphere = _myOrbs.FirstOrDefault(x => x.Id == abilityId && x.BaseAbility.CanBeCasted());
                         if (sphere == null)
                         {
-                            InvokerCrappahilationPaid.Log.Debug(
-                                $"Invoke [Sphere: {abilityId} == null]{ability.Ability.Id}");
                             return false;
                         }
 
                         if (!sphere.UseAbility())
                         {
-                            InvokerCrappahilationPaid.Log.Debug(
-                                $"Invoke [Sphere: {abilityId} on cd]{ability.Ability.Id}");
                             return false;
                         }
-
-                        InvokerCrappahilationPaid.Log.Debug($"Invoke [Sphere: {abilityId}] ({ability})");
                     }
 
-                    var invoked = _invoke.UseAbility();
-                    if (invoked) InvokerCrappahilationPaid.Log.Debug($"Invoke [{ability}]");
+                    var invoked = _invoke.BaseAbility.UseAbility();
                     return invoked;
                 }
 
-                InvokerCrappahilationPaid.Log.Debug($"Error in Invoke function: {ability.Ability.Id}");
                 return false;
             }
 
-            InvokerCrappahilationPaid.Log.Debug($"{ability.Ability.Id} invoke on cd");
             return false;
         }
 
@@ -245,13 +206,12 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 
         public bool Casted()
         {
-            InvokerCrappahilationPaid.Log.Debug($"[Use] {_invokableAbility}");
             return true;
         }
 
-        public void SetKey(int key)
-        {
-            _invokableAbility.Key = KeyInterop.KeyFromVirtualKey(key);
-        }
+        // public void SetKey(int key)
+        // {
+        //     _invokableAbility.Key = KeyInterop.KeyFromVirtualKey(key);
+        // }
     }
 }

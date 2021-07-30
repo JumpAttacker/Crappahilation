@@ -1,6 +1,19 @@
-﻿using System.Collections.Generic;
-
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Divine.Entity.Entities.Abilities;
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Extensions;
+using Divine.Update;
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Heroes.Brewmaster.Spirits;
+using O9K.Core.Entities.Abilities.Heroes.Invoker;
+using O9K.Core.Entities.Abilities.Heroes.Invoker.BaseAbilities;
+using O9K.Core.Entities.Abilities.Items;
+using O9K.Core.Managers.Entity;
+using O9K.Core.Managers.Entity.Monitors;
 
 namespace InvokerCrappahilationPaid
 {
@@ -11,24 +24,23 @@ namespace InvokerCrappahilationPaid
         public AbilitiesInCombo(InvokerCrappahilationPaid main)
         {
             _main = main;
-            main.Context.Inventory.Attach(this);
 
-            SunStrike = new InvokerSunStrike(LoadAbility(AbilityId.invoker_sun_strike));
-            Alacrity = new InvokerAlacrity(LoadAbility(AbilityId.invoker_alacrity));
-            Meteor = new InvokerChaosMeteor(LoadAbility(AbilityId.invoker_chaos_meteor));
-            ColdSnap = new InvokerColdSnap(LoadAbility(AbilityId.invoker_cold_snap));
-            Blast = new InvokerDeafeningBlast(LoadAbility(AbilityId.invoker_deafening_blast));
-            Emp = new InvokerEmp(LoadAbility(AbilityId.invoker_emp));
-            ForgeSpirit = new InvokerForgeSpirit(LoadAbility(AbilityId.invoker_forge_spirit));
-            GhostWalk = new InvokerGhostWalk(LoadAbility(AbilityId.invoker_ghost_walk));
-            IceWall = new InvokerIceWall(LoadAbility(AbilityId.invoker_ice_wall));
-            Invoke = new InvokerInvoke(LoadAbility(AbilityId.invoker_invoke));
-            Tornado = new InvokerTornado(LoadAbility(AbilityId.invoker_tornado));
-            Quas = new InvokerQuas(LoadAbility(AbilityId.invoker_quas));
-            Wex = new InvokerWex(LoadAbility(AbilityId.invoker_wex));
-            Exort = new InvokerExort(LoadAbility(AbilityId.invoker_exort));
+            SunStrike = new InvokerSunStrike((SunStrike) (LoadAbility(AbilityId.invoker_sun_strike)));
+            Alacrity = new InvokerAlacrity((Alacrity) (LoadAbility(AbilityId.invoker_alacrity)));
+            Meteor = new InvokerChaosMeteor((ChaosMeteor) (LoadAbility(AbilityId.invoker_chaos_meteor)));
+            ColdSnap = new InvokerColdSnap((ColdSnap) (LoadAbility(AbilityId.invoker_cold_snap)));
+            Blast = new InvokerDeafeningBlast((DeafeningBlast) (LoadAbility(AbilityId.invoker_deafening_blast)));
+            Emp = new InvokerEmp((EMP) (LoadAbility(AbilityId.invoker_emp)));
+            ForgeSpirit = new InvokerForgeSpirit((ForgeSpirit) (LoadAbility(AbilityId.invoker_forge_spirit)));
+            GhostWalk = new InvokerGhostWalk((GhostWalk) (LoadAbility(AbilityId.invoker_ghost_walk)));
+            IceWall = new InvokerIceWall((IceWall) (LoadAbility(AbilityId.invoker_ice_wall)));
+            Invoke = new InvokerInvoke((Invoke) (LoadAbility(AbilityId.invoker_invoke)));
+            Tornado = new InvokerTornado((Tornado) (LoadAbility(AbilityId.invoker_tornado)));
+            Quas = new InvokerQuas((Quas) (LoadAbility(AbilityId.invoker_quas)));
+            Wex = new InvokerWex((Wex) (LoadAbility(AbilityId.invoker_wex)));
+            Exort = new InvokerExort((Exort) (LoadAbility(AbilityId.invoker_exort)));
 
-            AllAbilities = new List<ActiveAbility>
+            AllAbilities = new List<InvokerBaseAbility>
             {
                 SunStrike,
                 Alacrity,
@@ -42,14 +54,30 @@ namespace InvokerCrappahilationPaid
                 GhostWalk
             };
 
-            LoadAbilitiesFromDota(AbilityId.item_sheepstick, AbilityId.item_refresher, AbilityId.item_orchid,
-                AbilityId.item_bloodthorn, AbilityId.item_blink, AbilityId.item_cyclone, AbilityId.item_black_king_bar,
-                AbilityId.item_shivas_guard, AbilityId.item_refresher_shard);
+            Spheres = new List<InvokerSimpleBaseAbility>
+            {
+                Quas, Wex, Exort
+            };
 
-            LoadAbilitiesFromDota(AbilityId.invoker_quas, AbilityId.invoker_wex, AbilityId.invoker_exort);
+            foreach (var activeAbility in AllAbilities)
+            {
+                Console.WriteLine($"Active: {activeAbility.BaseAbility.Id} {activeAbility.BaseAbility.Owner}");
+            }
+
+            foreach (var activeAbility in Spheres)
+            {
+                Console.WriteLine($"Active: {activeAbility.BaseAbility.Id} {activeAbility.BaseAbility.Owner}");
+            }
+
+            EntityManager9.AbilityAdded += entity => { Console.WriteLine($"AbilityAdded: {entity.Id}"); };
+            EntityManager9.AbilityRemoved += entity => { Console.WriteLine($"AbilityRemoved: {entity.Id}"); };
+            
+
+            UpdateManager.CreateIngameUpdate(100, () => { });
         }
 
-        public List<ActiveAbility> AllAbilities { get; set; }
+        public List<InvokerBaseAbility> AllAbilities { get; set; }
+        public List<InvokerSimpleBaseAbility> Spheres { get; set; }
 
         public InvokerExort Exort { get; set; }
 
@@ -79,43 +107,52 @@ namespace InvokerCrappahilationPaid
         public InvokerSunStrike SunStrike { get; set; }
 
 
-        [ItemBinding] public item_sheepstick Hex { get; set; }
+        public ScytheOfVyse Hex => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_sheepstick) as ScytheOfVyse;
+        public ShivasGuard Shiva => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_shivas_guard) as ShivasGuard;
+        public BlackKingBar Bkb => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_black_king_bar) as BlackKingBar;
+        public OrchidMalevolence Orchid => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_orchid) as OrchidMalevolence;
+        public Bloodthorn Bloodthorn => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_bloodthorn) as Bloodthorn;
+        public EulsScepterOfDivinity Eul => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_cyclone) as EulsScepterOfDivinity;
+        public RefresherOrb Refresher => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_refresher) as RefresherOrb;
+        public RefresherOrb RefresherShard => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_refresher_shard) as RefresherOrb;
+        public BlinkDagger Blink => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_blink) as BlinkDagger;
+        public VeilOfDiscord Veil => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_recipe_veil_of_discord) as VeilOfDiscord;
+        public EtherealBlade EtherealBlade => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_ethereal_blade) as EtherealBlade;
 
-        [ItemBinding] public item_necronomicon Necronomicon { get; set; }
+        // public ShivasGuard Shiva { get; set; }
 
-        [ItemBinding] public item_necronomicon_2 Necronomicon2 { get; set; }
+        // public BlackKingBar Bkb { get; set; }
 
-        [ItemBinding] public item_necronomicon_3 Necronomicon3 { get; set; }
+        // public OrchidMalevolence Orchid { get; set; }
 
-        [ItemBinding] public item_shivas_guard Shiva { get; set; }
+        // public Bloodthorn Bloodthorn { get; set; }
 
-        [ItemBinding] public item_black_king_bar Bkb { get; set; }
+        // public EulsScepterOfDivinity Eul { get; set; }
 
-        [ItemBinding] public item_orchid Orchid { get; set; }
+        // public RefresherOrb Refresher { get; set; }
 
-        [ItemBinding] public item_bloodthorn Bloodthorn { get; set; }
+        // public RefresherOrb RefresherShard { get; set; }
 
-        [ItemBinding] public item_cyclone Eul { get; set; }
+        // public BlinkDagger Blink { get; set; }
 
-        [ItemBinding] public item_refresher Refresher { get; set; }
+        // public VeilOfDiscord Veil { get; set; }
 
-        [ItemBinding] public item_refresher_shard RefresherShard { get; set; }
+        // public EtherealBlade EtherealBlade { get; set; }
 
-        [ItemBinding] public item_blink Blink { get; set; }
-
-        [ItemBinding] public item_veil_of_discord Veil { get; set; }
-
-        [ItemBinding] public item_ethereal_blade EtherealBlade { get; set; }
-
-        private void LoadAbilitiesFromDota(params AbilityId[] abilities)
+        private Ability9 LoadAbility(AbilityId id)
         {
-            foreach (var id in abilities) _main.Context.TextureManager.LoadAbilityFromDota(id);
-        }
+            var ability = _main.Me.GetAbilityById(id);
+            if (ability == null)
+            {
+                Console.WriteLine($"can find ability with id: {id}");
+                throw new NullReferenceException($"can find ability with id: {id}");
+            }
 
-        private Ability LoadAbility(AbilityId id)
-        {
-            _main.Context.TextureManager.LoadAbilityFromDota(id);
-            return _main.Context.Owner.GetAbilityById(id);
+            var abi = EntityManager9.GetAbility(ability.Handle);
+            Console.WriteLine($"{abi.Id} -> {abi.Owner}");
+
+            return EntityManager9.GetAbility(ability.Handle);
+            // return ability;
         }
     }
 }

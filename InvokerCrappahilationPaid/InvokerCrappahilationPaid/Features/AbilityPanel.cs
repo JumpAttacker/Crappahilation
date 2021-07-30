@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Windows.Input;
-
+using Divine.Entity.Entities.Abilities.Components;
+using Divine.Input;
+using Divine.Input.EventArgs;
+using Divine.Menu.Items;
+using Divine.Numerics;
+using Divine.Renderer;
+using Divine.Update;
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
-
-using SharpDX;
-
-using Color = System.Drawing.Color;
+using InputManager = Divine.Input.InputManager;
+using MouseEventArgs = Divine.Input.EventArgs.MouseEventArgs;
 
 namespace InvokerCrappahilationPaid.Features
 {
@@ -23,40 +27,49 @@ namespace InvokerCrappahilationPaid.Features
         public AbilityPanel(Config config)
         {
             _config = config;
-            var main = _config.Factory.Menu("Ability panel");
-            Enable = main.Item("Enable", true);
-            InvokeOnClick = main.Item("Invoke on click", true);
-            Clickable = main.Item("Clickable", true);
-            Movable = main.Item("Movable", true);
-            PosX = main.Item("Pos X", new Slider(500, 0, 2500));
-            PosY = main.Item("Pos Y", new Slider(500, 0, 2500));
-            Size = main.Item("Size", new Slider(100, 0, 200));
+            var main = _config.Factory.CreateMenu("Ability panel");
+            Enable = main.CreateSwitcher("Enable", true);
+            InvokeOnClick = main.CreateSwitcher("Invoke on click", true);
+            Clickable = main.CreateSwitcher("Clickable", true);
+            Movable = main.CreateSwitcher("Movable", true);
+            PosX = main.CreateSlider("Pos X", 500, 0, 2500);
+            PosY = main.CreateSlider("Pos Y", 500, 0, 2500);
+            Size = main.CreateSlider("Size", 100, 0, 200);
             DrawingStartPosition = new Vector2(PosX, PosY);
+
+            // PosX.ValueChanged += (slider, args) =>
+            // {
+            //     DrawingStartPosition = new Vector2(args.NewValue, PosY);
+            // };
+            // PosY.ValueChanged += (slider, args) =>
+            // {
+            //     DrawingStartPosition = new Vector2(PosX, args.NewValue);
+            // };
 
             _iconSize = 50f / 100f * Size;
 
-            Size.PropertyChanged += (sender, args) => { _iconSize = 50f / 100f * Size; };
+            Size.ValueChanged += (sender, args) => { _iconSize = 50f / 100f * Size; };
 
-            if (Enable) Activate();
+            // if (Enable) Activate();
 
-            UpdateManager.BeginInvoke(() => { MaxIcons = config.Main.AbilitiesInCombo.AllAbilities.Count; }, 500);
+            UpdateManager.BeginInvoke(500, () => { MaxIcons = config.Main.AbilitiesInCombo.AllAbilities.Count; });
 
 
-            Enable.PropertyChanged += (sender, args) =>
+            Enable.ValueChanged += (sender, args) =>
             {
-                if (Enable)
+                if (args.Value)
                     Activate();
                 else
                     Deactivate();
             };
 
-            Movable.PropertyChanged += (sender, args) =>
+            Movable.ValueChanged += (sender, args) =>
             {
-                if (Movable)
+                if (args.Value)
                 {
                     if (!_movable)
                     {
-                        InputManager.MouseClick += InputOnMouseClick;
+                        InputManager.MouseKeyDown += InputOnMouseClick;
                         InputManager.MouseMove += InputOnMouseMove;
                         _movable = true;
                     }
@@ -65,20 +78,20 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     if (_movable)
                     {
-                        InputManager.MouseClick -= InputOnMouseClick;
+                        InputManager.MouseKeyDown -= InputOnMouseClick;
                         InputManager.MouseMove -= InputOnMouseMove;
                         _movable = false;
                     }
                 }
             };
 
-            Clickable.PropertyChanged += (sender, args) =>
+            Clickable.ValueChanged += (sender, args) =>
             {
-                if (Clickable)
+                if (args.Value)
                 {
                     if (!_clickable)
                     {
-                        InputManager.MouseClick += InvokeOnClickAction;
+                        InputManager.MouseKeyDown += InvokeOnClickAction;
                         _clickable = true;
                     }
                 }
@@ -86,19 +99,19 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     if (_clickable)
                     {
-                        InputManager.MouseClick -= InvokeOnClickAction;
+                        InputManager.MouseKeyDown -= InvokeOnClickAction;
                         _clickable = false;
                     }
                 }
             };
 
-            InvokeOnClick.PropertyChanged += (sender, args) =>
+            InvokeOnClick.ValueChanged += (sender, args) =>
             {
-                if (InvokeOnClick)
+                if (args.Value)
                 {
                     if (!_invokeOnClick)
                     {
-                        InputManager.MouseClick += ClickableOnClick;
+                        InputManager.MouseKeyDown += ClickableOnClick;
                         _invokeOnClick = true;
                     }
                 }
@@ -106,34 +119,37 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     if (_invokeOnClick)
                     {
-                        InputManager.MouseClick -= ClickableOnClick;
+                        InputManager.MouseKeyDown -= ClickableOnClick;
                         _invokeOnClick = false;
                     }
                 }
             };
         }
 
-        private IRenderManager Renderer => _config.Main.Context.RenderManager;
-        private IInputManager InputManager => _config.Main.Context.Input;
+        public MenuSlider Size { get; set; }
 
-        public MenuItem<bool> InvokeOnClick { get; set; }
+        public MenuSlider PosY { get; set; }
+
+        public MenuSlider PosX { get; set; }
+
+        public MenuSwitcher Movable { get; set; }
+
+        public MenuSwitcher Clickable { get; set; }
+
+        public MenuSwitcher InvokeOnClick { get; set; }
+
+        public MenuSwitcher Enable { get; set; }
+
 
         public Vector2 DrawingStartPosition { get; set; }
 
-        public MenuItem<bool> Movable { get; set; }
 
         public int MaxIcons { get; set; }
 
-        public MenuItem<Slider> PosX { get; set; }
-        public MenuItem<Slider> PosY { get; set; }
-        public MenuItem<Slider> Size { get; set; }
 
-        public MenuItem<bool> Enable { get; set; }
-        public MenuItem<bool> Clickable { get; }
-
-        private void ClickableOnClick(object sender, MouseEventArgs e)
+        private void ClickableOnClick(MouseEventArgs e)
         {
-            if ((e.Buttons & MouseButtons.LeftUp) == MouseButtons.LeftUp)
+            if (e.MouseKey == MouseKey.Left)
             {
                 var size = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y,
                     _iconSize * MaxIcons, _iconSize);
@@ -148,8 +164,8 @@ namespace InvokerCrappahilationPaid.Features
                         isIn = size.Contains(e.Position);
                         if (isIn)
                         {
-                            Console.WriteLine($"IsIn for {ability}");
                             var invoAbility = ability as IInvokableAbility;
+                            Console.WriteLine($"IsIn for {ability} -> {invoAbility}");
                             invoAbility?.Invoke();
                             break;
                         }
@@ -162,34 +178,34 @@ namespace InvokerCrappahilationPaid.Features
 
         private void Activate()
         {
-            Renderer.Draw += RendererOnDraw;
+            RendererManager.Draw += RendererOnDraw;
 
             if (Movable)
             {
-                InputManager.MouseClick += InputOnMouseClick;
+                InputManager.MouseKeyDown += InputOnMouseClick;
                 InputManager.MouseMove += InputOnMouseMove;
                 _movable = true;
             }
 
             if (Clickable)
             {
-                InputManager.MouseClick += ClickableOnClick;
+                InputManager.MouseKeyDown += ClickableOnClick;
                 _clickable = true;
             }
 
             if (InvokeOnClick)
             {
-                InputManager.MouseClick += InvokeOnClickAction;
+                InputManager.MouseKeyDown += InvokeOnClickAction;
                 _invokeOnClick = true;
             }
         }
 
-        private void InvokeOnClickAction(object sender, MouseEventArgs e)
+        private void InvokeOnClickAction(MouseEventArgs e)
         {
             var rect = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons, _iconSize);
             var pos = e.Position;
             var isIn = rect.Contains(pos);
-            if (isIn && (e.Buttons & MouseButtons.LeftUp) == MouseButtons.LeftUp)
+            if (isIn && e.MouseKey == MouseKey.Left)
             {
                 rect.Width = _iconSize;
                 var allAbilities = _config.Main.AbilitiesInCombo.AllAbilities;
@@ -208,40 +224,40 @@ namespace InvokerCrappahilationPaid.Features
 
         private void Deactivate()
         {
-            Renderer.Draw -= RendererOnDraw;
+            RendererManager.Draw -= RendererOnDraw;
 
             if (_movable)
             {
-                InputManager.MouseClick -= InputOnMouseClick;
+                InputManager.MouseKeyDown -= InputOnMouseClick;
                 InputManager.MouseMove -= InputOnMouseMove;
                 _movable = false;
             }
         }
 
-        private void InputOnMouseMove(object sender, MouseEventArgs e)
+        private void InputOnMouseMove(MouseMoveEventArgs e)
         {
             if (_isMoving)
             {
                 var newValue = new Vector2(e.Position.X - _drawMousePosition.X,
                     e.Position.Y - _drawMousePosition.Y);
-                newValue.X = Math.Max(PosX.Value.MinValue, Math.Min(PosX.Value.MaxValue, newValue.X));
-                newValue.Y = Math.Max(PosY.Value.MinValue, Math.Min(PosY.Value.MaxValue, newValue.Y));
+                newValue.X = Math.Max(PosX.MinValue, Math.Min(PosX.MaxValue, newValue.X));
+                newValue.Y = Math.Max(PosY.MinValue, Math.Min(PosY.MaxValue, newValue.Y));
                 DrawingStartPosition = newValue;
             }
         }
 
-        private void InputOnMouseClick(object sender, MouseEventArgs e)
+        private void InputOnMouseClick(MouseEventArgs e)
         {
             var size = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons, _iconSize);
 
             var isIn = size.Contains(e.Position);
-            if (_isMoving && (e.Buttons & MouseButtons.LeftUp) == MouseButtons.LeftUp)
+            if (_isMoving && e.MouseKey == MouseKey.Left)
             {
-                PosX.Item.SetValue(new Slider((int) DrawingStartPosition.X, 0, 2500));
-                PosY.Item.SetValue(new Slider((int) DrawingStartPosition.Y, 0, 2500));
+                PosX.Value = (int) DrawingStartPosition.X;
+                PosY.Value = (int) DrawingStartPosition.Y;
                 _isMoving = false;
             }
-            else if (isIn && (e.Buttons & MouseButtons.LeftDown) == MouseButtons.LeftDown)
+            else if (isIn && e.MouseKey == MouseKey.Left)
             {
                 var startPos = new Vector2(PosX, PosY);
                 _drawMousePosition = e.Position - startPos;
@@ -249,38 +265,39 @@ namespace InvokerCrappahilationPaid.Features
             }
         }
 
-        private void RendererOnDraw(IRenderer renderer)
+        private void RendererOnDraw()
         {
             if (MaxIcons == 0)
                 return;
             var rect = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons, _iconSize);
             //var rect = new RectangleF(PosX, PosY, iconSize * MaxIcons, iconSize);
-            renderer.DrawRectangle(rect, Color.Chartreuse);
+            RendererManager.DrawRectangle(rect, Color.Chartreuse);
             rect.Width = _iconSize;
             foreach (var ability in _config.Main.AbilitiesInCombo.AllAbilities)
             {
-                renderer.DrawTexture(ability.Ability.Id.ToString(), rect);
-                switch (ability.Ability.AbilityState)
+                RendererManager.DrawImage(ability.Id, rect, AbilityImageType.Default, true);
+                switch (ability.AbilityState)
                 {
                     case AbilityState.Ready:
                         var key = ((IHaveFastInvokeKey) ability).Key;
                         if (key != Key.None)
                         {
-                            renderer.DrawFilledRectangle(rect,
-                                Color.FromArgb(55, 0, 0, 0), Color.FromArgb(125, 0, 0, 0));
-                            renderer.DrawText(rect, $"{key}", Color.White,
-                                RendererFontFlags.Center, _iconSize * 0.75f);
+                            RendererManager.DrawFilledRectangle(rect,
+                                new Color(0, 0, 0, 125),
+                                new Color(0, 0, 0, 55), 1);
+                            RendererManager.DrawText($"{key}", rect, Color.White,
+                                FontFlags.Center, _iconSize * 0.75f);
                         }
 
                         break;
                     case AbilityState.NotEnoughMana:
-                        renderer.DrawFilledRectangle(rect,
-                            Color.FromArgb(150, 0, 90, 255), Color.FromArgb(100, 0, 0, 0));
+                        RendererManager.DrawFilledRectangle(rect, new Color(0, 0, 0, 100),
+                            new Color(255, 0, 90, 150), 1);
                         break;
                     case AbilityState.OnCooldown:
-                        renderer.DrawFilledRectangle(rect, Color.FromArgb(200, 0, 0, 0), Color.FromArgb(100, 0, 0, 0));
-                        renderer.DrawText(rect, ((int) ability.Ability.Cooldown).ToString(), Color.White,
-                            RendererFontFlags.Center, _iconSize * 0.75f);
+                        RendererManager.DrawFilledRectangle(rect, new Color(1, 0, 0, 100), new Color(0, 0, 0, 200), 1);
+                        RendererManager.DrawText(((int) ability.BaseAbility.RemainingCooldown).ToString(), rect, Color.White,
+                            FontFlags.Center, _iconSize * 0.75f);
                         break;
                 }
 

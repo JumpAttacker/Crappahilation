@@ -1,42 +1,14 @@
-﻿// <copyright file="invoker_wex.cs" company="Ensage">
-//    Copyright (c) 2017 Ensage.
-// </copyright>
+﻿using Divine.Entity.Entities.Abilities;
+using O9K.Core.Entities.Abilities.Base;
+using O9K.Core.Entities.Abilities.Heroes.Invoker.BaseAbilities;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
-    public class InvokerWex : ActiveAbility, IHasModifier
+    public class InvokerWex : InvokerSimpleBaseAbility
     {
-        public InvokerWex(Ability ability)
-            : base(ability)
+        public InvokerWex(Wex baseAbility) : base(baseAbility)
         {
+            BaseAbility = baseAbility;
         }
-
-        public override bool CanBeCasted
-        {
-            get
-            {
-                if (!IsReady) return false;
-
-                var owner = Owner;
-                if (owner.IsStunned() || owner.IsSilenced()) return false;
-
-                // skip LastCastAttempt check
-
-                return true;
-            }
-        }
-
-        public uint Level
-        {
-            get
-            {
-                var level = Ability.Level;
-                if (Owner.HasAghanimsScepter()) level++;
-
-                return level;
-            }
-        }
-
-        public string ModifierName { get; } = "modifier_invoker_wex_instance";
     }
 }
