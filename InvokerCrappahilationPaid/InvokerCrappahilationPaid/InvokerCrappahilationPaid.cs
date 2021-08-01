@@ -39,8 +39,6 @@ namespace InvokerCrappahilationPaid
             Combo = new Combo(this);
 
             NotificationHelper = new NotificationHelper(this);
-
-            OrderManager.OrderAdding += args => { Console.WriteLine(args.Order.Type); };
         }
     }
 }

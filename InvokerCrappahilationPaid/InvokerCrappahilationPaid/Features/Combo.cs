@@ -512,38 +512,29 @@ namespace InvokerCrappahilationPaid.Features
                             }
                             else
                             {
-                                if (false)
-                                    // if (Me.HasAghanimsScepter())
+                                if (Me9.HasAghanimShard || Me9.HasAghanimsScepter)
                                 {
-                                    // //if (Abilities.Meteor.CanBeCasted && Abilities.Blast.CanBeCasted)
-                                    // //{
-                                    // if (Abilities.Blast.Ability.AbilitySlot == AbilitySlot.Slot5)
-                                    // {
-                                    //     if (Abilities.Wex.Level >= 4 && Abilities.Wex.CanBeCasted)
-                                    //         InvokeThisShit(Abilities.Emp);
-                                    //     else if (Abilities.Blast.CanBeCasted) InvokeThisShit(Abilities.Blast);
-                                    //
-                                    //     InvokeThisShit(Abilities.SunStrike);
-                                    //     //Abilities.Blast.Invoke(skip: true);
-                                    //     //Abilities.SunStrike.Invoke(skip: true);
-                                    // }
-                                    // else if (Abilities.Meteor.Ability.AbilitySlot == AbilitySlot.Slot5)
-                                    // {
-                                    //     if (Abilities.Meteor.CanBeCasted)
-                                    //         InvokeThisShit(Abilities.Meteor);
-                                    //     else if (Abilities.Wex.Level >= 4 && Abilities.Emp.CanBeCasted)
-                                    //         InvokeThisShit(Abilities.Emp);
-                                    //
-                                    //     InvokeThisShit(Abilities.SunStrike);
-                                    //     //Abilities.Meteor.Invoke(skip: true);
-                                    //     //Abilities.SunStrike.Invoke(skip: true);
-                                    // }
-                                    // else
-                                    // {
-                                    //     Abilities.SunStrike.Invoke();
-                                    // }
-                                    //
-                                    // //}
+                                    if (Abilities.Blast.BaseAbility.AbilitySlot == AbilitySlot.Slot5)
+                                    {
+                                        if (Abilities.Wex.Level >= 4 && Abilities.Wex.BaseAbility.CanBeCasted())
+                                            InvokeThisShit(Abilities.Emp);
+                                        else if (Abilities.Blast.CanBeCasted()) InvokeThisShit(Abilities.Blast);
+                                    
+                                        InvokeThisShit(Abilities.SunStrike);
+                                    }
+                                    else if (Abilities.Meteor.BaseAbility.AbilitySlot == AbilitySlot.Slot5)
+                                    {
+                                        if (Abilities.Meteor.CanBeCasted)
+                                            InvokeThisShit(Abilities.Meteor);
+                                        else if (Abilities.Wex.Level >= 4 && Abilities.Emp.CanBeCasted())
+                                            InvokeThisShit(Abilities.Emp);
+                                    
+                                        InvokeThisShit(Abilities.SunStrike);
+                                    }
+                                    else
+                                    {
+                                        Abilities.SunStrike.Invoke();
+                                    }
                                 }
                                 else
                                 {
@@ -551,8 +542,6 @@ namespace InvokerCrappahilationPaid.Features
                                     {
                                         InvokeThisShit(Abilities.Meteor);
                                         InvokeThisShit(Abilities.SunStrike);
-                                        //Abilities.Meteor.Invoke(skip: true);
-                                        //Abilities.SunStrike.Invoke(skip: true);
                                     }
                                     else
                                     {
@@ -603,8 +592,8 @@ namespace InvokerCrappahilationPaid.Features
                         stunDuration = target9.GetImmobilityDuration();
                         isStunned = target9.IsStunned;
                         if (!_sleeper.IsSleeping("Blasted") && Abilities.Blast.CanBeCasted() && Abilities.Blast.BaseAbility.CanHit(target9) &&
-                             (stunDuration > Abilities.Blast.BaseAbility.GetHitTime(target9) ||
-                              target9.HasModifier(Abilities.Meteor.TargetModifierName)))
+                            (stunDuration > Abilities.Blast.BaseAbility.GetHitTime(target9) ||
+                             target9.HasModifier(Abilities.Meteor.TargetModifierName)))
                         {
                             if (Abilities.Blast.UseAbility(Target.Position))
                             {
@@ -644,8 +633,9 @@ namespace InvokerCrappahilationPaid.Features
                                     Abilities.SunStrike.Invoke();
                                 if (Abilities.SunStrike.BaseAbility.BaseAbility.Cast(Me))
                                     _sleeper.Sleep("Casted", .250f);
-                            } else if ((stunDuration > Abilities.SunStrike.BaseAbility.ActivationDelay ||
-                                        Target.HasAnyModifiers("modifier_invoker_cold_snap_freeze")))
+                            }
+                            else if ((stunDuration > Abilities.SunStrike.BaseAbility.ActivationDelay ||
+                                      Target.HasAnyModifiers("modifier_invoker_cold_snap_freeze")))
                             {
                                 if (stunDuration > Abilities.SunStrike.BaseAbility.ActivationDelay)
                                 {
@@ -672,7 +662,7 @@ namespace InvokerCrappahilationPaid.Features
                                 _sleeper.Sleep("Casted", .250f);
                         }
                         else if (WexLevel >= 4 && Abilities.Emp.CanBeCasted() &&
-                                 (Target.HasAnyModifiers(Abilities.IceWall.TargetModifierName,
+                                 (Target.HasAnyModifiers(Abilities.IceWall.TargetModifierName, Abilities.Tornado.TargetModifierName,
                                      Abilities.ColdSnap.TargetModifierName) || EmpCheckForUnits(Target)))
                         {
                             if (Abilities.Emp.UseAbility(Target.Position))
@@ -730,13 +720,12 @@ namespace InvokerCrappahilationPaid.Features
                     isStunned = target9.IsStunned;
                     var combo = _main.Config.ComboPanel.SelectedCombo;
                     var allAbilities = combo.Items.ToArray();
-                    
+
                     var abilityInAction =
                         _main.AbilitiesInCombo.AllAbilities.Find(x =>
                             x.Id == allAbilities[combo.AbilityInAction]);
                     if (abilityInAction != null)
                     {
-                        
                         if (!_sleeper.IsSleeping("Refresh") && abilityInAction.BaseAbility.RemainingCooldown >= 2)
                         {
                             // InvokerCrappahilationPaid.Log.Warn(
@@ -788,6 +777,7 @@ namespace InvokerCrappahilationPaid.Features
                                         tornadoModifier.RemainingTime <= Abilities.Emp.BaseAbility.ActivationDelay ||
                                         Target.HasAnyModifiers(Abilities.IceWall.TargetModifierName,
                                             Abilities.ColdSnap.TargetModifierName,
+                                            Abilities.Tornado.TargetModifierName,
                                             Abilities.Blast.TargetModifierName) || EmpCheckForUnits(Target))
                                     {
                                         if (ability.CanBeCasted())
@@ -1107,7 +1097,7 @@ namespace InvokerCrappahilationPaid.Features
 
             var target9 = EntityManager9.GetUnit(Target.Handle);
             var isTargetStunned = target9.IsStunned;
-            return enemyUndersEul >= countForSs || isTargetStunned && target9.GetImmobilityDuration() > 1.0f || 
+            return enemyUndersEul >= countForSs || isTargetStunned && target9.GetImmobilityDuration() > 1.0f ||
                    target9.HasModifier(_main.AbilitiesInCombo.Blast.TargetModifierName, _main.AbilitiesInCombo.IceWall.TargetModifierName, _main.AbilitiesInCombo.ColdSnap.TargetModifierName) || true;
         }
 
@@ -1122,7 +1112,7 @@ namespace InvokerCrappahilationPaid.Features
         {
             var enemies =
                 EntityManager.GetEntities<Hero>().Where(x =>
-                    x.IsAlive && x.IsAlly(target) && !x.IsIllusion && x.IsInRange(target, 500));
+                    x.IsAlive && x.IsEnemy(target) && !x.IsIllusion && x.IsInRange(target, 500));
             if (enemies is not Hero[] units) return enemies.Count() >= 3;
             var units9 = units.Select(z => EntityManager9.GetUnit(z.Handle));
             var count = units9.Count(hero9 => Abilities.Emp.BaseAbility.CanHit(hero9));
