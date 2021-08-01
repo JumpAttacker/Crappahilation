@@ -211,7 +211,7 @@ namespace InvokerCrappahilationPaid.Features
                 return;
             }
 
-            // ParticleManager.TargetLineParticle("TargetEffectLine", Me, Target.Position, Color.YellowGreen);
+            ParticleManager.TargetLineParticle("TargetEffectLine", Me, Target.Position, Color.YellowGreen);
         }
 
         private void ComboInAction()
@@ -307,8 +307,7 @@ namespace InvokerCrappahilationPaid.Features
                         isStunned = target9.IsStunned;
                         var hasModifiers = target9.HasModifier(Abilities.IceWall.TargetModifierName,
                             Abilities.ColdSnap.TargetModifierName,
-                            Abilities.Meteor.TargetModifierName, "modifier_bloodthorn_debuff",
-                            "modifier_orchid_malevolence_debuff");
+                            Abilities.Meteor.TargetModifierName, "modifier_bloodthorn_debuff", "modifier_orchid_malevolence_debuff");
                         var allFineWithTarget = (!isStunned || stunDuration <= 0.5f) /* &&
                                                 (!Target.HasAnyModifiers("modifier_bloodthorn_debuff",
                                                     "modifier_orchid_malevolence_debuff")) */ &&
@@ -318,7 +317,7 @@ namespace InvokerCrappahilationPaid.Features
                         if (Abilities.Eul != null && Abilities.Eul.CanBeCasted() && allFineWithTarget && Config.UseEul)
                         {
                             var makesSensesToCastEul =
-                                Abilities.SunStrike.BaseAbility.CanBeCasted() || Abilities.Meteor.CanBeCasted ||
+                                Abilities.SunStrike.BaseAbility.CanBeCasted() || Abilities.Meteor.CanBeCasted() ||
                                 WexLevel >= 4 && Abilities.Emp.BaseAbility.CanBeCasted() /*||
                                                    Abilities.IceWall.CanBeCasted*/;
 
@@ -337,8 +336,8 @@ namespace InvokerCrappahilationPaid.Features
                                 return;
                             }
                         }
-                        else if (allFineWithTarget && QuasLevel >= 5 && Abilities.Tornado.BaseAbility.CanBeCasted() &&
-                                 (Abilities.SunStrike.BaseAbility.CanBeCasted() || Abilities.Meteor.CanBeCasted ||
+                        else if (allFineWithTarget && QuasLevel >= 4 && Abilities.Tornado.BaseAbility.CanBeCasted() &&
+                                 (Abilities.SunStrike.BaseAbility.CanBeCasted() || Abilities.Meteor.BaseAbility.CanBeCasted() ||
                                   Abilities.Tornado.BaseAbility.GetDamage(target9) >
                                   Target.Health + Target.HealthRegeneration * (Abilities.Tornado.BaseAbility.Duration + 1) ||
                                   WexLevel >= 4 && Abilities.Emp.BaseAbility.CanBeCasted()) && Abilities.Tornado.BaseAbility.CanHit(target9) &&
@@ -346,7 +345,6 @@ namespace InvokerCrappahilationPaid.Features
                         {
                             // InvokerCrappahilationPaid.Log.Debug(
                             // $"[Use] [{Abilities.Tornado}] TargetHealth (with regen prediction): {Target.Health + Target.HealthRegeneration * (Abilities.Tornado.Duration + 1)} Damage: {Abilities.Tornado.GetDamage(Target)}");
-
                             var input = Abilities.Tornado.BaseAbility.GetPredictionInput(target9);
                             var output = Abilities.Tornado.BaseAbility.GetPredictionOutput(input);
                             if (output.HitChance is HitChance.High or HitChance.Medium or HitChance.Low)
@@ -354,7 +352,7 @@ namespace InvokerCrappahilationPaid.Features
                                 if (Abilities.Tornado.IsInvoked)
                                 {
                                     //Abilities.Tornado.SafeInvoke(Abilities.SunStrike, Abilities.Meteor);
-                                    var casted = Abilities.Tornado.BaseAbility.UseAbility(output.TargetPosition);
+                                    var casted = Abilities.Tornado.BaseAbility.BaseAbility.Cast(output.TargetPosition);
                                     if (casted)
                                     {
                                         var delay = (float) Abilities.Tornado.BaseAbility.GetHitTime(target9);
@@ -381,7 +379,7 @@ namespace InvokerCrappahilationPaid.Features
                                             //Abilities.Tornado.Invoke(skip: true);
                                         }
                                     }
-                                    else if (Abilities.Meteor.CanBeCasted && Abilities.Meteor.IsInvoked &&
+                                    else if (Abilities.Meteor.CanBeCasted() && Abilities.Meteor.IsInvoked &&
                                              Abilities.Meteor.BaseAbility.AbilitySlot == AbilitySlot.Slot5 &&
                                              !_sleeper.IsSleeping($"Invoked {Abilities.Meteor}"))
                                     {
@@ -466,22 +464,22 @@ namespace InvokerCrappahilationPaid.Features
                             Abilities.Alacrity.UseAbility(Me9, false, false);
 
                         var empChecker = Me9.ManaPercentage > 50 || !Abilities.Emp.CanBeCasted();
-                        if (Abilities.SunStrike.CanBeCasted() && empChecker)
+                        if (Abilities.SunStrike.BaseAbility.BaseAbility.CanBeCasted() && empChecker)
                         {
                             if (Abilities.SunStrike.IsInvoked)
                             {
                                 if (tornadoModifier.RemainingTime <= Abilities.SunStrike.BaseAbility.ActivationDelay)
                                 {
-                                    if (tornadoModifier.RemainingTime >= Abilities.SunStrike.BaseAbility.ActivationDelay - 0.85f)
+                                    if (tornadoModifier.RemainingTime >= Abilities.SunStrike.BaseAbility.ActivationDelay - 0.5f)
                                     {
                                         var countForSs = Config.UseCataclysm.Value;
                                         if (!Abilities.SunStrike.IsCataclysmActive || countForSs == 0 ||
                                             !CheckForCataclysm(countForSs))
-                                            Abilities.SunStrike.UseAbility(Target.Position);
+                                        {
+                                            Abilities.SunStrike.BaseAbility.BaseAbility.Cast(Target.Position);
+                                        }
                                         else
                                         {
-                                            if (!Abilities.SunStrike.IsInvoked)
-                                                Abilities.SunStrike.Invoke();
                                             Abilities.SunStrike.BaseAbility.BaseAbility.Cast(Me);
                                         }
                                     }
@@ -492,7 +490,7 @@ namespace InvokerCrappahilationPaid.Features
                                     {
                                         if (Abilities.Emp.AbilitySlot != AbilitySlot.Slot5)
                                         {
-                                            if (Abilities.Meteor.CanBeCasted)
+                                            if (Abilities.Meteor.CanBeCasted())
                                                 InvokeThisShit(Abilities.Meteor);
                                             else if (Abilities.Blast.CanBeCasted())
                                                 InvokeThisShit(Abilities.Blast);
@@ -510,7 +508,7 @@ namespace InvokerCrappahilationPaid.Features
                                     }
                                 }
                             }
-                            else
+                            else if (Abilities.Invoke.IsReady)
                             {
                                 if (Me9.HasAghanimShard || Me9.HasAghanimsScepter)
                                 {
@@ -524,7 +522,7 @@ namespace InvokerCrappahilationPaid.Features
                                     }
                                     else if (Abilities.Meteor.BaseAbility.AbilitySlot == AbilitySlot.Slot5)
                                     {
-                                        if (Abilities.Meteor.CanBeCasted)
+                                        if (Abilities.Meteor.CanBeCasted())
                                             InvokeThisShit(Abilities.Meteor);
                                         else if (Abilities.Wex.Level >= 4 && Abilities.Emp.CanBeCasted())
                                             InvokeThisShit(Abilities.Emp);
@@ -550,17 +548,16 @@ namespace InvokerCrappahilationPaid.Features
                                 }
                             }
                         }
-
-                        if (Abilities.Meteor.CanBeCasted && Abilities.Meteor.BaseAbility.CanHit(target9) && empChecker)
+                        if (Abilities.Meteor.BaseAbility.BaseAbility.CanBeCasted() && Abilities.Meteor.BaseAbility.CanHit(target9) && empChecker)
                         {
                             if (tornadoModifier.RemainingTime <= Abilities.Meteor.BaseAbility.ActivationDelay)
                                 if (tornadoModifier.RemainingTime >= Abilities.Meteor.BaseAbility.ActivationDelay - 0.5f)
                                 {
                                     var targetPos = Target.Position.Extend(Me.Position, ExtraMeteorPosition);
-                                    Abilities.Meteor.UseAbility(targetPos);
+                                    Abilities.Meteor.BaseAbility.BaseAbility.Cast(targetPos);
                                 }
                         }
-                        else if (Abilities.Blast.CanBeCasted() && Abilities.Blast.BaseAbility.CanHit(target9) && empChecker && !_sleeper.IsSleeping("Blasted"))
+                        else if (Abilities.Blast.BaseAbility.BaseAbility.CanBeCasted() && Abilities.Blast.BaseAbility.CanHit(target9) && empChecker && !_sleeper.IsSleeping("Blasted"))
                         {
                             var hitTime = Math.Max((Abilities.Blast.BaseAbility.GetHitTime(target9) - 100) / 1000f, 0.1);
                             if (tornadoModifier.RemainingTime <= hitTime)
@@ -574,7 +571,7 @@ namespace InvokerCrappahilationPaid.Features
                             if (tornadoModifier.RemainingTime <= Abilities.Emp.BaseAbility.ActivationDelay)
                                 Abilities.Emp.UseAbility(Target.Position);
                         }
-                        else if (Config.UseIceWall && Abilities.IceWall.CanBeCasted() && Me.IsInRange(Target, 550) &&
+                        else if (Config.UseIceWall && Abilities.IceWall.BaseAbility.CanBeCasted() && Me.IsInRange(Target, 550) &&
                                  (target9.IsStunned || Target.MovementSpeed <= 425f || target9.IsInvulnerable) &&
                                  Abilities.IceWall.Invoke() /* && !Me.IsInRange(Target, 115) &&
                                  Me.IsDirectlyFacing(Target) IsDirectlyFacing(Me,Target.Position,0.065f)*/)
@@ -591,17 +588,19 @@ namespace InvokerCrappahilationPaid.Features
                     {
                         stunDuration = target9.GetImmobilityDuration();
                         isStunned = target9.IsStunned;
+                        Console.WriteLine($"1: {Config.UseIceWall} {Abilities.IceWall.CanBeCasted()} {Me.IsInRange(Target, 550)}");
                         if (!_sleeper.IsSleeping("Blasted") && Abilities.Blast.CanBeCasted() && Abilities.Blast.BaseAbility.CanHit(target9) &&
                             (stunDuration > Abilities.Blast.BaseAbility.GetHitTime(target9) ||
                              target9.HasModifier(Abilities.Meteor.TargetModifierName)))
                         {
+                            Console.WriteLine("blast");
                             if (Abilities.Blast.UseAbility(Target.Position))
                             {
                                 _sleeper.Sleep("Casted", .250f);
                                 _sleeper.Sleep("Blasted", .750f);
                             }
                         }
-                        else if (Abilities.Meteor.CanBeCasted && Abilities.Meteor.BaseAbility.CanHit(target9) &&
+                        else if (Abilities.Meteor.CanBeCasted() && Abilities.Meteor.BaseAbility.CanHit(target9) &&
                                  (stunDuration > Abilities.Meteor.BaseAbility.ActivationDelay ||
                                   Target.HasAnyModifiers(Abilities.IceWall.TargetModifierName,
                                       "modifier_invoker_deafening_blast_knockback",
@@ -610,6 +609,7 @@ namespace InvokerCrappahilationPaid.Features
                             var predPos = Target.IsMoving && !Target.IsRotating()
                                 ? Target.InFront(150)
                                 : Target.Position;
+                            Console.WriteLine("meteor");
                             if (Abilities.Meteor.UseAbility(predPos))
                                 _sleeper.Sleep("Casted", .250f);
                         }
@@ -618,15 +618,23 @@ namespace InvokerCrappahilationPaid.Features
                                  !Me.IsInRange(Target, 115) && IsDirectlyFacing(Me,Target.Position,0.065f)*/
                             /*Me.IsDirectlyFacing(Target)*/)
                         {
-                            if (Abilities.Invoke.BaseAbility.CanBeCasted())
-                            {
+                            Console.WriteLine("ice");
+                            // if (Abilities.Invoke.BaseAbility.CanBeCasted())
+                            // {
                                 var asyncCasted = Abilities.IceWall.CastAsync(Target);
                                 //_sleeper.Sleep(CooldownOnAction, "CooldownOnAction");
                                 return;
-                            }
+                            // }
                         }
-                        else if (Abilities.SunStrike.CanBeCasted() && Abilities.SunStrike.BaseAbility.CanHit(target9))
+                        else if (Abilities.SunStrike.CanBeCasted() && Abilities.SunStrike.BaseAbility.CanHit(target9) && 
+                                 (
+                                     (Abilities.SunStrike.IsCataclysmActive && CheckForCataclysm(1)) || (
+                                         (stunDuration > Abilities.SunStrike.BaseAbility.ActivationDelay || Target.HasAnyModifiers("modifier_invoker_cold_snap_freeze")) && (stunDuration > Abilities.SunStrike.BaseAbility.ActivationDelay ||
+                                             Target.HasAnyModifiers("modifier_invoker_cold_snap_freeze") &&
+                                             Target.MovementSpeed <= 280)
+                                         )))
                         {
+                            Console.WriteLine("ss");
                             if (Abilities.SunStrike.IsCataclysmActive && CheckForCataclysm(1))
                             {
                                 if (!Abilities.SunStrike.IsInvoked)
@@ -658,6 +666,7 @@ namespace InvokerCrappahilationPaid.Features
                         }
                         else if (Abilities.ColdSnap.CanBeCasted() && Abilities.ColdSnap.BaseAbility.CanHit(target9))
                         {
+                            Console.WriteLine("ColdSnap");
                             if (Abilities.ColdSnap.UseAbility(target9))
                                 _sleeper.Sleep("Casted", .250f);
                         }
@@ -665,17 +674,20 @@ namespace InvokerCrappahilationPaid.Features
                                  (Target.HasAnyModifiers(Abilities.IceWall.TargetModifierName, Abilities.Tornado.TargetModifierName,
                                      Abilities.ColdSnap.TargetModifierName) || EmpCheckForUnits(Target)))
                         {
+                            Console.WriteLine("emp");
                             if (Abilities.Emp.UseAbility(Target.Position))
                                 _sleeper.Sleep("Casted", .250f);
                         }
                         else if (Abilities.ForgeSpirit.CanBeCasted() && Me.IsInAttackRange(Target))
                         {
+                            Console.WriteLine("forge");
                             if (Abilities.ForgeSpirit.UseAbility())
                                 _sleeper.Sleep("Casted", .250f);
                         }
                         else if (Abilities.Alacrity.CanBeCasted() && Me.IsInAttackRange(Target) &&
                                  !Me.HasModifier(Abilities.Alacrity.ModifierName))
                         {
+                            Console.WriteLine("alacrity");
                             if (Abilities.Alacrity.UseAbility(Me9, false, false))
                                 _sleeper.Sleep("Casted", .250f);
                         }

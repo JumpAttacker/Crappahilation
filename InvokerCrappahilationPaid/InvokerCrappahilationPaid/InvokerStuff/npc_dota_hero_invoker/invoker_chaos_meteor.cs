@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Input;
 using Divine.Entity.Entities.Abilities.Components;
+using InvokerCrappahilationPaid.Extensions;
 using O9K.Core.Entities.Abilities.Heroes.Invoker;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
@@ -14,8 +15,6 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
         {
             _invokeHelper = new InvokeHelper<ChaosMeteor>(ability);
         }
-
-        public bool CanBeCasted => base.BaseAbility.CanBeCasted() && _invokeHelper.CanInvoke(!IsInvoked);
 
         public string TargetModifierName { get; } = "modifier_invoker_chaos_meteor_burn";
 

@@ -18,14 +18,9 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
         public InvokerSunStrike(SunStrike ability) : base(ability)
         {
             _invokeHelper = new InvokeHelper<SunStrike>(ability);
-            ActiveAbility = ability;
         }
 
-        public float CastRange => 9999999;
-
-        public bool IsCataclysmActive => true;// this.Owner.HasAghanimShard || this.Owner.HasAghanimsScepter;
-
-        public Unit9 Owner { get; set; }
+        public bool IsCataclysmActive =>  Owner.HasAghanimShard || Owner.HasAghanimsScepter;
 
         public override Key Key { get; set; }
 
@@ -63,6 +58,5 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
         // {
         //     return Invoke() && base.UseAbility(position) && _invokeHelper.Casted();
         // }
-        public object ActiveAbility { get; set; }
     }
 }

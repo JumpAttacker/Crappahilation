@@ -49,6 +49,7 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 
         public override bool Invoke(List<AbilityId> currentOrbs = null, bool skip = false)
         {
+            Console.WriteLine($"Invoke: {this}");
             return _invokeHelper.Invoke(currentOrbs, skip);
         }
 

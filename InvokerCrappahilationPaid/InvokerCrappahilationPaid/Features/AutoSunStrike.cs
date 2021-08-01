@@ -184,7 +184,7 @@ namespace InvokerCrappahilationPaid.Features
                         _config.Main.NotificationHelper.Notificate(enemy, AbilityId.invoker_sun_strike, 0f);
                     // var stunned = UnitExtensions.IsStunned(enemy, out var stunDuration);
                     var o9KEnemy = EntityManager9.GetUnit(enemy.Handle);
-                    
+
                     var stunDuration = o9KEnemy.GetImmobilityDuration();
                     var invulDuration = o9KEnemy.GetInvulnerabilityDuration();
                     var isInvulnerable = o9KEnemy.IsInvulnerable;
@@ -219,10 +219,9 @@ namespace InvokerCrappahilationPaid.Features
                     if (!isStunned && !isInvulnerable)
                         if (UseOnlyOnStunnedEnemies)
                             continue;
-                    
+
                     if (isInvulnerable)
                     {
-    
                         if (invulDuration <= 1.7f + GameManager.Ping * 0.75f / 1000f &&
                             invulDuration >= 1.0f)
                         {
@@ -238,7 +237,7 @@ namespace InvokerCrappahilationPaid.Features
                             output = SunStrike.BaseAbility.GetPredictionOutput(input);
                         }
 
-                        if (output.HitChance is O9K.Core.Prediction.Data.HitChance.High or O9K.Core.Prediction.Data.HitChance.Medium  or O9K.Core.Prediction.Data.HitChance.Low || immobile && output.HitChance == O9K.Core.Prediction.Data.HitChance.Immobile)
+                        if (output.HitChance is O9K.Core.Prediction.Data.HitChance.High or O9K.Core.Prediction.Data.HitChance.Medium or O9K.Core.Prediction.Data.HitChance.Low || immobile && output.HitChance == O9K.Core.Prediction.Data.HitChance.Immobile)
                         {
                             if (isStunned)
                             {
@@ -250,7 +249,6 @@ namespace InvokerCrappahilationPaid.Features
                             }
                             else if (heroWillDie && CanSunStrikeHitWithPrediction(enemy))
                             {
-                                
                             }
                         }
                     }
@@ -266,11 +264,13 @@ namespace InvokerCrappahilationPaid.Features
         private void CameraAction(Vector3 enemyPosition)
         {
             if (MoveCamera)
-                if (RendererManager.WorldToScreen(enemyPosition).IsZero)
-                {
-                    var consolePosition = $"{enemyPosition.X} {enemyPosition.Y}";
-                    GameConsoleManager.ExecuteCommand($"dota_camera_set_lookatpos {consolePosition}");
-                }
+            {
+                // if (RendererManager.WorldToScreen(enemyPosition).IsZero)
+                // {
+                var consolePosition = $"{enemyPosition.X} {enemyPosition.Y}";
+                GameConsoleManager.ExecuteCommand($"dota_camera_set_lookatpos {consolePosition}");
+                // }
+            }
         }
 
         private bool CanSunStrikeHitWithPrediction(Hero target)
@@ -376,11 +376,18 @@ namespace InvokerCrappahilationPaid.Features
             }
 
             _multiSleeper.Sleep(enemy.Handle, .50f);
+            var enemy9 = EntityManager9.GetUnit(enemy.Handle);
+            if (enemy9 == null)
+            {
+                heroWillDie = false;
+                return heroWillDie;
+            }
+
             var willTakeDamageFromTornado =
                 enemy.HasModifier(_config.Main.AbilitiesInCombo.Tornado.TargetModifierName);
             var damageFromTornado =
-                willTakeDamageFromTornado ? _config.Main.AbilitiesInCombo.Tornado.BaseAbility.GetDamage(EntityManager9.GetUnit(enemy.Handle)) : 0;
-            var healthAfterCast = enemy.Health + enemy.HealthRegeneration * 2 - SunStrike.BaseAbility.GetDamage(EntityManager9.GetUnit(enemy.Handle)) -
+                willTakeDamageFromTornado ? _config.Main.AbilitiesInCombo.Tornado.BaseAbility.GetDamage(enemy9) : 0;
+            var healthAfterCast = enemy.Health + enemy.HealthRegeneration * 2 - SunStrike.BaseAbility.GetDamage(enemy9) -
                                   damageFromTornado;
             if (!_damageDict.TryGetValue(enemy.Handle, out _))
                 _damageDict.Add(enemy.Handle, (int) healthAfterCast);

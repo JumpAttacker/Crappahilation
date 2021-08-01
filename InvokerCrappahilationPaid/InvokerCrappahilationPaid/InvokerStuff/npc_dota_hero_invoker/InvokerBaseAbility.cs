@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Windows.Input;
 using Divine.Entity.Entities.Abilities.Components;
 using Divine.Numerics;
+using InvokerCrappahilationPaid.Extensions;
 using O9K.Core.Entities.Abilities.Base;
 using O9K.Core.Entities.Units;
 
@@ -9,8 +10,10 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
     public abstract class InvokerBaseAbility : InvokerSimpleBaseAbility, IInvokableAbility, IHaveFastInvokeKey
     {
-        protected InvokerBaseAbility(ActiveAbility activeAbility) : base(activeAbility){}
-        
+        protected InvokerBaseAbility(ActiveAbility activeAbility) : base(activeAbility)
+        {
+        }
+
         public abstract AbilityId[] RequiredOrbs { get; }
         public abstract bool IsInvoked { get; }
         public abstract bool CanBeInvoked { get; }
@@ -21,8 +24,60 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
         {
             return BaseAbility.CanBeCasted();
         }
+
+        public override bool UseAbility()
+        {
+            if (!IsInvoked)
+            {
+                if (CanBeCasted())
+                {
+                    Invoke();
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return BaseAbility.BaseAbility.Cast();
+        }
+
+        public override bool UseAbility(Vector3 pos)
+        {
+            if (!IsInvoked)
+            {
+                if (CanBeCasted())
+                {
+                    Invoke();
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return BaseAbility.BaseAbility.Cast(pos);
+        }
+
+        public override bool UseAbility(Unit9 target)
+        {
+            if (!IsInvoked)
+            {
+                if (CanBeCasted())
+                {
+                    Invoke();
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return BaseAbility.BaseAbility.Cast(target);
+        }
     }
-    public abstract class InvokerSimpleBaseAbility : IHaveActiveAbility<ActiveAbility> 
+
+    public abstract class InvokerSimpleBaseAbility : IHaveActiveAbility<ActiveAbility>
     {
         public InvokerSimpleBaseAbility(ActiveAbility activeAbility)
         {
@@ -38,21 +93,19 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
         public AbilitySlot AbilitySlot => BaseAbility.AbilitySlot;
         public Unit9 Owner => BaseAbility.Owner;
 
-        public bool UseAbility()
+        public virtual bool UseAbility()
         {
-            
-            return BaseAbility.UseAbility();
-        }
-        public bool UseAbility(Vector3 pos)
-        {
-            
-            return BaseAbility.UseAbility(pos);
-        }
-        public bool UseAbility(Unit9 target)
-        {
-            
-            return BaseAbility.UseAbility(target);
+            return BaseAbility.BaseAbility.Cast();
         }
 
+        public virtual bool UseAbility(Vector3 pos)
+        {
+            return BaseAbility.BaseAbility.Cast(pos);
+        }
+
+        public virtual bool UseAbility(Unit9 target)
+        {
+            return BaseAbility.BaseAbility.Cast(target);
+        }
     }
 }
