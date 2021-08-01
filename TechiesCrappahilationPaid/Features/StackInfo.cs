@@ -21,14 +21,14 @@ namespace TechiesCrappahilationPaid.Features
         public StackInfo(TechiesCrappahilationPaid main)
         {
             _main = main;
-            // inputManager.MouseClick += MouseClick;
+            // InputManager.MouseKeyDown += MouseClick;
             InputManager.MouseKeyUp += MouseClick;
-            if (main.MenuManager.DrawStacks)
-                RendererManager.Draw += RenderManagerOnDraw;
+            // if (main.MenuManager.DrawStacks)
+            //     RendererManager.Draw += RenderManagerOnDraw;
 
             main.MenuManager.DrawStacks.ValueChanged += (sender, args) =>
             {
-                if (main.MenuManager.DrawStacks)
+                if (args.Value)
                 {
                     RendererManager.Draw += RenderManagerOnDraw;
                 }
@@ -106,7 +106,7 @@ namespace TechiesCrappahilationPaid.Features
 
                 if (IsIn(rectangle, mousePos))
                 {
-                    RendererManager.DrawFilledRectangle(rectangle, Color.White, new Color(200, 10, 10, 10), 1);
+                    RendererManager.DrawFilledRectangle(rectangle, Color.White, new Color(10, 10, 10, 200), 1);
                     RendererManager.DrawText(text,new Vector2(rectangle.X + rectangle.Width / 2 - textSize.X / 2, rectangle.Y),
                         
                         bomb.UnderTrueSight ? Color.OrangeRed : Color.White, 30);
@@ -136,7 +136,7 @@ namespace TechiesCrappahilationPaid.Features
                         }
                         else
                         {
-                            RendererManager.DrawFilledRectangle(boxRect, Color.White, new Color(100, 50, 50, 50), 0);
+                            RendererManager.DrawFilledRectangle(boxRect, Color.White, new Color(50, 50, 50, 100), 0);
                         }
                     }
                 }

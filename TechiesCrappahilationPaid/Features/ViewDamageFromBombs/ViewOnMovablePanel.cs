@@ -47,7 +47,7 @@ namespace TechiesCrappahilationPaid.Features.ViewDamageFromBombs
 
             RendererManager.DrawRectangle(
                 new RectangleF(PanelPosition.X, PanelPosition.Y, width, count * _iconSize.Y),
-                new Color(100,100,100,50));
+                new Color(50,100,100,100));
         }
 
         public void DrawHorizontalsIcons(Vector2 startPos, Vector2 size, params AbilityId[] ids)

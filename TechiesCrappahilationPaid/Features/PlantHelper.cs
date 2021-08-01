@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-
 using Divine.Menu.Items;
 using Divine.Numerics;
 using Divine.Particle;
@@ -46,7 +45,11 @@ namespace TechiesCrappahilationPaid.Features
             var enable = main.MenuManager.GoodPositions.CreateSwitcher("Show good position for planting", false);
             _range = main.MenuManager.GoodPositions.CreateSlider("Range ", 425, 25, 425);
 
-            _range.ValueChanged += (sender, args) => { Draw(); };
+            _range.ValueChanged += (sender, args) =>
+            {
+                if (enable) 
+                    Draw();
+            };
 
             /*if (enable)
             {

@@ -157,8 +157,8 @@ namespace TechiesCrappahilationPaid.Features
             var sub2 = UpdateManager.CreateUpdate( 500, enablePoximityMines, AutoProximityMinesCallBack);
             enableRemoteMines.ValueChanged += (sender, args) =>
             {
-                sub.IsEnabled = enableRemoteMines;
-                if (!enableRemoteMines)
+                sub.IsEnabled = args.Value;
+                if (!args.Value)
                 {
                     Effect?.Dispose();
                 }
