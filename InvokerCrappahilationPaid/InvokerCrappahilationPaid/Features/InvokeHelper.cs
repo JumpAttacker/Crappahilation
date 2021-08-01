@@ -86,8 +86,8 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     oldKey = key.Key;
                     ((IHaveFastInvokeKey) activeAbility).Key = key.Key;
-                    Console.WriteLine(
-                        $"({activeAbility}) Changed: from {((IHaveFastInvokeKey) activeAbility).Key} key ({key.Key})");
+                    // Console.WriteLine(
+                        // $"({activeAbility}) Changed: from {((IHaveFastInvokeKey) activeAbility).Key} key ({key.Key})");
                 }
             });
             key.ValueChanged += async (sender, args) =>
@@ -95,39 +95,31 @@ namespace InvokerCrappahilationPaid.Features
                 if (!enable) return;
                 if (args.Value)
                 {
-                    Console.WriteLine("1");
                     if (_config.SmartSphere.InChanging.IsSleeping)
                         while (_config.SmartSphere.InChanging.IsSleeping)
                             await Task.Delay(5);
-                    Console.WriteLine("2");
                     if (!_config.Main.Me.IsAlive || !_config.Main.Me9.CanUseAbilities)
                         return;
-                    Console.WriteLine("3");
                     if ( /*|| !activeAbility.CanBeCasted ||*/
                         _config.Main.Me.HasAnyModifiers(_config.Main.AbilitiesInCombo.GhostWalk.ModifierName,
                             "item_glimmer_cape") && !ignore)
                         return;
-                    Console.WriteLine("4");
                     if (EntityManager.LocalPlayer is not null && !EntityManager.LocalPlayer.SelectedUnits.Any(x => x.Equals(_config.Main.Me)))
                         return;
-                    Console.WriteLine("5");
                     var slot = activeAbility.AbilitySlot;
                     if (reInvoke && slot == AbilitySlot.Slot5)
                     {
                         _config.Main.Combo.InvokeThisShit(activeAbility);
                         return;
                     }
-                    Console.WriteLine("6");
                     if (slot is AbilitySlot.Slot4 or AbilitySlot.Slot5)
                     {
                         if (use is {Value: true}) JustUse(activeAbility);
 
                         return;
                     }
-                    Console.WriteLine("7");
                     if (!_config.Main.AbilitiesInCombo.Invoke.BaseAbility.CanBeCasted())
                         return;
-                    Console.WriteLine("8");
                     if (useOnMainHeroAfterInvoke == null)
                         InvokeThenCast(activeAbility);
                     else
@@ -166,7 +158,7 @@ namespace InvokerCrappahilationPaid.Features
                     break;
                 case InvokerSunStrike ability:
                     invoked = ability.Invoke();
-                    Console.WriteLine($"Invoke {invoked}");
+                    // Console.WriteLine($"Invoke {invoked}");
                     if (invoked)
                         if (thenCast)
                             activeAbility.UseAbility(GameManager.MousePosition);

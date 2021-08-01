@@ -39,7 +39,7 @@ namespace InvokerCrappahilationPaid
                         if (notification.State == Notification.StateType.Staying)
                         {
                             var r = new RectangleF(rect.X, rect.Y + rect.Height - sizeX, sizeX, sizeX);
-                            RendererManager.DrawImage(notification.TextureId, r, UnitImageType.SquareUnit);
+                            RendererManager.DrawImage(notification.TextureId, r, ImageType.Ability);
                         }
                     }
             };

@@ -5,6 +5,7 @@ using Divine.Entity.Entities.Units.Heroes.Components;
 using Divine.Service;
 using InvokerCrappahilationPaid.Features;
 using O9K.Core.Entities.Heroes;
+using O9K.Core.Managers.Entity;
 
 namespace InvokerCrappahilationPaid
 {
@@ -27,7 +28,7 @@ namespace InvokerCrappahilationPaid
                 return;
             }
 
-            Me9 = new Hero9(Me);
+            Me9 = EntityManager9.GetUnit(Me.Handle) as Hero9;
 
             AbilitiesInCombo = new AbilitiesInCombo(this);
 

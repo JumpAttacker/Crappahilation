@@ -20,7 +20,7 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
     public class InvokerIceWall : InvokerBaseAbility
     {
         private readonly InvokeHelper<IceWall> _invokeHelper;
-        public bool InAction;
+        public static bool InAction;
 
         public InvokerIceWall(IceWall ability)
             : base(ability)
@@ -64,6 +64,8 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 
         public async Task<bool> CastAsync(Unit enemy)
         {
+            if (InAction)
+                return false;
             InAction = true;
             if (!Invoke())
             {
@@ -73,37 +75,38 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 
             OrderManager.OrderAdding += PlayerOnOnExecuteOrder;
             BaseAbility.Owner.Stop();
-            await Task.Delay((int) (GameManager.Ping + 150));
+            await Task.Delay((int) (GameManager.Ping + 500));
             Vector3 pos;
             float num1;
             if (!enemy.IsMoving || enemy.HasAnyModifiers("modifier_invoker_deafening_blast_knockback"))
             {
                 num1 = BaseAbility.Owner.GetTurnTime(enemy.Position) + 0.1f;
-                BaseAbility.Owner.Move(enemy.Position);
+                BaseAbility.Owner.BaseUnit.MoveToDirection(enemy.Position);
                 pos = enemy.Position;
             }
             else
             {
                 pos = enemy.InFront(enemy.MovementSpeed * 0.6f);
                 num1 = BaseAbility.Owner.GetTurnTime(pos) + 0.1f;
-                BaseAbility.Owner.Move(pos);
+                BaseAbility.Owner.BaseUnit.MoveToDirection(pos);
             }
-
-            if (num1 > 0.0) await Task.Delay((int) (num1 * 2000.0));
+            
+            if (num1 > 0.0) await Task.Delay((int) (num1 + 150.0));
             BaseAbility.Owner.Stop();
-            var delay = GameManager.Ping > 1.0 ? GameManager.Ping / 1000f : GameManager.Ping;
-            await Task.Delay((int) (delay * 2000.0));
+            var delay = GameManager.Ping;
+            await Task.Delay((int) (delay)+150);
             var num2 = 220f / pos.Distance(BaseAbility.Owner.Position);
             var num3 = BaseAbility.Owner.BaseUnit.NetworkRotationRad - (float) Math.Acos(num2);
             var position = new Vector3(BaseAbility.Owner.Position.X + (float) (Math.Cos(num3) * 10.0),
                 BaseAbility.Owner.Position.Y + (float) (Math.Sin(num3) * 10.0), BaseAbility.Owner.Position.Z);
             var num4 = BaseAbility.Owner.GetTurnTime(position) + 0.1f;
             BaseAbility.Owner.BaseUnit.MoveToDirection(position);
-            if (num4 > 0.0) await Task.Delay((int) (num4 * 2000.0));
-            BaseAbility.Owner.Stop();
+            if (num4 > 0.0) await Task.Delay((int) (num4 + 200.0));
             OrderManager.OrderAdding -= PlayerOnOnExecuteOrder;
-
-            UpdateManager.BeginInvoke((int) (GameManager.Ping * 3f), () => { InAction = false; });
+            UpdateManager.BeginInvoke((int) (GameManager.Ping * 3f + BaseAbility.CastPoint * 1000), () =>
+            {
+                InAction = false;
+            });
             return BaseAbility.BaseAbility.Cast();
             //await Task.Delay((int)(100.0 + delay));
         }

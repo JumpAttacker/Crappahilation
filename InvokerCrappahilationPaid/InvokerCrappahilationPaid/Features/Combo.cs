@@ -63,13 +63,13 @@ namespace InvokerCrappahilationPaid.Features
             {
                 if (args.Value)
                 {
-                    Console.WriteLine("Combo start");
+                    // Console.WriteLine("Combo start");
                     comboUpdateHandler.IsEnabled = true;
                     particleUpdateHandler.IsEnabled = true;
                 }
                 else
                 {
-                    Console.WriteLine("Combo end");
+                    // Console.WriteLine("Combo end");
                     comboUpdateHandler.IsEnabled = false;
                     particleUpdateHandler.IsEnabled = false;
                     Target = null;
@@ -136,7 +136,7 @@ namespace InvokerCrappahilationPaid.Features
 
         public Unit Target { get; set; }
         private Hero Me => (Hero) _main.Me;
-        private Hero9 Me9 => new Hero9(Me);
+        private Hero9 Me9 => _main.Me9;
 
         /*private void InvokeThisShit(ActiveAbility ability)
         {
@@ -162,10 +162,10 @@ namespace InvokerCrappahilationPaid.Features
 
         public bool InvokeThisShit(InvokerBaseAbility ability)
         {
-            Console.WriteLine($"Trying to invoke -> {ability.Id}");
+            // Console.WriteLine($"Trying to invoke -> {ability.Id}");
             if (_sleeper.IsSleeping($"{ability} shit"))
             {
-                Console.WriteLine($"Invoke [blocked] ({ability})");
+                // Console.WriteLine($"Invoke [blocked] ({ability})");
                 return false;
             }
 
@@ -181,14 +181,14 @@ namespace InvokerCrappahilationPaid.Features
 
                         if (!sphere.BaseAbility.BaseAbility.Cast()) return false;
 
-                        Console.WriteLine($"Invoke [Sphere: {abilityId}] ({ability})");
+                        // Console.WriteLine($"Invoke [Sphere: {abilityId}] ({ability})");
                     }
 
                     var invoked = Abilities.Invoke.BaseAbility.BaseAbility.Cast();
                     if (invoked)
                     {
                         _sleeper.Sleep($"{ability} shit", .200f);
-                        Console.WriteLine($"invoked [{ability}]");
+                        // Console.WriteLine($"invoked [{ability}]");
                     }
 
                     return invoked;
@@ -198,7 +198,7 @@ namespace InvokerCrappahilationPaid.Features
                 return false;
             }
 
-            Console.WriteLine($"Invoke [on cd] ({ability})");
+            // Console.WriteLine($"Invoke [on cd] ({ability})");
             return false;
         }
 
@@ -210,7 +210,7 @@ namespace InvokerCrappahilationPaid.Features
                 return;
             }
 
-            ParticleManager.TargetLineParticle("TargetEffectLine", Me, Target.Position, Color.YellowGreen);
+            // ParticleManager.TargetLineParticle("TargetEffectLine", Me, Target.Position, Color.YellowGreen);
         }
 
         private void ComboInAction()
@@ -227,7 +227,7 @@ namespace InvokerCrappahilationPaid.Features
                 // if (_main.Context.Orbwalker.Active.CanMove())
                 // _main.Context.Orbwalker.Active.Move(mousePos);
                 if (Me9.CanMove())
-                    Me.Move(mousePos);
+                    Me9.Move(mousePos);
 
                 /*foreach (var unit in _main.Updater.Units.Where(x=> x.Unit != null && x.Unit.IsValid && x.CanWork && x.Unit.IsAlive))
                 {
@@ -242,7 +242,7 @@ namespace InvokerCrappahilationPaid.Features
                 return;
             }
 
-            var isInvul = UnitExtensions.IsInvulnerable(Target);
+            var isInvul = Target.IsInvulnerable();
             if (!_sleeper.IsSleeping("Orbwalker"))
             {
                 // _sleeper.Sleep( "Orbwalker", 250);
@@ -279,7 +279,7 @@ namespace InvokerCrappahilationPaid.Features
             }
 
             Modifier tornadoModifier;
-            if (Abilities.IceWall.InAction)
+            if (InvokerIceWall.InAction)
                 return;
             float stunDuration;
             bool isStunned;
@@ -299,7 +299,7 @@ namespace InvokerCrappahilationPaid.Features
                         "modifier_obsidian_destroyer_astral_imprisonment_prison",
                         "modifier_shadow_demon_disruption",
                         Abilities.Tornado.TargetModifierName, "modifier_brewmaster_storm_cyclone");
-                    target9 = new Unit9(Target);
+                    target9 = EntityManager9.GetUnit(Target.Handle);
                     if (tornadoModifier == null && !_sleeper.IsSleeping("AfterRefresh"))
                     {
                         stunDuration = target9.GetImmobilityDuration();
@@ -341,7 +341,7 @@ namespace InvokerCrappahilationPaid.Features
                                   Abilities.Tornado.BaseAbility.GetDamage(target9) >
                                   Target.Health + Target.HealthRegeneration * (Abilities.Tornado.BaseAbility.Duration + 1) ||
                                   WexLevel >= 4 && Abilities.Emp.BaseAbility.CanBeCasted()) && Abilities.Tornado.BaseAbility.CanHit(target9) &&
-                                 UnitExtensions.IsInRange(Target, Me, 1000))
+                                 Target.IsInRange(Me, 1000))
                         {
                             // InvokerCrappahilationPaid.Log.Debug(
                             // $"[Use] [{Abilities.Tornado}] TargetHealth (with regen prediction): {Target.Health + Target.HealthRegeneration * (Abilities.Tornado.Duration + 1)} Damage: {Abilities.Tornado.GetDamage(Target)}");
@@ -427,13 +427,18 @@ namespace InvokerCrappahilationPaid.Features
                                     var ability = baseAbility;
                                     if (ability is InvokerIceWall iceWall)
                                     {
-                                        if (UnitExtensions.IsInRange(Target, Me, 550) &&
+                                        if (Target.IsInRange(Me, 550) &&
                                             (target9.IsStunned || Target.MovementSpeed <= 425f))
                                         {
                                             var casted = iceWall.CastAsync(Target);
                                             //_sleeper.Sleep("Eul", .500f);
                                             return;
                                         }
+                                        // if (Me9.CanMove())
+                                        // {
+                                        //     // Me9.Move(target9);
+                                        //     return;
+                                        // }
                                     }
                                     else
                                     {
@@ -451,12 +456,12 @@ namespace InvokerCrappahilationPaid.Features
                     if (tornadoModifier != null && !_sleeper.IsSleeping("AfterRefresh"))
                     {
                         if (Abilities.ForgeSpirit.BaseAbility.CanBeCasted() && Abilities.ForgeSpirit.IsInvoked &&
-                            UnitExtensions.IsInAttackRange(Me, Target))
+                            Me.IsInAttackRange(Target))
                             Abilities.ForgeSpirit.BaseAbility.UseAbility();
 
                         if (Abilities.Alacrity.BaseAbility.CanBeCasted() && Abilities.Alacrity.IsInvoked &&
-                            UnitExtensions.IsInAttackRange(Me, Target) &&
-                            !UnitExtensions.HasModifier(Me, Abilities.Alacrity.ModifierName))
+                            Me.IsInAttackRange(Target) &&
+                            !Me.HasModifier(Abilities.Alacrity.ModifierName))
                             Abilities.Alacrity.UseAbility(Me9, false, false);
 
                         var empChecker = Me9.ManaPercentage > 50 || !Abilities.Emp.CanBeCasted();
@@ -561,7 +566,7 @@ namespace InvokerCrappahilationPaid.Features
                             if (tornadoModifier.RemainingTime <= Abilities.Meteor.BaseAbility.ActivationDelay)
                                 if (tornadoModifier.RemainingTime >= Abilities.Meteor.BaseAbility.ActivationDelay - 0.5f)
                                 {
-                                    var targetPos = Vector3Extensions.Extend(Target.Position, Me.Position, ExtraMeteorPosition);
+                                    var targetPos = Target.Position.Extend(Me.Position, ExtraMeteorPosition);
                                     Abilities.Meteor.UseAbility(targetPos);
                                 }
                         }
@@ -575,8 +580,8 @@ namespace InvokerCrappahilationPaid.Features
                             if (tornadoModifier.RemainingTime <= Abilities.Emp.BaseAbility.ActivationDelay)
                                 Abilities.Emp.UseAbility(Target.Position);
                         }
-                        else if (Config.UseIceWall && Abilities.IceWall.CanBeCasted() && UnitExtensions.IsInRange(Me, Target, 550) &&
-                                 (target9.IsStunned || Target.MovementSpeed <= 425f) &&
+                        else if (Config.UseIceWall && Abilities.IceWall.CanBeCasted() && Me.IsInRange(Target, 550) &&
+                                 (target9.IsStunned || Target.MovementSpeed <= 425f || target9.IsInvulnerable) &&
                                  Abilities.IceWall.Invoke() /* && !Me.IsInRange(Target, 115) &&
                                  Me.IsDirectlyFacing(Target) IsDirectlyFacing(Me,Target.Position,0.065f)*/)
                         {
@@ -663,7 +668,7 @@ namespace InvokerCrappahilationPaid.Features
                                 _sleeper.Sleep("Casted", .250f);
                         }
                         else if (Abilities.Alacrity.CanBeCasted() && Me.IsInAttackRange(Target) &&
-                                 !UnitExtensions.HasModifier(Me, Abilities.Alacrity.ModifierName))
+                                 !Me.HasModifier(Abilities.Alacrity.ModifierName))
                         {
                             if (Abilities.Alacrity.UseAbility(Me9, false, false))
                                 _sleeper.Sleep("Casted", .250f);
@@ -704,7 +709,7 @@ namespace InvokerCrappahilationPaid.Features
                         return;
                     if (_sleeper.IsSleeping("Eul") /*|| _invokerSleeper.Sleeping*/)
                         return;
-                    target9 = new Unit9(Target);
+                    target9 = EntityManager9.GetUnit(Target.Handle);
                     stunDuration = target9.GetImmobilityDuration();
                     isStunned = target9.IsStunned;
                     var combo = _main.Config.ComboPanel.SelectedCombo;
@@ -823,10 +828,17 @@ namespace InvokerCrappahilationPaid.Features
                                 break;*/
                                 if (ability.CanBeCasted() && Me.IsInRange(Target, 550) && ability.Invoke())
                                 {
+                                    if (InvokerIceWall.InAction)
+                                        return;
                                     var castedAsync = ability.CastAsync(Target);
                                     //_sleeper.Sleep(CooldownOnAction, "CooldownOnAction");
                                     IncComboStage(combo, true);
                                 }
+                                // if (Me9.CanMove())
+                                // {
+                                //     Me9.Move(target9);
+                                //     return;
+                                // }
 
                                 break;
                                 if (ability.CanBeCasted() && Me.IsInRange(Target, 250) &&
@@ -841,7 +853,7 @@ namespace InvokerCrappahilationPaid.Features
                             case InvokerTornado ability:
                                 var input = Abilities.Tornado.BaseAbility.GetPredictionInput(target9);
                                 var output = Abilities.Tornado.BaseAbility.GetPredictionOutput(input);
-                                Console.WriteLine($"HitChance: {output.HitChance}");
+                                // Console.WriteLine($"HitChance: {output.HitChance}");
                                 if (output.HitChance is HitChance.Medium or HitChance.High or HitChance.Low)
                                 {
                                     casted = ability.UseAbility(output.TargetPosition);
@@ -974,7 +986,7 @@ namespace InvokerCrappahilationPaid.Features
             }
 
             After:
-            target9 = new Unit9(Target);
+            target9 = EntityManager9.GetUnit(Target.Handle);
             stunDuration = target9.GetImmobilityDuration();
             isStunned = target9.IsStunned;
             if (!isInvul)
@@ -1056,8 +1068,8 @@ namespace InvokerCrappahilationPaid.Features
 
         private bool CheckForEmpNearTarget(Unit9 target)
         {
-            Console.WriteLine($"TargetValid: {target.IsValid}");
-            Console.WriteLine($"Abilities.Tornado: {Abilities.Tornado.BaseAbility.IsValid}");
+            // Console.WriteLine($"TargetValid: {target.IsValid}");
+            // Console.WriteLine($"Abilities.Tornado: {Abilities.Tornado.BaseAbility.IsValid}");
             var emps = _main.Updater.EmpPositions;
             var tornadoTime = Abilities.Tornado.BaseAbility.Duration;
             var delay = (float) Abilities.Tornado.BaseAbility.GetHitTime(target);
@@ -1091,7 +1103,7 @@ namespace InvokerCrappahilationPaid.Features
                 EntityManager.GetEntities<Hero>().Where(x =>
                     x.IsAlive && x.IsAlly(target) && !x.IsIllusion && x.IsInRange(target, 500));
             if (enemies is not Hero[] units) return enemies.Count() >= 3;
-            var units9 = units.Select(z => new Hero9(z));
+            var units9 = units.Select(z => EntityManager9.GetUnit(z.Handle));
             var count = units9.Count(hero9 => Abilities.Emp.BaseAbility.CanHit(hero9));
             return enemies.Count() >= 3 && count >= 3;
         }

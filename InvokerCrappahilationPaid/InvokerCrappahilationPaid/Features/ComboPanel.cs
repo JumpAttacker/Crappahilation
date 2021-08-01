@@ -295,6 +295,12 @@ namespace InvokerCrappahilationPaid.Features
                 // AbilitiesPriority = main.CreateAbilityToggler("Priority:", dict.ToDictionary(z => z.Key, z => z.Value), true);
                 NextAbilityAfterRefresher = main.CreateSlider("Ability index after refresher", 2, 0, 10);
                 Abilities.ValueChanged += OnUpdate;
+
+                UpdateManager.CreateIngameUpdate(500, () =>
+                {
+                    UpdateItems();
+                });
+                
                 // AbilitiesPriority.ValueChanged += OnUpdate;
                 // if (Enable)
                 //     UpdateItems(true);
@@ -361,7 +367,7 @@ namespace InvokerCrappahilationPaid.Features
                     var toAdd = allAbilities.Where(x => Abilities.GetValue(x)).ToList();
                     if (toAdd.Any())
                         Items.AddRange(toAdd);
-                    Items = new List<AbilityId>(Items.OrderByDescending(x => Abilities.GetPriority(x)));
+                    Items = new List<AbilityId>(Items.OrderBy(x => Abilities.GetPriority(x)));
                     if (Enable || isFirstTime)
                     {
                         //var count = 0;

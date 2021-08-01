@@ -61,7 +61,7 @@ namespace InvokerCrappahilationPaid.Features
             _multySleeper = new MultiSleeper<string>();
             Size.ValueChanged += (sender, args) => { _iconSize = 50f / 100f * Size; };
 
-            if (Enable) Activate();
+            // if (Enable) Activate();
 
             UpdateManager.BeginInvoke(500, () => { MaxIcons = config.Main.AbilitiesInCombo.AllAbilities.Count; });
 
@@ -78,7 +78,7 @@ namespace InvokerCrappahilationPaid.Features
 
             Enable.ValueChanged += (sender, args) =>
             {
-                if (sender.Value)
+                if (args.Value)
                     Activate();
                 else
                     Deactivate();
@@ -370,7 +370,11 @@ namespace InvokerCrappahilationPaid.Features
         private void DrawButton(Button button, ref RectangleF rect)
         {
             // RendererManager.DrawImage(button.TextureId, rect, button.IsActive ? 1f : 0.2f);
-            RendererManager.DrawImage(button.Id, rect, AbilityImageType.Default, true);
+            RendererManager.DrawImage(button.Id, rect, AbilityImageType.Round, true);
+            if (button.IsActive)
+            {
+                RendererManager.DrawCircle(rect.Center, _iconSize / 2, Color.Aqua);
+            }
             button.RectangleF = rect;
             /*if (!button.IsActive)
             {

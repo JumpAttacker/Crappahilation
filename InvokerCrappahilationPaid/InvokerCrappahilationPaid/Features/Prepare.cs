@@ -46,10 +46,10 @@ namespace InvokerCrappahilationPaid.Features
 
         private void PrepareInAction()
         {
-            Console.WriteLine("PrepareInAction. 1");
+            // Console.WriteLine("PrepareInAction. 1");
             if (GameplayType == Combo.ComboTypeEnum.Auto)
                 return;
-            Console.WriteLine("PrepareInAction. 2");
+            // Console.WriteLine("PrepareInAction. 2");
             var combo = _main.Config.ComboPanel.SelectedCombo;
             var allAbilities = combo.Items.ToArray();
             var abilities = new List<InvokerBaseAbility?>();
@@ -57,14 +57,14 @@ namespace InvokerCrappahilationPaid.Features
             var two = GetAbility(allAbilities, ref abilities);
             var three = GetAbility(allAbilities, ref abilities);
 
-            Console.WriteLine($"one: {one}");
-            Console.WriteLine($"two: {two}");
-            Console.WriteLine($"three: {three}");
+            // Console.WriteLine($"one: {one}");
+            // Console.WriteLine($"two: {two}");
+            // Console.WriteLine($"three: {three}");
             
             if (three != null) two = three;
             if (one == null)
             {
-                Console.WriteLine("Cant Find Ability for prepare");
+                // Console.WriteLine("Cant Find Ability for prepare");
                 return;
             }
 
@@ -72,7 +72,7 @@ namespace InvokerCrappahilationPaid.Features
             {
                 if (one is IInvokableAbility {IsInvoked: false, CanBeInvoked: true} invokable)
                     invokable.Invoke();
-                Console.WriteLine("Will invoke only first ability");
+                // Console.WriteLine("Will invoke only first ability");
                 return;
             }
 
@@ -98,7 +98,7 @@ namespace InvokerCrappahilationPaid.Features
             }
             else if (ability2Invoked)
             {
-                if (two.BaseAbility.Equals(empty2))
+                if (two.BaseAbility.BaseAbility.Equals(empty2))
                     InvokeThisShit(two);
                 else
                     InvokeThisShit(one);
@@ -123,10 +123,10 @@ namespace InvokerCrappahilationPaid.Features
 
         private bool InvokeThisShit(InvokerBaseAbility? ability)
         {
-            Console.WriteLine($"Trying to invoke -> {ability.Id}");
+            // Console.WriteLine($"Trying to invoke -> {ability.Id}");
             if (_sleeper.IsSleeping($"{ability} shit"))
             {
-                Console.WriteLine($"Invoke [blocked] ({ability})");
+                // Console.WriteLine($"Invoke [blocked] ({ability})");
                 return false;
             }
 
@@ -145,14 +145,14 @@ namespace InvokerCrappahilationPaid.Features
                             return false;
                         }
                         if (!sphere.UseAbility()) return false;
-                        Console.WriteLine($"Invoke [Sphere: {abilityId}] ({ability})");
+                        // Console.WriteLine($"Invoke [Sphere: {abilityId}] ({ability})");
                     }
 
                     var invoked = Abilities.Invoke.UseAbility();
                     if (invoked)
                     {
                         _sleeper.Sleep($"{ability} shit", .200f);
-                        Console.WriteLine($"Invoke [{ability}]");
+                        // Console.WriteLine($"Invoke [{ability}]");
                     }
 
                     return invoked;
@@ -162,7 +162,7 @@ namespace InvokerCrappahilationPaid.Features
                 return false;
             }
 
-            Console.WriteLine($"Invoke [on cd] ({ability})");
+            // Console.WriteLine($"Invoke [on cd] ({ability})");
             return false;
         }
     }

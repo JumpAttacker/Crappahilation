@@ -1,15 +1,17 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Divine.Entity;
 using Divine.Entity.Entities.Abilities.Components;
 using Divine.Entity.Entities.Players;
 using Divine.Entity.Entities.Units.Heroes;
 using Divine.Extensions;
-using Divine.Helpers;
 using Divine.Menu.Items;
 using Divine.Order;
 using Divine.Order.EventArgs;
 using Divine.Order.Orders.Components;
 using Divine.Update;
+using O9K.Core.Helpers;
 
 namespace InvokerCrappahilationPaid.Features
 {
@@ -30,11 +32,11 @@ namespace InvokerCrappahilationPaid.Features
             EnemiesInRange = main.CreateSlider("Min enemies in range", 2, 1, 5);
             Range = main.CreateSlider("Range", 1000, 200, 2500);
             _sleeper = new Sleeper();
-            if (Enable) Activate();
+            // if (Enable) Activate();
 
             Enable.ValueChanged += (sender, args) =>
             {
-                if (Enable)
+                if (args.Value)
                     Activate();
                 else
                     Deactivate();
@@ -64,7 +66,7 @@ namespace InvokerCrappahilationPaid.Features
 
         private void AutoGhostWalkAction()
         {
-            if (_sleeper.Sleeping || !_config.Main.AbilitiesInCombo.GhostWalk.CanBeCasted() ||
+            if (_sleeper.IsSleeping || !_config.Main.AbilitiesInCombo.GhostWalk.CanBeCasted() ||
                 !_config.Main.AbilitiesInCombo.GhostWalk.CanBeInvoked ||
                 _config.Main.AbilitiesInCombo.Quas.Level <= 0 || _config.Main.AbilitiesInCombo.Wex.Level <= 0 ||
                 !_config.Main.Me.IsAlive ||
@@ -80,19 +82,24 @@ namespace InvokerCrappahilationPaid.Features
             {
                 _config.SmartSphere.Sleeper.Sleep(2.500f);
                 _sleeper.Sleep(2.500f);
+                Deactivate();
                 if (BlockPlayerInput)
                 {
                     OrderManager.OrderAdding += Blocker;
-                    UpdateManager.BeginInvoke(2250, () => { OrderManager.OrderAdding -= Blocker; });
+                    UpdateManager.BeginInvoke(2250, () =>
+                    {
+                        OrderManager.OrderAdding -= Blocker;
+                        Activate();
+                    });
                 }
 
-                UpdateManager.BeginInvoke(500, () =>
+                UpdateManager.BeginInvoke(500, async () =>
                 {
                     _config.Main.AbilitiesInCombo.GhostWalk.Invoke();
-                    _config.Main.AbilitiesInCombo.Wex.UseAbility();
-                    _config.Main.AbilitiesInCombo.Wex.UseAbility();
-                    _config.Main.AbilitiesInCombo.Wex.UseAbility();
-                    _config.Main.AbilitiesInCombo.GhostWalk.UseAbility();
+                    _config.Main.AbilitiesInCombo.Wex.BaseAbility.BaseAbility.Cast();
+                    _config.Main.AbilitiesInCombo.Wex.BaseAbility.BaseAbility.Cast();
+                    _config.Main.AbilitiesInCombo.Wex.BaseAbility.BaseAbility.Cast();
+                    _config.Main.AbilitiesInCombo.GhostWalk.BaseAbility.BaseAbility.Cast();
                 });
             }
         }

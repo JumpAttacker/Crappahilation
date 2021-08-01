@@ -61,16 +61,16 @@ namespace InvokerCrappahilationPaid
 
             foreach (var activeAbility in AllAbilities)
             {
-                Console.WriteLine($"Active: {activeAbility.BaseAbility.Id} {activeAbility.BaseAbility.Owner}");
+                // Console.WriteLine($"Active: {activeAbility.BaseAbility.Id} {activeAbility.BaseAbility.Owner}");
             }
 
             foreach (var activeAbility in Spheres)
             {
-                Console.WriteLine($"Active: {activeAbility.BaseAbility.Id} {activeAbility.BaseAbility.Owner}");
+                // Console.WriteLine($"Active: {activeAbility.BaseAbility.Id} {activeAbility.BaseAbility.Owner}");
             }
 
-            EntityManager9.AbilityAdded += entity => { Console.WriteLine($"AbilityAdded: {entity.Id}"); };
-            EntityManager9.AbilityRemoved += entity => { Console.WriteLine($"AbilityRemoved: {entity.Id}"); };
+            // EntityManager9.AbilityAdded += entity => { Console.WriteLine($"AbilityAdded: {entity.Id}"); };
+            // EntityManager9.AbilityRemoved += entity => { Console.WriteLine($"AbilityRemoved: {entity.Id}"); };
             
 
             UpdateManager.CreateIngameUpdate(100, () => { });
@@ -149,7 +149,7 @@ namespace InvokerCrappahilationPaid
             }
 
             var abi = EntityManager9.GetAbility(ability.Handle);
-            Console.WriteLine($"{abi.Id} -> {abi.Owner}");
+            // Console.WriteLine($"{abi.Id} -> {abi.Owner}");
 
             return EntityManager9.GetAbility(ability.Handle);
             // return ability;

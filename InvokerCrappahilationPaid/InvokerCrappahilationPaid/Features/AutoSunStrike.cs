@@ -16,9 +16,11 @@ using Divine.Prediction;
 using Divine.Renderer;
 using Divine.Update;
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
+using O9K.Core.Entities.Abilities.Heroes.Invoker;
 using O9K.Core.Entities.Heroes;
 using O9K.Core.Entities.Units;
 using O9K.Core.Helpers;
+using O9K.Core.Managers.Entity;
 using O9K.Core.Prediction.Data;
 
 namespace InvokerCrappahilationPaid.Features
@@ -181,10 +183,12 @@ namespace InvokerCrappahilationPaid.Features
                     if (Notification && heroWillDie)
                         _config.Main.NotificationHelper.Notificate(enemy, AbilityId.invoker_sun_strike, 0f);
                     // var stunned = UnitExtensions.IsStunned(enemy, out var stunDuration);
-                    var o9kEnemy = new Hero9(enemy);
-                    var stunDuration = o9kEnemy.GetImmobilityDuration();
-                    var invulDuration = o9kEnemy.GetInvulnerabilityDuration();
-                    var isInvulnerable = o9kEnemy.IsInvulnerable;
+                    var o9KEnemy = EntityManager9.GetUnit(enemy.Handle);
+                    
+                    var stunDuration = o9KEnemy.GetImmobilityDuration();
+                    var invulDuration = o9KEnemy.GetInvulnerabilityDuration();
+                    var isInvulnerable = o9KEnemy.IsInvulnerable;
+                    var isStunned = o9KEnemy.IsStunned;
                     var immobile = stunDuration >= 1.5f; //_config.Main.AbilitiesInCombo.SunStrike.ActivationDelay;
                     // var invulModifier =
                     //     enemy.GetModifierByName("modifier_eul_cyclone") ??
@@ -197,11 +201,11 @@ namespace InvokerCrappahilationPaid.Features
                     PredictionOutput9 output = null;
                     if (DrawPrediction && (heroWillDie || !DrawPredictionKillSteal))
                     {
-                        input = SunStrike.BaseAbility.GetPredictionInput(o9kEnemy);
+                        input = SunStrike.BaseAbility.GetPredictionInput(o9KEnemy);
                         output = SunStrike.BaseAbility.GetPredictionOutput(input);
 
                         ParticleManager.TargetLineParticle($"AutoSunStikePrediction{enemy.Handle}", enemy,
-                            output.TargetPosition, CanSunStikerHit(enemy) ? Color.AliceBlue : Color.Red);
+                            output.TargetPosition, CanSunStikerHit(o9KEnemy) ? Color.AliceBlue : Color.Red);
                     }
                     else
                     {
@@ -212,13 +216,13 @@ namespace InvokerCrappahilationPaid.Features
                         !enemy.HasModifier(_config.Main.AbilitiesInCombo.Tornado.TargetModifierName))
                         continue;
 
-                    if ((enemy.UnitState & UnitState.Stunned) == 0 && !isInvulnerable)
+                    if (!isStunned && !isInvulnerable)
                         if (UseOnlyOnStunnedEnemies)
                             continue;
-
-
+                    
                     if (isInvulnerable)
                     {
+    
                         if (invulDuration <= 1.7f + GameManager.Ping * 0.75f / 1000f &&
                             invulDuration >= 1.0f)
                         {
@@ -230,22 +234,18 @@ namespace InvokerCrappahilationPaid.Features
                     {
                         if (input == null)
                         {
-                            input = SunStrike.BaseAbility.GetPredictionInput(o9kEnemy);
+                            input = SunStrike.BaseAbility.GetPredictionInput(o9KEnemy);
                             output = SunStrike.BaseAbility.GetPredictionOutput(input);
                         }
 
-                        if (output.HitChance is O9K.Core.Prediction.Data.HitChance.High or O9K.Core.Prediction.Data.HitChance.Medium || immobile && output.HitChance == O9K.Core.Prediction.Data.HitChance.Immobile)
+                        if (output.HitChance is O9K.Core.Prediction.Data.HitChance.High or O9K.Core.Prediction.Data.HitChance.Medium  or O9K.Core.Prediction.Data.HitChance.Low || immobile && output.HitChance == O9K.Core.Prediction.Data.HitChance.Immobile)
                         {
-                            if ((enemy.UnitState & UnitState.Stunned) != 0)
+                            if (isStunned)
                             {
                                 if (stunDuration >= 1.5f)
                                 {
                                     CameraAction(enemy.Position);
                                     SunStrike.UseAbility(enemy.Position);
-                                }
-                                else
-                                {
-                                    
                                 }
                             }
                             else if (heroWillDie && CanSunStrikeHitWithPrediction(enemy))
@@ -304,10 +304,10 @@ namespace InvokerCrappahilationPaid.Features
             return false;
         }
 
-        private bool CanSunStikerHit(Hero target)
+        private bool CanSunStikerHit(Unit9 target)
         {
-            if (target.IsRotating()) return false;
-            var num1 = target.MovementSpeed * 1.75f + GameManager.Ping / 1000f;
+            if (target.IsRotating) return false;
+            var num1 = target.Speed * 1.75f + GameManager.Ping / 1000f;
             var num2 = 0;
             // while (num2 < (double) num1)
             // {
@@ -377,10 +377,10 @@ namespace InvokerCrappahilationPaid.Features
 
             _multiSleeper.Sleep(enemy.Handle, .50f);
             var willTakeDamageFromTornado =
-                enemy.GetModifierByName(_config.Main.AbilitiesInCombo.Tornado.TargetModifierName) != null;
+                enemy.HasModifier(_config.Main.AbilitiesInCombo.Tornado.TargetModifierName);
             var damageFromTornado =
-                willTakeDamageFromTornado ? _config.Main.AbilitiesInCombo.Tornado.BaseAbility.GetDamage(new Unit9(enemy)) : 0;
-            var healthAfterCast = enemy.Health + enemy.HealthRegeneration * 2 - SunStrike.BaseAbility.GetDamage(new Unit9(enemy)) -
+                willTakeDamageFromTornado ? _config.Main.AbilitiesInCombo.Tornado.BaseAbility.GetDamage(EntityManager9.GetUnit(enemy.Handle)) : 0;
+            var healthAfterCast = enemy.Health + enemy.HealthRegeneration * 2 - SunStrike.BaseAbility.GetDamage(EntityManager9.GetUnit(enemy.Handle)) -
                                   damageFromTornado;
             if (!_damageDict.TryGetValue(enemy.Handle, out _))
                 _damageDict.Add(enemy.Handle, (int) healthAfterCast);

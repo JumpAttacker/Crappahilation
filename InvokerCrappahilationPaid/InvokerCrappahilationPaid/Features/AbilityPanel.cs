@@ -165,7 +165,7 @@ namespace InvokerCrappahilationPaid.Features
                         if (isIn)
                         {
                             var invoAbility = ability as IInvokableAbility;
-                            Console.WriteLine($"IsIn for {ability} -> {invoAbility}");
+                            // Console.WriteLine($"IsIn for {ability} -> {invoAbility}");
                             invoAbility?.Invoke();
                             break;
                         }
@@ -296,8 +296,18 @@ namespace InvokerCrappahilationPaid.Features
                         break;
                     case AbilityState.OnCooldown:
                         RendererManager.DrawFilledRectangle(rect, new Color(1, 0, 0, 100), new Color(0, 0, 0, 200), 1);
-                        RendererManager.DrawText(((int) ability.BaseAbility.RemainingCooldown).ToString(), rect, Color.White,
-                            FontFlags.Center, _iconSize * 0.75f);
+                        var time = ((int) ability.BaseAbility.RemainingCooldown);
+                        if (time <= 0)
+                        {
+                            RendererManager.DrawText(ability.BaseAbility.RemainingCooldown.ToString("F1"), rect, Color.White,
+                                FontFlags.Center, _iconSize * 0.75f);
+                        }
+                        else
+                        {
+                            RendererManager.DrawText(time.ToString(), rect, Color.White,
+                                FontFlags.Center, _iconSize * 0.75f);
+                        }
+
                         break;
                 }
 
