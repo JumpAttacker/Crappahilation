@@ -69,6 +69,11 @@ namespace InvokerCrappahilationPaid
                 // Console.WriteLine($"Active: {activeAbility.BaseAbility.Id} {activeAbility.BaseAbility.Owner}");
             }
 
+
+            AllItems = new List<ActiveAbility>
+            {
+                Hex, Shiva, Bkb, Orchid, Bloodthorn, Eul, Refresher, RefresherShard, Blink, Veil, EtherealBlade
+            };
             // EntityManager9.AbilityAdded += entity => { Console.WriteLine($"AbilityAdded: {entity.Id}"); };
             // EntityManager9.AbilityRemoved += entity => { Console.WriteLine($"AbilityRemoved: {entity.Id}"); };
             
@@ -77,6 +82,7 @@ namespace InvokerCrappahilationPaid
         }
 
         public List<InvokerBaseAbility> AllAbilities { get; set; }
+        public List<ActiveAbility> AllItems { get; set; }
         public List<InvokerSimpleBaseAbility> Spheres { get; set; }
 
         public InvokerExort Exort { get; set; }
@@ -107,6 +113,7 @@ namespace InvokerCrappahilationPaid
         public InvokerSunStrike SunStrike { get; set; }
 
 
+        
         public ScytheOfVyse Hex => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_sheepstick) as ScytheOfVyse;
         public ShivasGuard Shiva => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_shivas_guard) as ShivasGuard;
         public BlackKingBar Bkb => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_black_king_bar) as BlackKingBar;

@@ -18,16 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Divine, Version=5.0.0.0, Culture=neutral, PublicKeyToken=e16b0df00fb22432">
+    <Reference Include="Divine">
       <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Divine.dll</HintPath>
     </Reference>
-    <Reference Include="Divine.Zero, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\..\..\Program Files\Divine\References\Divine.Zero.dll</HintPath>
-    </Reference>
     <Reference Include="O9K.Core">
-      <HintPath>..\..\Divine.Plugins\O9K\bin\O9K.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="O9K.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\..\..\..\..\..\Program Files\Divine\Plugins\O9K.Core.dll</HintPath>
     </Reference>
   </ItemGroup>

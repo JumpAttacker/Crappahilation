@@ -165,12 +165,15 @@ namespace InvokerCrappahilationPaid.Features
 
         private void OnComboClickSelecteor(MouseEventArgs e)
         {
-            if (e.MouseKey == MouseKey.Left)
+            if (e.MouseKey != MouseKey.Left)
                 return;
+            
             var mousePos = e.Position;
-            var fullRectangleF = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons,
+            var fullRectangleF = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * Math.Max(6, MaxIcons),
                 _iconSize * (1 + Combos.Count(x => x.Enable || x.Id == -1)));
             if (fullRectangleF.Contains(mousePos))
+            {
+                e.Process = false;
                 foreach (var combo in Combos.Where(x => x.Enable || x.Id == -1))
                     if (combo.Rect.Contains(mousePos))
                     {
@@ -182,13 +185,14 @@ namespace InvokerCrappahilationPaid.Features
                         combo.AbilityInAction = 0;
                         break;
                     }
+            }
         }
 
         private void RendererOnDraw()
         {
             if (MaxIcons == 0)
                 return;
-            var rect = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons,
+            var rect = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * Math.Max(6, MaxIcons),
                 _iconSize - 2);
             RendererManager.DrawFilledRectangle(rect, new Color(0, 0, 0, 210), new Color(0, 127, 255, 10), 1f);
             rect.Height = (rect.Height + 2) * (1 + Combos.Count(x => x.Enable || x.Id == -1));
@@ -219,7 +223,7 @@ namespace InvokerCrappahilationPaid.Features
                 else
                 {
                     startRect = rect;
-                    startRect.Width = _iconSize * MaxIcons;
+                    startRect.Width = _iconSize * Math.Max(6, MaxIcons);
                     RendererManager.DrawText("Dynamic Combo", startRect, Color.White, FontFlags.Center,
                         _iconSize * 0.75f);
                 }
@@ -227,7 +231,7 @@ namespace InvokerCrappahilationPaid.Features
                 startRect = rect;
                 startRect.X += 1;
                 startRect.Y += 1;
-                startRect.Width = _iconSize * MaxIcons;
+                startRect.Width = _iconSize * Math.Max(6, MaxIcons);
                 startRect.Height -= 2;
                 startRect.Width -= 2;
                 combo.Rect = startRect;
@@ -296,11 +300,8 @@ namespace InvokerCrappahilationPaid.Features
                 NextAbilityAfterRefresher = main.CreateSlider("Ability index after refresher", 2, 0, 10);
                 Abilities.ValueChanged += OnUpdate;
 
-                UpdateManager.CreateIngameUpdate(500, () =>
-                {
-                    UpdateItems();
-                });
-                
+                UpdateManager.CreateIngameUpdate(500, () => { UpdateItems(); });
+
                 // AbilitiesPriority.ValueChanged += OnUpdate;
                 // if (Enable)
                 //     UpdateItems(true);
@@ -362,6 +363,12 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     Items = new List<AbilityId>();
                     var allAbilities = _comboPanel._config.Main.AbilitiesInCombo.AllAbilities.Select(ability => ability.Id).ToList();
+                    allAbilities.AddRange(new[]
+                    {
+                        AbilityId.item_refresher,
+                        AbilityId.item_cyclone
+                    });
+                    // allAbilities.AddRange(_comboPanel._config.Main.AbilitiesInCombo.AllItems.Where(x => x != null && x.IsValid).Select(z => z.Id));
                     // Console.WriteLine($"allAbilities: {string.Join(';', allAbilities)}");
                     // Console.WriteLine(Abilities!=null);
                     var toAdd = allAbilities.Where(x => Abilities.GetValue(x)).ToList();
