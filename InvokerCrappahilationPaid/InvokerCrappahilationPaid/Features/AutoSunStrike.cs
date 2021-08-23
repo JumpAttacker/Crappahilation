@@ -46,6 +46,9 @@ namespace InvokerCrappahilationPaid.Features
             InvokeSunStike = main.CreateSwitcher("Invoke sun strike", true);
             Notification = main.CreateSwitcher("Notification if target is Killable", true);
             SsTiming = main.CreateSlider("Timing for auto SunStrike (in ms)", 2000, 100, 3500);
+            DamageSize = main.CreateSlider("Text size", 15, 10, 50);
+            DamageX = main.CreateSlider("X", 0, -150, 150);
+            DamageY = main.CreateSlider("Y", 0, -150, 150);
 
             DrawDamage = main.CreateSwitcher("Draw damage from SunStrike", true);
             MoveCamera = main.CreateSwitcher("Move camera", true);
@@ -78,6 +81,12 @@ namespace InvokerCrappahilationPaid.Features
             HpBarSize = new Vector2(sizeY * 2.5f);
             HpBarY = sizeY;
         }
+
+        public MenuSlider DamageY { get; set; }
+
+        public MenuSlider DamageX { get; set; }
+
+        public MenuSlider DamageSize { get; set; }
 
         public MenuSwitcher MoveCamera { get; set; }
 
@@ -121,9 +130,9 @@ namespace InvokerCrappahilationPaid.Features
                 if (!Enable) UpdateDamage(enemy, out _);
                 if (_damageDict.TryGetValue(enemy.Handle, out var damage))
                 {
-                    var fontSize = HpBarY * 1.5f;
+                    var fontSize = HpBarY * DamageSize / 10;
                     var mesText = RendererManager.MeasureText($"{damage}", "arial", fontSize);
-                    RendererManager.DrawText($"{damage}", pos - new Vector2(mesText.X + 5, 0), Color.White, fontSize);
+                    RendererManager.DrawText($"{damage}", pos - new Vector2(mesText.X + 5 + DamageX.Value, 0 + DamageY), Color.White, fontSize);
                 }
             }
         }
