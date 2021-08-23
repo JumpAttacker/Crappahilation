@@ -267,6 +267,7 @@ namespace InvokerCrappahilationPaid.Features
 
         private void RendererOnDraw()
         {
+            // Console.WriteLine("RendererOnDraw");
             if (MaxIcons == 0)
                 return;
             var rect = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * MaxIcons, _iconSize);

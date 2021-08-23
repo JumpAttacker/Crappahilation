@@ -107,14 +107,17 @@ namespace InvokerCrappahilationPaid.Features
                     if (EntityManager.LocalPlayer is not null && !EntityManager.LocalPlayer.SelectedUnits.Any(x => x.Equals(_config.Main.Me)))
                         return;
                     var slot = activeAbility.AbilitySlot;
-                    if (reInvoke && slot == AbilitySlot.Slot5)
+                    if (reInvoke && slot == AbilitySlot.Slot5 && activeAbility.CanBeInvoked)
                     {
                         _config.Main.Combo.InvokeThisShit(activeAbility);
                         return;
                     }
                     if (slot is AbilitySlot.Slot4 or AbilitySlot.Slot5)
                     {
-                        if (use is {Value: true}) JustUse(activeAbility);
+                        if (use is {Value: true})
+                        {
+                            JustUse(activeAbility);
+                        }
 
                         return;
                     }

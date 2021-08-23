@@ -44,7 +44,7 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 
         public bool UseAbility(Unit9 unit9, bool queue, bool bypass)
         {
-            return Invoke() && BaseAbility.UseAbility(unit9, queue, bypass) && _invokeHelper.Casted();
+            return Invoke() && BaseAbility.BaseAbility.Cast(unit9, queue, bypass) && _invokeHelper.Casted();
         }
 
     }
