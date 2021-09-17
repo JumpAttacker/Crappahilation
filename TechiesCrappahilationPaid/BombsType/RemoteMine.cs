@@ -30,10 +30,10 @@ namespace TechiesCrappahilationPaid.BombsType
                     {
                         await Task.Delay(100);
                     }
-            
+
                     if (owner == null || !owner.IsValid)
                         return;
-            
+
                     IsActive = true;
                     DisposeSpawnRange();
                     var isVisible = Owner.IsVisibleToEnemies;

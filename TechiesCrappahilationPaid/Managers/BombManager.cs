@@ -181,7 +181,7 @@ namespace TechiesCrappahilationPaid.Managers
                     {
                         if (args.NewValue.GetInt32() <= 0)
                             RemoveBombFromSystem(bomb);
-                        if (args.NewValue.GetInt32() <= 150)
+                        if (updater._main.MenuManager.DetonateOnLowHp && args.NewValue.GetInt32() <= 150)
                         {
                             (bomb as RemoteMine)?.Owner.Spellbook.Spell1.Cast();
                         }

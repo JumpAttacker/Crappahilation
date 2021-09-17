@@ -62,6 +62,12 @@ namespace TechiesCrappahilationPaid.Managers
             {
                 while (true)
                 {
+                    if (!_updater._main.MenuManager.EnableAutoDetonate)
+                    {
+                        await Task.Delay(100);
+                        continue;
+                    }
+
                     var passedDelay = false;
                     starting:
                     var isForce = _updater.ForceStaff != null && _updater.ForceStaff.CanBeCasted();

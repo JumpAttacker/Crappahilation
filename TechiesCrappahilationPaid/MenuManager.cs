@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Divine.Entity.Entities.Units.Heroes.Components;
 using Divine.Menu.Items;
 using Divine.Numerics;
+using Divine.Renderer;
 
 namespace TechiesCrappahilationPaid
 {
@@ -27,9 +28,22 @@ namespace TechiesCrappahilationPaid
             DrawStacks = StackMenu.CreateSwitcher("Draw stacks", true);
             StackDontDrawSolo = StackMenu.CreateSwitcher("Dont draw stack for only one bomb", true);
 
+            EnableAutoDetonate = AutoDetonate.CreateSwitcher("Enable auto detonate", true);
+            var enableOnToggleAutoDetonate = AutoDetonate.CreateHoldKey("Enable on toggle auto detonate", System.Windows.Input.Key.None);
+            enableOnToggleAutoDetonate.ValueChanged += (_, e) =>
+            {
+                if (!e.Value)
+                {
+                    return;
+                }
+
+                EnableAutoDetonate.Value = !EnableAutoDetonate;
+            };
+
             DetonateOnAegis = AutoDetonate.CreateSwitcher("Detonate in aegis", true);
             DetonateAllInOnce = AutoDetonate.CreateSwitcher("Detonate all in once", false);
             UseFocusedDetonation = AutoDetonate.CreateSwitcher("Detonate all in once with focused detonation", false);
+            DetonateOnLowHp = AutoDetonate.CreateSwitcher("Detonate on low hp", true);
             CameraMove = AutoDetonate.CreateSwitcher("Move camera", true);
             UsePrediction = AutoDetonate.CreateSwitcher("Use prediction", true);
             DelayOnDetonate = AutoDetonate.CreateSlider("Delay on detonate", 0, 0, 1000);
@@ -43,6 +57,18 @@ namespace TechiesCrappahilationPaid
                     UseFocusedDetonation.Value = false;
                 }
             };
+
+            RendererManager.Draw += RendererManager_Draw;
+        }
+
+        private void RendererManager_Draw()
+        {
+            if (EnableAutoDetonate)
+            {
+                return;
+            }
+
+            RendererManager.DrawText("Auto detonate disabled", new Vector2(80, 400) * RendererManager.Scaling, Color.Red, 50 * RendererManager.Scaling);
         }
 
         public MenuHeroToggler Targets { get; set; }
@@ -55,9 +81,12 @@ namespace TechiesCrappahilationPaid
 
         public MenuSwitcher UseFocusedDetonation { get; set; }
 
+        public MenuSwitcher DetonateOnLowHp { get; }
+
         public MenuSwitcher DetonateOnAegis { get; set; }
 
         public MenuSwitcher StackDontDrawSolo { get; set; }
+        public MenuSwitcher EnableAutoDetonate { get; }
 
         public MenuSwitcher DrawStacks { get; set; }
 
