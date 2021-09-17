@@ -44,6 +44,17 @@ namespace TechiesCrappahilationPaid
             DetonateAllInOnce = AutoDetonate.CreateSwitcher("Detonate all in once", false);
             UseFocusedDetonation = AutoDetonate.CreateSwitcher("Detonate all in once with focused detonation", false);
             DetonateOnLowHp = AutoDetonate.CreateSwitcher("Detonate on low hp", true);
+            var toggleDetonateOnLowHp = AutoDetonate.CreateHoldKey("Toggle detonate on low hp", System.Windows.Input.Key.None);
+            toggleDetonateOnLowHp.ValueChanged += (_, e) =>
+            {
+                if (!e.Value)
+                {
+                    return;
+                }
+
+                DetonateOnLowHp.Value = !DetonateOnLowHp;
+            };
+
             CameraMove = AutoDetonate.CreateSwitcher("Move camera", true);
             UsePrediction = AutoDetonate.CreateSwitcher("Use prediction", true);
             DelayOnDetonate = AutoDetonate.CreateSlider("Delay on detonate", 0, 0, 1000);
