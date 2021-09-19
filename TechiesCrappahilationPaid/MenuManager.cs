@@ -76,13 +76,13 @@ namespace TechiesCrappahilationPaid
         {
             if (!EnableAutoDetonate)
             {
-                RendererManager.DrawText("Auto detonate disabled", new Vector2(80, 400) * RendererManager.Scaling, Color.Red, 45 * RendererManager.Scaling);
+                RendererManager.DrawText("OFF", new Vector2(80, 400) * RendererManager.Scaling, Color.Red, 30 * RendererManager.Scaling);
             }
 
-            if (!DetonateOnLowHp)
+            /*if (!DetonateOnLowHp)
             {
                 RendererManager.DrawText("Detonate on low hp disabled", new Vector2(80, 455) * RendererManager.Scaling, Color.Red, 45 * RendererManager.Scaling);
-            }
+            }*/
         }
 
         public MenuHeroToggler Targets { get; set; }
