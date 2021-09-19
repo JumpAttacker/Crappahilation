@@ -70,8 +70,6 @@ namespace TechiesCrappahilationPaid
             };
 
             RendererManager.Draw += RendererManager_Draw;
-
-            System.Console.WriteLine("Init");
         }
 
         private void RendererManager_Draw()
