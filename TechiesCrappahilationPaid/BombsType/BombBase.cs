@@ -93,7 +93,7 @@ namespace TechiesCrappahilationPaid.BombsType
         {
             Damage = setDamage;
             if (onInit)
-                if (EntityManager.LocalHero.HasAghanimsScepter())
+                if (EntityManager.LocalHero!.HasAghanimsScepter())
                 {
                     Damage += 150;
                     ((RemoteMine) this).HasAghBuff = true;

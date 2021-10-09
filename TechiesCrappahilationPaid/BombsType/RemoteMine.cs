@@ -22,29 +22,29 @@ namespace TechiesCrappahilationPaid.BombsType
             Stacker = new Stacker();
 
             //TODO: delete after update
-            UpdateManager.BeginInvoke(500, async () =>
-            {
-                try
-                {
-                    while (owner != null && owner.IsValid && owner.Health <= 1)
-                    {
-                        await Task.Delay(100);
-                    }
-
-                    if (owner == null || !owner.IsValid)
-                        return;
-
-                    IsActive = true;
-                    DisposeSpawnRange();
-                    var isVisible = Owner.IsVisibleToEnemies;
-                    ChangeDrawType(true,
-                        isVisible ? Color.Red : Color.White);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-            });
+            // UpdateManager.BeginInvoke(500, async () =>
+            // {
+            //     try
+            //     {
+            //         while (owner != null && owner.IsValid && owner.Health <= 1)
+            //         {
+            //             await Task.Delay(100);
+            //         }
+            //
+            //         if (owner == null || !owner.IsValid)
+            //             return;
+            //
+            //         IsActive = true;
+            //         DisposeSpawnRange();
+            //         var isVisible = Owner.IsVisibleToEnemies;
+            //         ChangeDrawType(true,
+            //             isVisible ? Color.Red : Color.White);
+            //     }
+            //     catch (Exception e)
+            //     {
+            //         Console.WriteLine(e);
+            //     }
+            // });
         }
 
         public Stacker Stacker;
@@ -143,7 +143,8 @@ namespace TechiesCrappahilationPaid.BombsType
 
         public void DrawSpawnRange()
         {
-            ParticleManager.RangeParticle(Owner.Handle.ToString(), Owner, 425, Color.DimGray);
+            // ParticleManager.RangeParticle(Owner.Handle.ToString(), Owner, 425, Color.DimGray);
+            ParticleManager.CircleParticle(Owner.Handle.ToString(), Owner.Position, 425, Color.DimGray);
             // RangeEffect = new ParticleEffect("materials/ensage_ui/particles/range_display_mod.vpcf", Owner.Position);
             // RangeEffect.SetControlPoint(1, new Vector3(Range, 255, 0));
             // RangeEffect.SetControlPoint(2, new Vector3(100, 100, 100));

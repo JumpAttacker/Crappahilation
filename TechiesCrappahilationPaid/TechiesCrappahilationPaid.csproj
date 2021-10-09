@@ -22,7 +22,7 @@
       <HintPath>..\..\..\..\..\..\Program Files\Divine\References\Divine.dll</HintPath>
     </Reference>
     <Reference Include="O9K.Core">
-      <HintPath>..\..\Divine.Plugins\O9K\bin\O9K.Core.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\Divine\Plugins\O9K.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 
