@@ -167,7 +167,7 @@ namespace InvokerCrappahilationPaid.Features
         {
             if (e.MouseKey != MouseKey.Left)
                 return;
-            
+
             var mousePos = e.Position;
             var fullRectangleF = new RectangleF(DrawingStartPosition.X, DrawingStartPosition.Y, _iconSize * Math.Max(6, MaxIcons),
                 _iconSize * (1 + Combos.Count(x => x.Enable || x.Id == -1)));
@@ -185,6 +185,8 @@ namespace InvokerCrappahilationPaid.Features
                         combo.AbilityInAction = 0;
                         break;
                     }
+
+                _config.Prepare.Start();
             }
         }
 

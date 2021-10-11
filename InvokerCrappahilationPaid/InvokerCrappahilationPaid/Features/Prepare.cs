@@ -16,20 +16,15 @@ namespace InvokerCrappahilationPaid.Features
         private readonly InvokerCrappahilationPaid _main;
         private readonly MultiSleeper<string> _sleeper;
 
+        private bool IsStarted;
+
         public Prepare(InvokerCrappahilationPaid main)
         {
             _sleeper = new MultiSleeper<string>();
             _main = main;
             UpdateManager.BeginInvoke(100, () =>
             {
-                var comboUpdateHandler = UpdateManager.CreateIngameUpdate(100, false, PrepareInAction);
-                Config.PrepareKey.ValueChanged += (sender, args) =>
-                {
-                    if (args.Value)
-                        comboUpdateHandler.IsEnabled = true;
-                    else
-                        comboUpdateHandler.IsEnabled = false;
-                };
+                UpdateManager.CreateIngameUpdate(150, PrepareInAction);
             });
         }
 
@@ -46,6 +41,11 @@ namespace InvokerCrappahilationPaid.Features
 
         private void PrepareInAction()
         {
+            if (!Config.PrepareKey && !IsStarted)
+            {
+                return;
+            }
+
             // Console.WriteLine("PrepareInAction. 1");
             if (GameplayType == Combo.ComboTypeEnum.Auto)
                 return;
@@ -60,8 +60,9 @@ namespace InvokerCrappahilationPaid.Features
             // Console.WriteLine($"one: {one}");
             // Console.WriteLine($"two: {two}");
             // Console.WriteLine($"three: {three}");
-            
+
             if (three != null) two = three;
+
             if (one == null)
             {
                 // Console.WriteLine("Cant Find Ability for prepare");
@@ -81,8 +82,11 @@ namespace InvokerCrappahilationPaid.Features
 
             var ability1Invoked = one.BaseAbility.BaseAbility.Equals(empty1) || one.BaseAbility.BaseAbility.Equals(empty2);
             var ability2Invoked = two.BaseAbility.BaseAbility.Equals(empty1) || two.BaseAbility.BaseAbility.Equals(empty2);
+
             if (ability1Invoked && ability2Invoked)
             {
+                IsStarted = false;
+
                 if (one.BaseAbility.BaseAbility.Equals(empty1))
                     InvokeThisShit(two);
                 else if (two.BaseAbility.BaseAbility.Equals(empty2)) InvokeThisShit(one);
@@ -108,6 +112,16 @@ namespace InvokerCrappahilationPaid.Features
                 InvokeThisShit(one);
                 //(one as IInvokableAbility)?.Invoke();
             }
+        }
+
+        public void Start()
+        {
+            if (!Config.AutoPrepare)
+            {
+                return;
+            }
+
+            IsStarted = true;
         }
 
         public InvokerBaseAbility? GetAbility(AbilityId[] allAbilities, ref List<InvokerBaseAbility?> abilities)

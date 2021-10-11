@@ -15,6 +15,7 @@ namespace InvokerCrappahilationPaid
             RefresherBehavior = Factory.CreateSelector("Refresher Behavior",
                 new[] {"After Meteor+Blast", "When 95% of abilities are on cd", "In both cases"});
             PrepareKey = Factory.CreateHoldKey("Prepare key");
+            AutoPrepare = Factory.CreateSwitcher("Auto prepare");
             UseForges = Factory.CreateSwitcher("Use forges in Combo");
             // UseNecros = Factory.CreateSwitcher("Use necros (and archer's purge) in Combo");
             // AutoPurge = Factory.CreateSwitcher("Use necros's purge not in Combo", false);
@@ -47,7 +48,7 @@ namespace InvokerCrappahilationPaid
         public MenuSwitcher UseForges { get; set; }
 
         public MenuHoldKey PrepareKey { get; set; }
-
+        public MenuSwitcher AutoPrepare { get; }
         public MenuSelector RefresherBehavior { get; set; }
 
         public MenuHoldKey ComboKey { get; set; }
