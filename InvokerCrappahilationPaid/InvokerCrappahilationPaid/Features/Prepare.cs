@@ -85,11 +85,19 @@ namespace InvokerCrappahilationPaid.Features
 
             if (ability1Invoked && ability2Invoked)
             {
-                IsStarted = false;
-
                 if (one.BaseAbility.BaseAbility.Equals(empty1))
+                {
                     InvokeThisShit(two);
-                else if (two.BaseAbility.BaseAbility.Equals(empty2)) InvokeThisShit(one);
+                }
+                else if (two.BaseAbility.BaseAbility.Equals(empty2))
+                {
+                    InvokeThisShit(one);
+                }
+                else
+                {
+                    IsStarted = false;
+                }
+
                 return;
             }
 
