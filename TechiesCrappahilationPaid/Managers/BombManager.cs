@@ -109,6 +109,11 @@ namespace TechiesCrappahilationPaid.Managers
                             bombBase = new RemoteMine(unit).UpdateStacker(RemoteMines)
                                 .SetDamage(_updater._main.RemoteMine.GetDamage(), true);
                             AddNewBombToSystem(bombBase, BombEnums.BombTypes.RemoveMine);
+                            ((RemoteMine) bombBase).DisposeSpawnRange();
+                            bombBase.IsActive = true;
+                            var isVisible = bombBase.Owner.IsVisibleToEnemies;
+                            bombBase.ChangeDrawType(true,
+                                isVisible ? Color.Red : Color.White);
                             break;
                     }
 
@@ -183,12 +188,11 @@ namespace TechiesCrappahilationPaid.Managers
                             RemoveBombFromSystem(bomb);
                         if (updater._main.MenuManager.DetonateOnLowHp && args.NewValue.GetInt32() <= 150)
                         {
-                            (bomb as RemoteMine)?.Owner.Spellbook.Spell1.Cast();
+                            (bomb as RemoteMine)?.Owner.Spellbook.Spell1!.Cast();
                         }
                     }
                     else if (propertyName == "m_NetworkActivity")
                     {
-                        // Console.WriteLine(args.NewValue.GetInt32());
                         bomb.IsActive = args.NewValue.GetInt32() == (int) BombEnums.SpawnStatus.IsActive;
                         if (bomb.IsActive)
                         {

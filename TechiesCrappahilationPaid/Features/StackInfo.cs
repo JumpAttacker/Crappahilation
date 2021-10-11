@@ -86,7 +86,7 @@ namespace TechiesCrappahilationPaid.Features
         {
             var mousePos = GetMousePosition;
             foreach (var bomb in _main.Updater.BombManager.RemoteMines.Where(x =>
-                x.Owner.IsValid && x.Owner.IsAlive && x.Stacker.IsActive))
+                x.Owner.IsValid && x.IsActive && x.Owner.IsAlive && x.Stacker.IsActive))
             {
                 if (_main.MenuManager.StackDontDrawSolo && bomb.Stacker.Counter == 1)
                     continue;

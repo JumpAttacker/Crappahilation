@@ -119,7 +119,13 @@ namespace TechiesCrappahilationPaid.Managers
                             startManaCalc = enemy.Mana;
                             var shield = enemy.GetAbilityById(AbilityId.medusa_mana_shield);
                             if (shield.IsToggled)
+                            {
                                 threshold = shield.GetAbilitySpecialData("damage_per_mana");
+                            }
+                            else
+                            {
+                                isDusa = false;
+                            }
                         }
                         else if (heroId == HeroId.npc_dota_hero_ember_spirit)
                         {
@@ -180,15 +186,18 @@ namespace TechiesCrappahilationPaid.Managers
                                     : x.Position.IsInRange(pos, 420))
                             .ToList();
                         var underStasisTrap = enemy.HasModifier("modifier_techies_stasis_trap_stunned");
-                        foreach (var remoteMine in bombs.Where(x =>
+                        foreach (var remoteMine in bombs.Where(x => x.IsActive && 
                             x.StackerMain == null && x.Stacker.DetonateDict.TryGetValue(heroId, out var isEnable) &&
                             isEnable ||
-                            x.StackerMain != null &&
+                            x.IsActive && x.StackerMain != null &&
                             x.StackerMain.Stacker.DetonateDict.TryGetValue(heroId, out var isEnable2) && isEnable2))
                         {
                             var damage = _updater._main.RemoteMine.GetDamage(remoteMine.Damage, enemy);
                             if (isDusa)
+                            {
                                 DamageCalcHelpers.CalcDamageForDusa(ref damage, ref startManaCalc, threshold);
+                            }
+
                             detList.Add(remoteMine);
                             if (blockCount > 0)
                             {
@@ -213,8 +222,7 @@ namespace TechiesCrappahilationPaid.Managers
 
                             var extraDetonateTime = 0.25f * detList.Count;
                             var aeonByPass = aeon != null && aeon.CanBeCasted() && health < breakHealthForAeon;
-
-
+                            
                             if (health + enemy.HealthRegeneration * extraDetonateTime < 0 || aeonByPass)
                             {
                                 if (_updater._main.MenuManager.CameraMove)
@@ -284,7 +292,7 @@ namespace TechiesCrappahilationPaid.Managers
                                     }
                                 }
 
-                                MultiSleeper<uint>.Sleep(handle, extraDetonateTime + GameManager.Ping + 1500);
+                                MultiSleeper<uint>.Sleep(handle, extraDetonateTime + GameManager.Ping * 2 + 500);
 
 
                                 ////TODO: delay on detonation
