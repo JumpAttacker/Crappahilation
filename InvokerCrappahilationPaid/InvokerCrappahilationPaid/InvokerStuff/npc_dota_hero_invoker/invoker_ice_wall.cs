@@ -91,7 +91,7 @@ namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
                 num1 = BaseAbility.Owner.GetTurnTime(pos) + 0.1f;
                 BaseAbility.Owner.BaseUnit.MoveToDirection(pos);
             }
-            
+
             if (num1 > 0.0) await Task.Delay((int) (num1 + 150.0));
             BaseAbility.Owner.Stop();
             var delay = GameManager.Ping;

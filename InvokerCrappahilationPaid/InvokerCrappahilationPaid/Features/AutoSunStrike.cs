@@ -11,7 +11,6 @@ using Divine.GameConsole;
 using Divine.Menu.Items;
 using Divine.Numerics;
 using Divine.Particle;
-using Divine.Plugins.Humanizer;
 using Divine.Prediction;
 using Divine.Renderer;
 using Divine.Update;

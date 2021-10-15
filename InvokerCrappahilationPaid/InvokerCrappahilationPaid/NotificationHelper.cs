@@ -7,7 +7,6 @@ using Divine.Entity.Entities.Components;
 using Divine.Entity.Entities.Units.Heroes;
 using Divine.Game;
 using Divine.Numerics;
-using Divine.Plugins.Humanizer;
 using Divine.Renderer;
 using Divine.Update;
 
@@ -28,7 +27,7 @@ namespace InvokerCrappahilationPaid
             Notifications = new List<Notification>();
             var sizeX = HUDInfo.TopPanelSizeX;
             var sizeY = HUDInfo.TopPanelSizeY;
-            RendererManager.Draw +=() => 
+            RendererManager.Draw +=() =>
             {
                 foreach (var notification in Notifications)
                     if (notification.IsActive)
