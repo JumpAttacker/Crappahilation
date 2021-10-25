@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Documents;
+
 using Divine.Entity;
 using Divine.Entity.Entities.Abilities.Components;
 using Divine.Entity.Entities.Units;
@@ -11,18 +11,18 @@ using Divine.Game;
 using Divine.Modifier.Modifiers;
 using Divine.Numerics;
 using Divine.Particle;
-using Divine.Prediction;
 using Divine.Update;
+
 using InvokerCrappahilationPaid.Extensions;
 using InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker;
+
 using O9K.Core.Entities.Abilities.Base;
 using O9K.Core.Entities.Heroes;
 using O9K.Core.Entities.Units;
 using O9K.Core.Helpers;
 using O9K.Core.Managers.Entity;
+
 using HitChance = O9K.Core.Prediction.Data.HitChance;
-using UnitExtensions = Divine.Extensions.UnitExtensions;
-using Vector3Extensions = Divine.Extensions.Vector3Extensions;
 
 namespace InvokerCrappahilationPaid.Features
 {
@@ -106,7 +106,7 @@ namespace InvokerCrappahilationPaid.Features
 
             /*_main.Context.Input.RegisterHotkey("1", 'Z', args =>
             {
-                
+
 
                 foreach (var abilityId in Abilities.Tornado.RequiredOrbs)
                 {
@@ -253,7 +253,7 @@ namespace InvokerCrappahilationPaid.Features
                 {
                     if (orbwalker.CanAttack(Target))
                         orbwalker.Attack(Target);
-                    
+
                 }*/
                 // foreach (var unit in _main.Updater.Units
                 //     .Where(x => x.Unit != null && x.Unit.IsValid && x.CanWork && x.Unit.IsAlive)
@@ -517,7 +517,7 @@ namespace InvokerCrappahilationPaid.Features
                                         if (Abilities.Wex.Level >= 4 && Abilities.Wex.BaseAbility.CanBeCasted())
                                             InvokeThisShit(Abilities.Emp);
                                         else if (Abilities.Blast.CanBeCasted()) InvokeThisShit(Abilities.Blast);
-                                    
+
                                         InvokeThisShit(Abilities.SunStrike);
                                     }
                                     else if (Abilities.Meteor.BaseAbility.AbilitySlot == AbilitySlot.Slot5)
@@ -526,7 +526,7 @@ namespace InvokerCrappahilationPaid.Features
                                             InvokeThisShit(Abilities.Meteor);
                                         else if (Abilities.Wex.Level >= 4 && Abilities.Emp.CanBeCasted())
                                             InvokeThisShit(Abilities.Emp);
-                                    
+
                                         InvokeThisShit(Abilities.SunStrike);
                                     }
                                     else
@@ -626,7 +626,7 @@ namespace InvokerCrappahilationPaid.Features
                                 return;
                             // }
                         }
-                        else if (Abilities.SunStrike.CanBeCasted() && Abilities.SunStrike.BaseAbility.CanHit(target9) && 
+                        else if (Abilities.SunStrike.CanBeCasted() && Abilities.SunStrike.BaseAbility.CanHit(target9) &&
                                  (
                                      (Abilities.SunStrike.IsCataclysmActive && CheckForCataclysm(1)) || (
                                          (stunDuration > Abilities.SunStrike.BaseAbility.ActivationDelay || Target.HasAnyModifiers("modifier_invoker_cold_snap_freeze")) && (stunDuration > Abilities.SunStrike.BaseAbility.ActivationDelay ||

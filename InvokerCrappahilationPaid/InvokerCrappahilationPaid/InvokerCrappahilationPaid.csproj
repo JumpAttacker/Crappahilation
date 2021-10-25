@@ -11,8 +11,6 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 
-    <UseWPF>true</UseWPF>
-
     <OutputPath>.\bin\</OutputPath>
     <IntermediateOutputPath>.\obj\</IntermediateOutputPath>
   </PropertyGroup>

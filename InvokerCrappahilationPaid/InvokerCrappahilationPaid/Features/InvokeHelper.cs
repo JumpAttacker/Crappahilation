@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Divine.Entity;
 using Divine.Entity.Entities.Abilities.Components;
 using Divine.Entity.Entities.Units;
 using Divine.Entity.Entities.Units.Heroes;
 using Divine.Extensions;
 using Divine.Game;
+using Divine.Input;
 using Divine.Menu.Items;
 using Divine.Update;
 using InvokerCrappahilationPaid.Extensions;
@@ -76,7 +76,7 @@ namespace InvokerCrappahilationPaid.Features
 
             var reInvoke = main.CreateSwitcher("Use invoke if skill in slot #5", false);
             ((IHaveFastInvokeKey) activeAbility).Key =
-                key.Key is Key.None ? Key.None : KeyInterop.KeyFromVirtualKey((int) key.Key);
+                key.Key is Key.None ? Key.None : InputManager.KeyFromVirtualKey((int) key.Key);
 
             isFirstClick = true;
             var oldKey = Key.None;

@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
-using Divine.Entity.Entities.Abilities;
+
 using Divine.Entity.Entities.Abilities.Components;
-using Divine.Entity.Entities.Units;
-using Divine.Entity.Entities.Units.Components;
-using Divine.Numerics;
+using Divine.Input;
+
 using O9K.Core.Entities.Abilities.Base;
 using O9K.Core.Entities.Abilities.Heroes.Invoker;
 

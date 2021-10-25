@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Input;
+
 using Divine.Entity.Entities.Abilities.Components;
-using InvokerCrappahilationPaid.Extensions;
+using Divine.Input;
+
 using O9K.Core.Entities.Abilities.Heroes.Invoker;
 
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker

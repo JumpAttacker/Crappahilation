@@ -1,5 +1,7 @@
 ﻿using System.Windows.Input;
 
+using Divine.Input;
+
 namespace InvokerCrappahilationPaid.InvokerStuff.npc_dota_hero_invoker
 {
     public interface IHaveFastInvokeKey

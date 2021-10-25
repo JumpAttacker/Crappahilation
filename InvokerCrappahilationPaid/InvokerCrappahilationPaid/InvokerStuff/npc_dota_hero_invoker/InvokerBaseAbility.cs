@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.Windows.Input;
 using Divine.Entity.Entities.Abilities.Components;
+using Divine.Input;
 using Divine.Numerics;
 using InvokerCrappahilationPaid.Extensions;
 using O9K.Core.Entities.Abilities.Base;
