@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
 using Divine.Entity.Entities.Units.Heroes.Components;
+using Divine.Input;
 using Divine.Menu.Items;
 using Divine.Numerics;
 using Divine.Renderer;
@@ -29,7 +30,7 @@ namespace TechiesCrappahilationPaid
             StackDontDrawSolo = StackMenu.CreateSwitcher("Dont draw stack for only one bomb", true);
 
             EnableAutoDetonate = AutoDetonate.CreateSwitcher("Enable auto detonate", true);
-            var enableOnToggleAutoDetonate = AutoDetonate.CreateHoldKey("Enable on toggle auto detonate", System.Windows.Input.Key.None);
+            var enableOnToggleAutoDetonate = AutoDetonate.CreateHoldKey("Enable on toggle auto detonate", Key.None);
             enableOnToggleAutoDetonate.ValueChanged += (_, e) =>
             {
                 if (!e.Value)
@@ -44,7 +45,7 @@ namespace TechiesCrappahilationPaid
             DetonateAllInOnce = AutoDetonate.CreateSwitcher("Detonate all in once", false);
             UseFocusedDetonation = AutoDetonate.CreateSwitcher("Detonate all in once with focused detonation", false);
             DetonateOnLowHp = AutoDetonate.CreateSwitcher("Detonate on low hp", true);
-            var toggleDetonateOnLowHp = AutoDetonate.CreateHoldKey("Toggle detonate on low hp", System.Windows.Input.Key.None);
+            var toggleDetonateOnLowHp = AutoDetonate.CreateHoldKey("Toggle detonate on low hp", Key.None);
             toggleDetonateOnLowHp.ValueChanged += (_, e) =>
             {
                 if (!e.Value)

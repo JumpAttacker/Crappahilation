@@ -11,8 +11,6 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 
-    <UseWPF>true</UseWPF>
-
     <OutputPath>.\bin\</OutputPath>
     <IntermediateOutputPath>.\obj\</IntermediateOutputPath>
   </PropertyGroup>
@@ -22,7 +20,7 @@
       <HintPath>..\..\..\..\..\..\Program Files\Divine\References\Divine.dll</HintPath>
     </Reference>
     <Reference Include="O9K.Core">
-      <HintPath>..\..\..\..\..\Program Files\Divine\Plugins\O9K.Core.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\Divine\Plugins\O9K.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 
