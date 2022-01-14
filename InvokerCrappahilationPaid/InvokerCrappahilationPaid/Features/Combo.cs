@@ -211,7 +211,7 @@ namespace InvokerCrappahilationPaid.Features
                 return;
             }
 
-            ParticleManager.TargetLineParticle("TargetEffectLine", Me, Target.Position, Color.YellowGreen);
+            ParticleManager.CreateTargetLineParticle("TargetEffectLine", Me, Target.Position, Color.YellowGreen);
         }
 
         private void ComboInAction()

@@ -4,8 +4,8 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <Platforms>x64</Platforms>
-    <Configurations>Release</Configurations>
-    <Configuration>Release</Configuration>
+    <Configurations>Debug</Configurations>
+    <Configuration>Debug</Configuration>
 
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>

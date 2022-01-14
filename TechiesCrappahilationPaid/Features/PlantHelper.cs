@@ -47,7 +47,7 @@ namespace TechiesCrappahilationPaid.Features
 
             _range.ValueChanged += (sender, args) =>
             {
-                if (enable) 
+                if (enable)
                     Draw();
             };
 
@@ -78,7 +78,7 @@ namespace TechiesCrappahilationPaid.Features
             var index = 0;
             foreach (var pos in _list)
             {
-                ParticleManager.CircleParticle($"{index++}_pos_helper", pos, _range,
+                ParticleManager.CreateCircleParticle($"{index++}_pos_helper", pos, _range,
                     Color.Purple);
             }
         }

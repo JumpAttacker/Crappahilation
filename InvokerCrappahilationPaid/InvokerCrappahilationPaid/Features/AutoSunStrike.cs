@@ -212,7 +212,7 @@ namespace InvokerCrappahilationPaid.Features
                         input = SunStrike.BaseAbility.GetPredictionInput(o9KEnemy);
                         output = SunStrike.BaseAbility.GetPredictionOutput(input);
 
-                        ParticleManager.TargetLineParticle($"AutoSunStikePrediction{enemy.Handle}", enemy,
+                        ParticleManager.CreateTargetLineParticle($"AutoSunStikePrediction{enemy.Handle}", enemy,
                             output.TargetPosition, CanSunStikerHit(o9KEnemy) ? Color.AliceBlue : Color.Red);
                     }
                     else

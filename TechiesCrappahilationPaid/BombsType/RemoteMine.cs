@@ -144,7 +144,7 @@ namespace TechiesCrappahilationPaid.BombsType
         public void DrawSpawnRange()
         {
             // ParticleManager.RangeParticle(Owner.Handle.ToString(), Owner, 425, Color.DimGray);
-            ParticleManager.CircleParticle(Owner.Handle.ToString(), Owner.Position, 425, Color.DimGray);
+            ParticleManager.CreateCircleParticle(Owner.Handle.ToString(), Owner.Position, 425, Color.DimGray);
             // RangeEffect = new ParticleEffect("materials/ensage_ui/particles/range_display_mod.vpcf", Owner.Position);
             // RangeEffect.SetControlPoint(1, new Vector3(Range, 255, 0));
             // RangeEffect.SetControlPoint(2, new Vector3(100, 100, 100));
