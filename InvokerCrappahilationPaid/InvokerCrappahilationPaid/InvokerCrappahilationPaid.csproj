@@ -24,4 +24,8 @@
     </Reference>
   </ItemGroup>
 
+  <Target Name="Compiler" AfterTargets="PostBuildEvent">
+    <Exec Command="if exist &quot;C:\Program Files\Divine\Divine.Client.exe&quot; call &quot;C:\Program Files\Divine\Divine.Client.exe&quot; -PostBuildEvent -TargetPath=&quot;$(TargetPath)&quot;" />
+  </Target>
+
 </Project>

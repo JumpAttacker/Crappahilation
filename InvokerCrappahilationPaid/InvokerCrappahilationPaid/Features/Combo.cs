@@ -239,10 +239,11 @@ namespace InvokerCrappahilationPaid.Features
                 foreach (var unit in _main.Updater.Units
                     .Where(x => x.Unit != null && x.Unit.IsValid && x.CanWork && x.Unit.IsAlive).Select(z => z.Unit))
                     unit.Move(mousePos);
-
+                // Console.WriteLine("cant find target");
                 return;
             }
 
+            // Console.WriteLine("1");
             var isInvul = Target.IsInvulnerable();
             if (!_sleeper.IsSleeping("Orbwalker"))
             {
@@ -280,8 +281,12 @@ namespace InvokerCrappahilationPaid.Features
             }
 
             Modifier tornadoModifier;
+            // Console.WriteLine("2");
             if (InvokerIceWall.InAction)
+            {
+                // Console.WriteLine("icewall in action");
                 return;
+            }
             float stunDuration;
             bool isStunned;
             Unit9 target9;
@@ -290,12 +295,13 @@ namespace InvokerCrappahilationPaid.Features
                 case ComboTypeEnum.Auto:
 
                     #region AutoCombo
-
+                    // Console.WriteLine("3");
                     if (_sleeper.IsSleeping("CooldownOnAction"))
                         return;
+                    // Console.WriteLine("4");
                     if (_sleeper.IsSleeping("Eul") /*|| _invokerSleeper.Sleeping*/)
                         return;
-
+                    // Console.WriteLine("5");
                     tornadoModifier = Target.GetFirstValidModifier("modifier_eul_cyclone",
                         "modifier_obsidian_destroyer_astral_imprisonment_prison",
                         "modifier_shadow_demon_disruption",
@@ -314,7 +320,7 @@ namespace InvokerCrappahilationPaid.Features
                                                 (target9.IsHexed || stunDuration <= 0.5f) &&
                                                 !hasModifiers &&
                                                 !CheckForEmpNearTarget(target9);
-                        if (Abilities.Eul != null && Abilities.Eul.CanBeCasted() && allFineWithTarget && Config.UseEul)
+                        if (Abilities.Eul != null && Abilities.Eul.IsValid && Abilities.Eul.CanBeCasted() && allFineWithTarget && Config.UseEul)
                         {
                             var makesSensesToCastEul =
                                 Abilities.SunStrike.BaseAbility.CanBeCasted() || Abilities.Meteor.CanBeCasted() ||
@@ -333,6 +339,8 @@ namespace InvokerCrappahilationPaid.Features
 
                                 Abilities.Eul.UseAbility(target9);
                                 _sleeper.Sleep("Eul", Abilities.Eul.GetHitTime(target9) + .250f);
+                                // Console.WriteLine("set eul wait");
+                                // Console.WriteLine($"Eul: {Abilities.Eul.Id} {Abilities.Eul.BaseItem.Id}");
                                 return;
                             }
                         }
@@ -352,7 +360,7 @@ namespace InvokerCrappahilationPaid.Features
                                 if (Abilities.Tornado.IsInvoked)
                                 {
                                     //Abilities.Tornado.SafeInvoke(Abilities.SunStrike, Abilities.Meteor);
-                                    var casted = Abilities.Tornado.BaseAbility.BaseAbility.Cast(output.TargetPosition);
+                                    var casted = Abilities.Tornado.UseAbility(output.TargetPosition);
                                     if (casted)
                                     {
                                         var delay = (float) Abilities.Tornado.BaseAbility.GetHitTime(target9);
@@ -361,6 +369,7 @@ namespace InvokerCrappahilationPaid.Features
                                         // $"[Use][{Abilities.Tornado}] [Delay: {delay}] [ArrivalTime: {arrivalTime}]");
 
                                         _sleeper.Sleep("Eul", delay * 1 + .500f);
+                                        // Console.WriteLine("set eul wait 2");
                                         _sleeper.Sleep("PussyCaster", delay * 1 + 0.5f);
                                         return;
                                     }
@@ -375,6 +384,7 @@ namespace InvokerCrappahilationPaid.Features
                                         {
                                             //Abilities.SunStrike.Invoke(skip: true);
                                             _sleeper.Sleep("Eul", .150f);
+                                            // Console.WriteLine("set eul wait 3");
                                             _sleeper.Sleep($"Invoked {Abilities.SunStrike}", .150f);
                                             //Abilities.Tornado.Invoke(skip: true);
                                         }
@@ -387,6 +397,7 @@ namespace InvokerCrappahilationPaid.Features
                                         {
                                             //Abilities.Meteor.Invoke(skip: true);
                                             _sleeper.Sleep("Eul", .150f);
+                                            // Console.WriteLine("set eul wait 4");
                                             _sleeper.Sleep($"Invoked {Abilities.Meteor}", .150f);
                                             //Abilities.Tornado.Invoke(skip: true);
                                         }
@@ -398,6 +409,7 @@ namespace InvokerCrappahilationPaid.Features
                                         if (InvokeThisShit(Abilities.Emp))
                                         {
                                             _sleeper.Sleep("Eul", .150f);
+                                            // Console.WriteLine("set eul wait 5");
                                             _sleeper.Sleep($"Invoked {Abilities.Emp}", .150f);
                                         }
                                     }
@@ -588,7 +600,7 @@ namespace InvokerCrappahilationPaid.Features
                     {
                         stunDuration = target9.GetImmobilityDuration();
                         isStunned = target9.IsStunned;
-                        Console.WriteLine($"1: {Config.UseIceWall} {Abilities.IceWall.CanBeCasted()} {Me.IsInRange(Target, 550)}");
+                        // Console.WriteLine($"1.UseIceWall?: {Config.UseIceWall.Value} CanBeCasted?: {Abilities.IceWall.CanBeCasted()} IsInRange?: {Me.IsInRange(Target, 550)}");
                         if (!_sleeper.IsSleeping("Blasted") && Abilities.Blast.CanBeCasted() && Abilities.Blast.BaseAbility.CanHit(target9) &&
                             (stunDuration > Abilities.Blast.BaseAbility.GetHitTime(target9) ||
                              target9.HasModifier(Abilities.Meteor.TargetModifierName)))
@@ -886,6 +898,7 @@ namespace InvokerCrappahilationPaid.Features
                                         //     $"[Use][{Abilities.Tornado}] [Delay: {delay}] [ArrivalTime: {arrivalTime}]");
 
                                         _sleeper.Sleep("Eul", delay * 1 + .5f);
+                                        // Console.WriteLine("set eul wait 6");
                                         _sleeper.Sleep("PussyCaster", delay * 1 + .5f);
                                         return;
                                     }
@@ -959,6 +972,7 @@ namespace InvokerCrappahilationPaid.Features
                                     // }, 150);
 
                                     _sleeper.Sleep("Eul", .250f);
+                                    // Console.WriteLine("set eul wait 7");
                                     _sleeper.Sleep("EulCd", 10);
                                 }
                             }
@@ -967,6 +981,7 @@ namespace InvokerCrappahilationPaid.Features
                                 IncComboStage(combo);
                                 // InvokerCrappahilationPaid.Log.Warn($"[{Abilities.Eul}] next Stage cuz null or cd");
                                 _sleeper.Sleep("Eul", .110f);
+                                // Console.WriteLine("set eul wait 8");
                             }
                         }
                         else
@@ -977,6 +992,7 @@ namespace InvokerCrappahilationPaid.Features
                                 // InvokerCrappahilationPaid.Log.Warn("[Refreshers] use refresher");
                                 _sleeper.Sleep("Refresh", .500f);
                                 _sleeper.Sleep("Eul", .110f);
+                                // Console.WriteLine("set eul wait 9");
                                 SetComboAfterRefresher(combo);
                             }
                             else
@@ -988,6 +1004,7 @@ namespace InvokerCrappahilationPaid.Features
                                     SetComboAfterRefresher(combo);
                                     _sleeper.Sleep("Refresh", .500f);
                                     _sleeper.Sleep("Eul", .110f);
+                                    // Console.WriteLine("set eul wait 10");
                                 }
                                 else
                                 {
@@ -995,6 +1012,7 @@ namespace InvokerCrappahilationPaid.Features
                                     // InvokerCrappahilationPaid.Log.Warn(
                                     // $"[Refreshers] next Stage cuz cant find any refresher or refresher on cooldown Null?{Abilities.Refresher != null}");
                                     _sleeper.Sleep("Eul", .110f);
+                                    // Console.WriteLine("set eul wait 11");
                                 }
                             }
                         }
@@ -1214,7 +1232,14 @@ namespace InvokerCrappahilationPaid.Features
             if (Target != null && Target.IsValid && Target.IsAlive) return true;
             // Target = EntityManager.GetEntities<Hero>().Where(x => x.IsEnemy(Me) && x.IsAlive && x.IsVisibleToEnemies).OrderBy(z => z.Distance2D(Me)).FirstOrDefault();
             // var target = EntityManager.GetEntities<Hero>().Where(x =>  x.IsValid && x.IsEnemy(Me) && x.IsAlive && x.IsVisibleToEnemies).OrderBy(z => z.Distance2D(Me)).FirstOrDefault();
-            var target9 = EntityManager9.EnemyHeroes.Where(x => x.IsValid && x.IsAlive && x.IsVisible && x.IsEnemy(Me9) && x.Distance(GameManager.MousePosition) <= 500).OrderBy(z => z.Distance(Me9)).FirstOrDefault();
+            var target9 = EntityManager9.EnemyHeroes.Where(x => x.IsValid && x.IsAlive && x.IsVisible && x.IsEnemy(Me9) && x.Distance(GameManager.MousePosition) <= 500).OrderBy(z => z.Distance(GameManager.MousePosition)).FirstOrDefault();
+
+            var allheroes = EntityManager9.EnemyHeroes;
+            
+            // Console.WriteLine($"EnemyHeroes: {allheroes.Count}");
+            // Console.WriteLine($"EnemyHeroes filtered: {allheroes.Where(x => x.IsValid && x.IsAlive && x.IsVisible && x.IsEnemy(Me9) && x.Distance(GameManager.MousePosition) <= 500).Count()}");
+            // Console.WriteLine($"EnemyHeroes filtered2: {allheroes.Where(x => x.IsValid && x.IsAlive && x.IsVisible && x.IsEnemy(Me9)).Count()}");
+            // Console.WriteLine($"Target?: {target9?.BaseEntity?.NetworkName}");
             Target = target9?.BaseUnit;
             try
             {
@@ -1227,7 +1252,7 @@ namespace InvokerCrappahilationPaid.Features
                 // InvokerCrappahilationPaid.Log.Error(e);
             }
 
-            return false;
+            return Target != null && Target.IsValid && Target.IsAlive;
         }
     }
 }

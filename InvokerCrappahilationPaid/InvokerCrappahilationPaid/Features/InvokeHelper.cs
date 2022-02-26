@@ -134,7 +134,9 @@ namespace InvokerCrappahilationPaid.Features
         private Unit GetActualTarget()
         {
             var target = _config.Main.Combo.Target ??
-                         EntityManager.GetEntities<Hero>().Where(x => x.IsValid && x.IsEnemy(_config.Main.Me) && x.IsAlive && x.IsVisibleToEnemies).OrderBy(z => z.Distance2D(_config.Main.Me)).FirstOrDefault();
+                         EntityManager.GetEntities<Hero>()
+                             .Where(x => x.IsValid && x.IsEnemy(_config.Main.Me) && x.IsAlive && x.IsVisible)
+                             .OrderBy(z => z.Distance2D(GameManager.MousePosition)).FirstOrDefault();
             return target;
         }
 
@@ -180,7 +182,7 @@ namespace InvokerCrappahilationPaid.Features
                         if (thenCast)
                         {
                             var target = _config.Main.Combo.Target ??
-                                         EntityManager.GetEntities<Hero>().Where(x => x.IsValid &&  x.IsEnemy(_config.Main.Me) && x.IsAlive && x.IsVisibleToEnemies).OrderBy(z => z.Distance2D(_config.Main.Me)).FirstOrDefault();
+                                         EntityManager.GetEntities<Hero>().Where(x => x.IsValid &&  x.IsEnemy(_config.Main.Me) && x.IsAlive && x.IsVisible).OrderBy(z => z.Distance2D(_config.Main.Me)).FirstOrDefault();
                             if (target == null)
                                 break;
                             ability.BaseAbility.BaseAbility.Cast(target);

@@ -114,17 +114,17 @@ namespace InvokerCrappahilationPaid
 
 
         
-        public ScytheOfVyse Hex => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_sheepstick) as ScytheOfVyse;
-        public ShivasGuard Shiva => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_shivas_guard) as ShivasGuard;
-        public BlackKingBar Bkb => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_black_king_bar) as BlackKingBar;
-        public OrchidMalevolence Orchid => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_orchid) as OrchidMalevolence;
-        public Bloodthorn Bloodthorn => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_bloodthorn) as Bloodthorn;
-        public EulsScepterOfDivinity Eul => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_cyclone) as EulsScepterOfDivinity;
-        public RefresherOrb Refresher => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_refresher) as RefresherOrb;
-        public RefresherOrb RefresherShard => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_refresher_shard) as RefresherOrb;
-        public BlinkDagger Blink => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_blink) as BlinkDagger;
-        public VeilOfDiscord Veil => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_recipe_veil_of_discord) as VeilOfDiscord;
-        public EtherealBlade EtherealBlade => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_ethereal_blade) as EtherealBlade;
+        public ScytheOfVyse Hex => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_sheepstick && z.Owner == _main.Me9) as ScytheOfVyse;
+        public ShivasGuard Shiva => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_shivas_guard && z.Owner == _main.Me9) as ShivasGuard;
+        public BlackKingBar Bkb => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_black_king_bar && z.Owner == _main.Me9) as BlackKingBar;
+        public OrchidMalevolence Orchid => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_orchid && z.Owner == _main.Me9) as OrchidMalevolence;
+        public Bloodthorn Bloodthorn => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_bloodthorn && z.Owner == _main.Me9) as Bloodthorn;
+        public EulsScepterOfDivinity Eul => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_cyclone && z.Owner == _main.Me9) as EulsScepterOfDivinity;
+        public RefresherOrb Refresher => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_refresher && z.Owner == _main.Me9) as RefresherOrb;
+        public RefresherOrb RefresherShard => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_refresher_shard && z.Owner == _main.Me9) as RefresherOrb;
+        public BlinkDagger Blink => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_blink && z.Owner == _main.Me9) as BlinkDagger;
+        public VeilOfDiscord Veil => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_recipe_veil_of_discord && z.Owner == _main.Me9) as VeilOfDiscord;
+        public EtherealBlade EtherealBlade => EntityManager9.Abilities.FirstOrDefault(z => z.Id == AbilityId.item_ethereal_blade && z.Owner == _main.Me9) as EtherealBlade;
 
         // public ShivasGuard Shiva { get; set; }
 
